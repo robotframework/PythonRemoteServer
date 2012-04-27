@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 
 import unittest
-from os.path import dirname as parent
-import sys
-
-sys.path.insert(0, parent(parent(parent(__file__))))
 
 from robotremoteserver import RobotRemoteServer
 
