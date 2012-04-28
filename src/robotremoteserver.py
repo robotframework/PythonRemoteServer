@@ -25,6 +25,8 @@ except ImportError:
 
 class RobotRemoteServer(SimpleXMLRPCServer):
     allow_reuse_address = True
+    _generic_exceptions = (AssertionError, RuntimeError, Exception)
+    _fatal_exceptions = (SystemExit, KeyboardInterrupt)
 
     def __init__(self, library, host='localhost', port=8270, allow_stop=True):
         SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
@@ -77,8 +79,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return names + ['stop_remote_server']
 
     def run_keyword(self, name, args):
-        result = {'status': 'PASS', 'return': '', 'output': '',
-                  'error': '', 'traceback': ''}
+        result = {'error': '', 'traceback': '', 'return': ''}
         self._intercept_stdout()
         try:
             return_value = self._get_keyword(name)(*args)
@@ -86,6 +87,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             result['status'] = 'FAIL'
             result['error'], result['traceback'] = self._get_error_details()
         else:
+            result['status'] = 'PASS'
             result['return'] = self._handle_return_value(return_value)
         result['output'] = self._restore_stdout()
         return result
@@ -124,7 +126,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def _get_error_details(self):
         exc_type, exc_value, exc_tb = sys.exc_info()
-        if exc_type in (SystemExit, KeyboardInterrupt):
+        if exc_type in self._fatal_exceptions:
             self._restore_stdout()
             raise
         return (self._get_error_message(exc_type, exc_value),
@@ -135,7 +137,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         message = str(exc_value)
         if not message:
             return name
-        if name in ('AssertionError', 'RuntimeError', 'Exception'):
+        if exc_type in self._generic_exceptions:
             return message
         return '%s: %s' % (name, message)
 
