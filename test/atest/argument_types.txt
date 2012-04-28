@@ -1,7 +1,6 @@
 *** Settings ***
 Resource        resource.txt
 Library         Collections
-Variables       arguments.py
 
 *** Test Cases ***
 String As Argument

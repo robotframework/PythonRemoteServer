@@ -1,8 +1,7 @@
 *** Settings ***
-Resource         resource.txt
-Suite Setup      Set Debug Log Level
-Suite Teardown   Reset Log Level
-Variables        arguments.py
+Resource          resource.txt
+Suite Setup       Set Debug Log Level
+Suite Teardown    Reset Log Level
 
 
 *** Test Cases ***
