@@ -1,83 +1,90 @@
 *** Settings ***
 Resource         resource.txt
+Variables        arguments.py
+Test Template    Return Value Should Be
 
 *** Test Cases ***
 Return String
-    Return Value Should Be  Return String  'Hello, world!'
+    Return String    Hello, world!
 
 Return Empty String
-    Return Value Should Be  Return Empty String  ''
+    Return Empty String    ${EMPTY}
 
 Return Unicode String
-    Return Value Should Be  Return Unicode String  u'Hyv\\u00E4\\u00E4 y\\u00F6t\\u00E4. \\u0421\\u043F\\u0430\\u0441\\u0438\\u0431\\u043E!'
+    Return Unicode String    ${UNICODE STRING}
 
 Return Integer
-    Return Value Should Be  Return Integer  42
-    Return Value Should Be  Return Negative Integer  -1
+    Return Integer    ${42}
+    Return Negative Integer    ${-1}
 
 Return Float
-    Return Value Should Be  Return Float  3.14
-    Return Value Should Be  Return Negative Float  -0.5
+    Return Float    ${3.14}
+    Return Negative Float    ${-0.5}
 
 Return Zero
-    Return Value Should Be  Return Zero  0
+    Return Zero    ${0}
 
 Return Boolean
-    Return Value Should Be  Return Boolean True  True
-    Return Value Should Be  Return Boolean False  False
+    Return Boolean True    ${True}
+    Return Boolean False    ${False}
 
-Return Nothing
-    [Documentation]  None/nil/null is not supported by all XML-RPC versions and thus it is converted to an empty string
-    Return Value Should Be  Return Nothing  ''
+Return None
+    [Documentation]    None is not supported by all XML-RPC versions and thus it is converted to an empty string
+    Return Nothing    ${EMPTY}
 
 Return Arbitrary Object
-    [Documentation]  Arbitrary objects cannot be transferred over XML-RPC and thus only their string presentation is returned
-    Return Value Should Be  Return Object  '<MyObject>'
+    [Documentation]    Arbitrary objects cannot be transferred over XML-RPC and thus only their string presentation is returned
+    Return Object    <MyObject>
 
 Return List
-    Return Value Should Be  Return List  ['One', -2, False]
-    Return Value Should Be  Return Empty List  []
+    Return List    ${LIST}
+    Return Empty List    ${EMPTY LIST}
 
 Return List Containing None
-    Return Value Should Be  Return List Containing None  ['']
+    Return List Containing None    ['']    eval
 
 Return List Containing Arbitrary Objects
-    Return Value Should Be  Return List Containing Objects  ['<MyObject1>', '<MyObject2>']
+    Return List Containing Objects      ['<MyObject1>', '<MyObject2>']    eval
 
 Return Nested List
-    Return Value Should Be  Return Nested List  [ [True, False], [[1, '', '<MyObject>', {}]] ]
+    Return Nested List  [[True, False], [[1, '', '<MyObject>', {}]]]    eval
 
 Return Tuple
-    [Documentation]  Tuples are converted to lists
-    Return Value Should Be  Return Tuple  [1, 'two', True]
-    Return Value Should Be  Return Empty Tuple  []
-    Return Value Should Be  Return Nested Tuple  [ [True, False], [[1, '', '<MyObject>', {}]] ]
+    [Documentation]    Tuples are converted to lists
+    Return Tuple    ${LIST}
+    Return Empty Tuple    ${EMPTY LIST}
+    Return Nested Tuple  [[True, False], [[1, '', '<MyObject>', {}]]]    eval
 
 Return Dictionary
-    Return Value Should Be  Return Dictionary  {'one': 1, 'spam': 'eggs'}
-    Return Value Should Be  Return Empty Dictionary  {}
+    Return Dictionary    ${DICT}
+    Return Empty Dictionary    ${EMPTY DICT}
 
 Return Dictionary With Non-String Keys
-    [Documentation]  XML-RPC supports only strings as keys so must convert them
-    Return Value Should Be  Return Dictionary With Non String Keys  {'1': 2, '': 1}
+    [Documentation]    XML-RPC supports only strings as keys so must convert them
+    Return Dictionary With Non String Keys    {'1': 2, '': 1}    eval
 
 Return Dictionary Containing None
-    Return Value Should Be  Return Dictionary Containing None  {'As value': '', '': 'As key'}
+    Return Dictionary Containing None  {'As value': '', '': 'As key'}    eval
 
 Return Dictionary Containing Objects
-    Return Value Should Be  Return Dictionary Containing Objects  {'As value': '<MyObject1>', '<MyObject2>': 'As key'}
+    Return Dictionary Containing Objects  {'As value': '<MyObject1>', '<MyObject2>': 'As key'}    eval
 
 Return Nested Dictionary
-    Return Value Should Be  Return Nested Dictionary  {'1': {'': False}, '2': {'A': {'n': ''}, 'B': {'o': '<MyObject>', 'e': {}}} }
+    Return Nested Dictionary  {'1': {'': False}, '2': {'A': {'n': ''}, 'B': {'o': '<MyObject>', 'e': {}}}}    eval
 
 Return Control Char
-    [Documentation]  FAIL REGEXP: Processing XML-RPC return value failed. Most often this happens when the return value contains characters that are not valid in XML. Original error was: ExpatError: .*
-    Return Control Char
+    [Documentation]    May also fail with ExpatError.
+    Return Control Char    ${CONTROL CHAR}
 
 *** Keywords ***
 Return Value Should Be
-    [Arguments]  ${keyword}  ${expected}
-    ${actual} =  Run Keyword  ${keyword}
-    ${expected} =  Evaluate  ${expected}
-    Should Be Equal  ${actual}  ${expected}
+    [Arguments]    ${keyword}    ${expected}    ${evaluate}=
+    ${actual} =    Run Keyword    ${keyword}
+    ${tester} =    Set Variable If    "${evaluate}"
+    ...    Should Be Equal Evaluated    Should Be Equal
+    Run Keyword    ${tester}    ${actual}    ${expected}
 
+Should Be Equal Evaluated
+    [Arguments]    ${actual}    ${expected}
+    ${expected} =    Evaluate    ${expected}
+    Should Be Equal  ${actual}    ${expected}

@@ -243,7 +243,7 @@ class AcceptanceTestLibrary:
         return [[True, False], [[1, None, MyObject(), {}]]]
 
     def return_tuple(self):
-        return (1, 'two', True)
+        return ('One', -2, False)
 
     def return_empty_tuple(self):
         return ()
