@@ -13,7 +13,7 @@ Too Few Arguments When Using Only Required Args
 
 Too Many Arguments When Using Only Required Args
     [Documentation]  FAIL Keyword 'Remote.Two Arguments' expected 2 arguments, got 3.
-    Two Arguments  too  many  arguments
+    Two Arguments    too    many    arguments
 
 Too Few Arguments When Using Default Values
     [Documentation]  FAIL Keyword 'Remote.Arguments With Default Values' expected 1 to 3 arguments, got 0.
@@ -21,7 +21,7 @@ Too Few Arguments When Using Default Values
 
 Too Many Arguments When Using Default Values
     [Documentation]  FAIL Keyword 'Remote.Arguments With Default Values' expected 1 to 3 arguments, got 5.
-    Arguments With Default Values  this  is  way  too  much
+    Arguments With Default Values    this    is    way    too    much
 
 Too Few Arguments When Using Varargs
     [Documentation]  FAIL Keyword 'Remote.Required Defaults And Varargs' expected at least 1 argument, got 0.

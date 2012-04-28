@@ -4,10 +4,10 @@ Resource         resource.txt
 *** Test Cases ***
 
 Private Methods Should Be Ignored
-    [Documentation]  FAIL No keyword with name 'Private Method' found.
+    [Documentation]    FAIL   No keyword with name 'Private Method' found.
     Private Method
 
 Attributes Should Be Ignored
-    [Documentation]  FAIL No keyword with name 'attribute' found.
+    [Documentation]    FAIL   No keyword with name 'attribute' found.
     attribute
 
