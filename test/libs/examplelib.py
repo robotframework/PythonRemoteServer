@@ -18,7 +18,7 @@ class RemoteTestLibrary:
         See `Failing`, `Logging`, and `Returning` for other basic keywords.
         """
         pass
-  
+
     def failing(self, message):
         """This keyword fails with provided `message`"""
         raise AssertionError(message)
@@ -52,7 +52,7 @@ class RemoteTestLibrary:
 
     def log_unicode(self):
         print self._unicode
-        
+
     def logging_and_failing(self):
         print '*INFO* This keyword will fail!'
         print '*WARN* Run for your lives!!'
@@ -133,6 +133,9 @@ class RemoteTestLibrary:
     def empty_string_as_argument(self, arg):
         self._should_be_equal(arg, '')
 
+    def control_char_as_argument(self, char):
+        self._should_be_equal(char, '\x01')
+
     def integer_as_argument(self, arg):
         self._should_be_equal(arg, self.return_integer())
 
@@ -197,7 +200,7 @@ class RemoteTestLibrary:
         self._should_be_equal(arg, exp)
 
     def _should_be_equal(self, arg, exp):
-        if arg != exp:
+        if arg != exp or type(arg) != type(exp):
             raise AssertionError('%r != %r' % (arg, exp))
 
     # Return values
@@ -211,21 +214,24 @@ class RemoteTestLibrary:
     def return_empty_string(self):
         return ''
 
+    def return_control_char(self):
+        return '\x01'
+
     def return_integer(self):
         return 42
 
     def return_negative_integer(self):
         return -1
-  
+
     def return_float(self):
         return 3.14
-  
+
     def return_negative_float(self):
         return -0.5
 
     def return_zero(self):
         return 0
-  
+
     def return_boolean_true(self):
         return True
 
@@ -280,9 +286,6 @@ class RemoteTestLibrary:
     def return_nested_dictionary(self):
         return { 1: {None: False},
                  2: {'A': {'n': None}, 'B': {'o': MyObject(), 'e': {}}} }
-
-    def return_control_char(self):
-        return '\x01'
 
     # Not keywords
 

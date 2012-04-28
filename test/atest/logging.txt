@@ -1,5 +1,6 @@
 *** Settings ***
 Resource          resource.txt
+Variables         arguments.py
 Suite Setup       Set Debug Log Level
 Suite Teardown    Reset Log Level
 
@@ -20,7 +21,7 @@ Multiple Messages With Different Levels
     Multiple Messages With Different Levels
 
 Log Unicode
-    [Documentation]  LOG 1 INFO ${UNICODE}
+    [Documentation]  LOG 1 INFO ${UNICODE STRING}
     Log Unicode
 
 Logging And Failing
