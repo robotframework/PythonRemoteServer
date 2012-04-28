@@ -55,7 +55,7 @@ class AcceptanceTestLibrary:
         return 'Returned value'
 
     def log_control_char(self):
-        print '\x01'
+        print '>\x01<'
 
     # Failures
 
