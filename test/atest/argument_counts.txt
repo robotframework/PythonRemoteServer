@@ -30,7 +30,7 @@ Required Arguments, Default Values and Varargs
 
 *** Keywords ***
 Arguments Should Be Accepted
-    [Arguments]  ${expected}  ${keyword}  @{arguments}
-    ${actual} =  Run Keyword  ${keyword}  @{arguments}
-    Should Be Equal  ${actual}  ${expected}
+    [Arguments]    ${expected}    ${keyword}    @{arguments}
+    ${actual} =    Run Keyword    ${keyword}    @{arguments}
+    Should Be Equal    ${actual}    ${expected}
 
