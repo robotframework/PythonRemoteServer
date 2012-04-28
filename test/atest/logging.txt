@@ -1,7 +1,6 @@
 *** Settings ***
 Suite Setup     Set Log Level To DEBUG
 Suite Teardown  Reset Log Level
-Default Tags    python  ruby
 Library         Remote  localhost:${PORT}
 Variables       arguments.py
 
@@ -25,7 +24,6 @@ Multiple Messages With Different Levels
 
 Log Unicode
     [Documentation]  LOG 1 INFO ${UNICODE}
-    [Tags]  python
     Log Unicode
 
 Logging And Failing

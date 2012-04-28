@@ -1,5 +1,4 @@
 *** Settings ***
-Force Tags      python  ruby
 Library         Remote  localhost:${PORT}
 
 *** Variables ***
@@ -25,7 +24,6 @@ Returning
 
 Use Remote Keyword Multiple Times
     [Documentation]  LOG 1.1.1 Round 1 LOG 1.2.1 Round 2 LOG 1.${COUNT}.1 Round ${COUNT}
-    [Tags]  long
     : FOR  ${i}  IN RANGE  ${COUNT}
     \  Logging  Round ${i + 1}
 

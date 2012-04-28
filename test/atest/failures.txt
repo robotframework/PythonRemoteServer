@@ -1,5 +1,4 @@
 *** Settings ***
-Default Tags    python  ruby
 Library         Remote  localhost:${PORT}
 
 *** Variables ***
@@ -16,7 +15,6 @@ Exception Without Message
 
 Assertion Error
     [Documentation]  FAIL Failure message
-    [Tags]  python
     Assertion Error
 
 Runtime Error
@@ -33,7 +31,6 @@ Attribute Error
 
 Index Error
     [Documentation]  FAIL REGEXP: (IndexError: ).*
-    [Tags]  python
     Index Error
 
 Zero Division

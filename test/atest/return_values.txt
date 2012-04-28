@@ -1,5 +1,4 @@
 *** Settings ***
-Default Tags    python  ruby
 Library         Remote  localhost:${PORT}  WITH NAME  remote
 
 *** Variables ***
@@ -13,12 +12,7 @@ Return Empty String
     Return Value Should Be  Return Empty String  ''
 
 Return Unicode String
-    [Tags]  python
     Return Value Should Be  Return Unicode String  u'Hyv\\u00E4\\u00E4 y\\u00F6t\\u00E4. \\u0421\\u043F\\u0430\\u0441\\u0438\\u0431\\u043E!'
-
-Return Symbol
-    [Tags]  ruby
-    Return Value Should Be  Return Symbol  'symbol'
 
 Return Integer
     Return Value Should Be  Return Integer  42
@@ -40,7 +34,7 @@ Return Nothing
     Return Value Should Be  Return Nothing  ''
 
 Return Arbitrary Object
-    [Documentation]  Arbitraty objects cannot be transferred over XML-RPC and thus only their string presentation is returned
+    [Documentation]  Arbitrary objects cannot be transferred over XML-RPC and thus only their string presentation is returned
     Return Value Should Be  Return Object  '<MyObject>'
 
 Return List
@@ -58,7 +52,6 @@ Return Nested List
 
 Return Tuple
     [Documentation]  Tuples are converted to lists
-    [Tags]  python
     Return Value Should Be  Return Tuple  [1, 'two', True]
     Return Value Should Be  Return Empty Tuple  []
     Return Value Should Be  Return Nested Tuple  [ [True, False], [[1, '', '<MyObject>', {}]] ]
@@ -69,12 +62,7 @@ Return Dictionary
 
 Return Dictionary With Non-String Keys
     [Documentation]  XML-RPC supports only strings as keys so must convert them
-    [Tags]  python
     Return Value Should Be  Return Dictionary With Non String Keys  {'1': 2, '': 1}
-
-Return Dictionary With Non-String Keys
-    [Tags]  ruby
-    Return Value Should Be  Return Dictionary With Non String Keys  {'1': 2, 'false': True}
 
 Return Dictionary Containing None
     Return Value Should Be  Return Dictionary Containing None  {'As value': '', '': 'As key'}
@@ -83,12 +71,7 @@ Return Dictionary Containing Objects
     Return Value Should Be  Return Dictionary Containing Objects  {'As value': '<MyObject1>', '<MyObject2>': 'As key'}
 
 Return Nested Dictionary
-    [Tags]  python
     Return Value Should Be  Return Nested Dictionary  {'1': {'': False}, '2': {'A': {'n': ''}, 'B': {'o': '<MyObject>', 'e': {}}} }
-
-Return Nested Dictionary
-    [Tags]  ruby
-    Return Value Should Be  Return Nested Dictionary  {'1': {'true': False}, '2': {'A': {'n': ''}, 'B': {'o': '<MyObject>', 'e': {}}} }
 
 Return Control Char
     [Documentation]  FAIL REGEXP: Processing XML-RPC return value failed. Most often this happens when the return value contains characters that are not valid in XML. Original error was: ExpatError: .*
