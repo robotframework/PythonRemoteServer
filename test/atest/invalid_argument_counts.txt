@@ -1,8 +1,7 @@
 *** Settings ***
-Library         Remote  localhost:${PORT}
+Resource    resource.txt
 
-*** Variables ***
-${PORT}  8270
+*** Test Cases ***
 
 Using Arguments When No Accepted
     [Documentation]  FAIL Keyword 'Remote.No Arguments' expected 0 arguments, got 1.

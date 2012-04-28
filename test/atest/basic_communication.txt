@@ -1,8 +1,7 @@
 *** Settings ***
-Library         Remote  localhost:${PORT}
+Resource         resource.txt
 
 *** Variables ***
-${PORT}  8270
 ${COUNT}  100
 
 *** Test Cases ***

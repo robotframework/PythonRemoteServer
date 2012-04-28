@@ -1,8 +1,5 @@
 *** Settings ***
-Library         Remote  localhost:${PORT}  WITH NAME  remote
-
-*** Variables ***
-${PORT}  8270
+Resource         resource.txt
 
 *** Test Cases ***
 Return String

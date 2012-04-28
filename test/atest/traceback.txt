@@ -1,10 +1,7 @@
 *** Settings ***
-Suite Setup     Set Log Level  DEBUG
-Suite Teardown  Set Log Level  INFO
-Library         Remote  localhost:${PORT}
-
-*** Variables ***
-${PORT}  8270
+Resource        resource.txt
+Suite Setup     Set Debug Log Level
+Suite Teardown  Reset Log Level
 
 *** Test Cases ***
 Remote Traceback Is Shown In Log

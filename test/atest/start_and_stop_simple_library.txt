@@ -1,5 +1,8 @@
 *** Settings ***
-Documentation   Tests in this suite have two different purposes:\n 1) Starting, importing and stopping remote libraries using 'Start Process', 'Import Library', and 'Stop Remote Server'.\n 2) Using keywords from a library which doesn't have get_kw_args/doc methods and which returns only minimal result dictionary.
+Documentation
+...    Tests in this suite have two different purposes:
+...    1) Starting, importing and stopping remote libraries using 'Start Process', 'Import Library', and 'Stop Remote Server'.
+...    2) Using keywords from a library that does not have get_kw_args/doc methods and that returns only a minimal result dictionary.
 Library         Operating System
 
 *** Variables ***

@@ -1,12 +1,13 @@
+*** Settings ***
+Library    Remote    localhost:${PORT}
+
 *** Variables ***
-${SERVER_LANGUAGE}  NOTSET
-${CLIENT_LANGUAGE}  NOTSET
+${PORT}  8270
 
 *** Keywords ***
+Set Debug Log Level
+    ${ORIG LOG LEVEL} =  Set Log Level  DEBUG
+    Set Suite Variable  ${ORIG LOG LEVEL}
 
-Set Server And Client Language Variables
-    ${SERVER_LANGUAGE} =  Get Server Language
-    ${CLIENT_LANGUAGE} =  Evaluate  '%sython%d%d' % ('j' if os.name == 'java' else 'p', sys.version_info[0], sys.version_info[1])  modules=sys,os
-    Set Global Variable  ${SERVER_LANGUAGE}
-    Set Global Variable  ${CLIENT_LANGUAGE}
-
+Reset Log Level
+    Set Log Level  ${ORIG LOG LEVEL}

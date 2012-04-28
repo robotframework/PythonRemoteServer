@@ -1,10 +1,7 @@
 *** Settings ***
-Library         Remote  localhost:${PORT}  WITH NAME  remote
+Resource        resource.txt
 Library         Collections
 Variables       arguments.py
-
-*** Variables ***
-${PORT}  8270
 
 *** Test Cases ***
 String As Argument

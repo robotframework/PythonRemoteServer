@@ -1,9 +1,6 @@
 *** Settings ***
-Library         Remote  localhost:${PORT}
+Resource         resource.txt
 Test Template    Arguments Should Be Accepted
-
-*** Variables ***
-${PORT}  8270
 
 *** Test Cases ***
 No Arguments

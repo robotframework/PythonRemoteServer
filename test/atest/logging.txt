@@ -1,11 +1,9 @@
 *** Settings ***
-Suite Setup     Set Log Level To DEBUG
-Suite Teardown  Reset Log Level
-Library         Remote  localhost:${PORT}
-Variables       arguments.py
+Resource         resource.txt
+Suite Setup      Set Debug Log Level
+Suite Teardown   Reset Log Level
+Variables        arguments.py
 
-*** Variables ***
-${PORT}  8270
 
 *** Test Cases ***
 One message Without Level
@@ -40,12 +38,3 @@ Logging And Returning
 Log Control Char
     [Documentation]  FAIL REGEXP: Processing XML-RPC return value failed. Most often this happens when the return value contains characters that are not valid in XML. Original error was: ExpatError: .*
     Log Control Char
-
-*** Keywords ***
-Set Log Level To DEBUG
-    ${ORIG_LOG_LEVEL} =  Set Log Level  DEBUG
-    Set Suite Variable  ${ORIG_LOG_LEVEL}
-
-Reset Log Level
-    Set Log Level  ${ORIG_LOG_LEVEL}
-
