@@ -1,14 +1,6 @@
-import sys
-
-
-class RemoteTestLibrary:
-
+class AcceptanceTestLibrary:
     _unicode = (u'Hyv\u00E4\u00E4 y\u00F6t\u00E4. '
                 u'\u0421\u043F\u0430\u0441\u0438\u0431\u043E!')
-
-    def get_server_language(self):
-        lang = sys.platform.startswith('java') and 'jython' or 'python'
-        return '%s%d%d' % (lang, sys.version_info[0], sys.version_info[1])
 
     # Basic communication (and documenting keywords)
 
@@ -78,15 +70,6 @@ class RemoteTestLibrary:
 
     def runtime_error(self):
         raise RuntimeError('Error message')
-
-    def name_error(self):
-        non_existing
-
-    def attribute_error(self):
-        self.non_existing
-
-    def index_error(self):
-        [][0]
 
     def zero_division(self):
         1/0
@@ -176,7 +159,7 @@ class RemoteTestLibrary:
         self._should_be_equal(arg, ['<MyObject1>', '<MyObject2>'])
 
     def nested_list_as_argument(self, arg):
-        exp = [ [True, False], [[1, '', '<MyObject>', {}]] ]
+        exp = [[True, False], [[1, '', '<MyObject>', {}]]]
         self._should_be_equal(arg, exp)
 
     def dictionary_as_argument(self, arg):
@@ -195,8 +178,8 @@ class RemoteTestLibrary:
         self._should_be_equal(arg, {'As value': '<MyObject1>', '<MyObject2>': 'As key'})
 
     def nested_dictionary_as_argument(self, arg):
-        exp = { '1': {'': False},
-                '2': {'A': {'n': ''}, 'B': {'o': '<MyObject>', 'e': {}}} }
+        exp = {'1': {'': False},
+                '2': {'A': {'n': ''}, 'B': {'o': '<MyObject>', 'e': {}}}}
         self._should_be_equal(arg, exp)
 
     def _should_be_equal(self, arg, exp):
@@ -257,7 +240,7 @@ class RemoteTestLibrary:
         return [MyObject(1), MyObject(2)]
 
     def return_nested_list(self):
-        return [ [True, False], [[1, None, MyObject(), {}]] ]
+        return [[True, False], [[1, None, MyObject(), {}]]]
 
     def return_tuple(self):
         return (1, 'two', True)
@@ -266,7 +249,7 @@ class RemoteTestLibrary:
         return ()
 
     def return_nested_tuple(self):
-        return ( (True, False), [(1, None, MyObject(), {})] )
+        return ((True, False), [(1, None, MyObject(), {})])
 
     def return_dictionary(self):
         return {'one': 1, 'spam': 'eggs'}
@@ -284,8 +267,8 @@ class RemoteTestLibrary:
         return {'As value': MyObject(1), MyObject(2): 'As key'}
 
     def return_nested_dictionary(self):
-        return { 1: {None: False},
-                 2: {'A': {'n': None}, 'B': {'o': MyObject(), 'e': {}}} }
+        return {1: {None: False},
+                2: {'A': {'n': None}, 'B': {'o': MyObject(), 'e': {}}}}
 
     # Not keywords
 
@@ -312,4 +295,4 @@ if __name__ == '__main__':
     import sys
     from robotremoteserver import RobotRemoteServer
 
-    RobotRemoteServer(RemoteTestLibrary(), *sys.argv[1:])
+    RobotRemoteServer(AcceptanceTestLibrary(), *sys.argv[1:])

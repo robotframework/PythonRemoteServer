@@ -3,42 +3,30 @@ Resource         resource.txt
 
 *** Test Cases ***
 Base Exception
-    [Documentation]  FAIL My message
+    [Documentation]    FAIL My message
     Base Exception
 
 Exception Without Message
-    [Documentation]  FAIL Exception
+    [Documentation]    FAIL Exception
     Exception Without Message
 
-Assertion Error
-    [Documentation]  FAIL Failure message
+AssertionError
+    [Documentation]    FAIL Failure message
     Assertion Error
 
-Runtime Error
-    [Documentation]  FAIL Error message
+RuntimeError
+    [Documentation]    FAIL Error message
     Runtime Error
 
-Name Error
-    [Documentation]  FAIL REGEXP: (NameError: |undefined local variable ).*
-    Name Error
-
-Attribute Error
-    [Documentation]  FAIL REGEXP: (AttributeError: |undefined method).*
-    Attribute Error
-
-Index Error
-    [Documentation]  FAIL REGEXP: (IndexError: ).*
-    Index Error
-
 Zero Division
-    [Documentation]  FAIL REGEXP: (ZeroDivisionError: ).*|divided by 0
+    [Documentation]    FAIL STARTS: ZeroDivisionError:
     Zero Division
 
 Custom Exception
-    [Documentation]  FAIL REGEXP: (MyException: |)My message
+    [Documentation]    FAIL MyException: My message
     Custom Exception
 
 Failure Deeper
-    [Documentation]  FAIL Finally failing
+    [Documentation]    FAIL Finally failing
     Failure Deeper
 
