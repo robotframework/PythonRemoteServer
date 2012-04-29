@@ -25,7 +25,7 @@ import sys
 BASE = dirname(abspath(__file__))
 
 
-def start(interpreter=sys.executable, library='examplelib.py'):
+def start(interpreter=sys.executable, library='atestlibrary.py'):
     results = _get_result_directory()
     with open(join(results, 'server.txt'), 'w') as output:
         server = subprocess.Popen([interpreter, join(BASE, 'libs', library)],

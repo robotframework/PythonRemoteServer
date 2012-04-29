@@ -8,7 +8,7 @@ Remote Traceback Is Shown In Log
     [Documentation]  FAIL My error message
     ...    LOG 1:1 FAIL My error message
     ...    LOG 1:2 DEBUG REGEXP: Traceback \\(most recent call last\\):
-    ...    \\s+File "[\\w /\\\\]+examplelib.py", line .*
+    ...    \\s+File "[\\w /\\\\]+atestlibrary.py", line .*
     ...    \\s+raise AssertionError\\(message\\)
     Failing    My error message
 
