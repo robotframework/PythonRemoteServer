@@ -1,6 +1,12 @@
+import sys
+
+
 class AcceptanceTestLibrary:
     _unicode = (u'Hyv\u00E4\u00E4 y\u00F6t\u00E4. '
                 u'\u0421\u043F\u0430\u0441\u0438\u0431\u043E!')
+
+    def get_server_language(self):
+        return 'Jython' if sys.platform.startswith('java') else 'Python'
 
     # Basic communication (and documenting keywords)
 
@@ -295,7 +301,6 @@ class MyException(Exception):
 
 
 if __name__ == '__main__':
-    import sys
     from robotremoteserver import RobotRemoteServer
 
     RobotRemoteServer(AcceptanceTestLibrary(), *sys.argv[1:])
