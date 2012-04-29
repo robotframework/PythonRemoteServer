@@ -28,10 +28,11 @@ BASE = dirname(abspath(__file__))
 def start(interpreter=sys.executable, library='examplelib.py'):
     results = _get_result_directory()
     with open(join(results, 'server.txt'), 'w') as output:
-        subprocess.Popen([interpreter, join(BASE, 'libs', library)],
-                         stdout=output, stderr=subprocess.STDOUT,
-                         env=_get_environ())
-    if not test(attempts=10):
+        server = subprocess.Popen([interpreter, join(BASE, 'libs', library)],
+                                  stdout=output, stderr=subprocess.STDOUT,
+                                  env=_get_environ())
+    if not test(attempts=15):
+        server.terminate()
         raise RuntimeError('Starting remote server failed')
 
 def _get_result_directory():
