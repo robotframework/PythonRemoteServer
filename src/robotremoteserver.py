@@ -134,7 +134,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def _get_error_message(self, exc_type, exc_value):
         name = exc_type.__name__
-        message = str(exc_value)
+        message = unicode(exc_value)
         if not message:
             return name
         if exc_type in self._generic_exceptions:

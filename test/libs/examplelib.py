@@ -82,6 +82,9 @@ class AcceptanceTestLibrary:
             raise RuntimeError('Finally failing')
         self.failure_deeper(rounds-1)
 
+    def non_ascii_error_message(self):
+        raise Exception(self._unicode)
+
     # Arguments counts
 
     def no_arguments(self):

@@ -1,5 +1,6 @@
 *** Settings ***
 Resource         resource.txt
+Variables        arguments.py
 
 *** Test Cases ***
 Base Exception
@@ -30,3 +31,6 @@ Failure Deeper
     [Documentation]    FAIL Finally failing
     Failure Deeper
 
+Non-ASCII Error Message
+    [Documentation]    FAIL ${UNICODE STRING}
+    Non ASCII Error Message
