@@ -34,8 +34,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         self._allow_stop = allow_stop
         self._register_functions()
         self._register_signal_handlers()
-        self._log('Robot Framework remote server starting at %s:%s'
-                  % (host, port))
+        self._log('Robot Framework remote server starting at %s:%s' % (host, port))
         self.serve_forever()
 
     def _register_functions(self):
@@ -134,12 +133,19 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def _get_error_message(self, exc_type, exc_value):
         name = exc_type.__name__
-        message = unicode(exc_value)
+        message = self._get_message_from_exception(exc_value)
         if not message:
             return name
         if exc_type in self._generic_exceptions:
             return message
         return '%s: %s' % (name, message)
+
+    def _get_message_from_exception(self, value):
+        # UnicodeError occurs below 2.6 and if message contains non-ASCII bytes
+        try:
+            return unicode(value)
+        except UnicodeError:
+            return ' '.join([unicode(a, errors='replace') for a in value.args])
 
     def _get_error_traceback(self, exc_tb):
         # Latest entry originates from this class so it can be removed

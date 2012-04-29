@@ -88,8 +88,11 @@ class AcceptanceTestLibrary:
             raise RuntimeError('Finally failing')
         self.failure_deeper(rounds-1)
 
-    def non_ascii_error_message(self):
+    def error_message_with_non_ascii_unicode(self):
         raise Exception(self._unicode)
+
+    def error_message_with_non_ascii_bytes(self):
+        raise Exception('hyv\xe4')
 
     # Arguments counts
 

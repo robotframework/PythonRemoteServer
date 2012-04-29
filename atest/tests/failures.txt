@@ -30,6 +30,10 @@ Failure Deeper
     [Documentation]    FAIL Finally failing
     Failure Deeper
 
-Non-ASCII Error Message
+Error Message With Non-ASCII Unicode
     [Documentation]    FAIL ${UNICODE STRING}
-    Non ASCII Error Message
+    Error Message With Non ASCII Unicode
+
+Error Message With Non-ASCII Bytes
+    [Documentation]    FAIL hyv${REPLACEMENT CHARACTER}
+    Error Message With Non ASCII Bytes
