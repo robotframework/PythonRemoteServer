@@ -23,8 +23,8 @@ import robot
 import servercontroller
 import statuschecker
 
-ROOT = dirname(abspath(__file__))
-RESULTS = join(ROOT, 'results')
+BASE = dirname(abspath(__file__))
+RESULTS = join(BASE, 'results')
 OUTPUT = join(RESULTS, 'output.xml')
 if exists(RESULTS):
     rmtree(RESULTS)
@@ -44,7 +44,7 @@ servercontroller.start(server_interpreter)
 
 args = [runner_interpreter, '-m', 'robot.run', '--name', interpreters,
         '--output', OUTPUT, '--log', 'NONE', '--report', 'NONE']
-args.extend(sys.argv[2:] or [join(ROOT, 'tests')])
+args.extend(sys.argv[2:] or [join(BASE, 'tests')])
 print 'Running tests with command:\n%s' % ' '.join(args)
 subprocess.call(args)
 
