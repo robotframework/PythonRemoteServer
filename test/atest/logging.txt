@@ -52,6 +52,6 @@ Logging And Returning
     Should Be Equal    ${ret}    ${EMPTY}
 
 Log Control Char
-    [Documentation]  Control char is removed. This may also fail with ExpatError.
+    [Documentation]    Fails with ExpatError when running tests on Jython 2.5.
     ...    LOG 1:1 INFO ><
     Log Control Char

@@ -10,7 +10,7 @@ Non-ASCII String As Argument
     Unicode String As Argument    ${UNICODE STRING}
 
 Control Char As Argument
-    [Documentation]    This may also fail with ExpatError
+    [Documentation]    Fails with ExpatError when server runs on Jython 2.5.
     Control Char As Argument    ${CONTROL CHAR}
 
 Empty String As Argument

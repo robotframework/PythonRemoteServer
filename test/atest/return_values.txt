@@ -13,6 +13,10 @@ Return Empty String
 Return Unicode String
     Return Unicode String    ${UNICODE STRING}
 
+Return Control Char
+    [Documentation]    Fails with ExpatError when running tests on Jython 2.5.
+    Return Control Char    ${CONTROL CHAR}
+
 Return Integer
     Return Integer    ${42}
     Return Negative Integer    ${-1}
@@ -71,10 +75,6 @@ Return Dictionary Containing Objects
 
 Return Nested Dictionary
     Return Nested Dictionary  {'1': {'': False}, '2': {'A': {'n': ''}, 'B': {'o': '<MyObject>', 'e': {}}}}    eval
-
-Return Control Char
-    [Documentation]    May also fail with ExpatError.
-    Return Control Char    ${CONTROL CHAR}
 
 *** Keywords ***
 Return Value Should Be
