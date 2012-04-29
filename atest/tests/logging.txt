@@ -1,6 +1,5 @@
 *** Settings ***
 Resource          resource.txt
-Variables         arguments.py
 Suite Setup       Set Debug Log Level
 Suite Teardown    Reset Log Level
 

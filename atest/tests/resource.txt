@@ -1,5 +1,6 @@
 *** Settings ***
 Library          Remote    localhost:${PORT}
+Variables        variables.py
 
 *** Variables ***
 ${PORT}              8270

@@ -1,6 +1,5 @@
 *** Settings ***
 Resource         resource.txt
-Variables        arguments.py
 
 *** Test Cases ***
 Base Exception
