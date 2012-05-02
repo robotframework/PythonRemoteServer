@@ -23,6 +23,9 @@ except ImportError:
     signal = None
 
 
+__version__ = 'devel'
+
+
 class RobotRemoteServer(SimpleXMLRPCServer):
     allow_reuse_address = True
     _generic_exceptions = (AssertionError, RuntimeError, Exception)
