@@ -2,11 +2,12 @@
 
 """Script for running the remote server tests using different interpreters.
 
-usage: run.py server[:runner] [[options] datasources]
+usage: run.py server[:runner] [libraryfile=filename] [[options] datasources]
 
 `server` is the only required argument and specifies the server interpreter
 to use. `runner` is the interpreter to use for running tests, defaulting to
-the server interpreter.
+the server interpreter. `libraryfile` is the file name of the test library to
+use, defaulting to StaticApiLibrary.py.
 
 By default all tests under `tests` directory are executed. This can be
 changed by giving data sources and options explicitly.
@@ -31,20 +32,26 @@ if exists(RESULTS):
 mkdir(RESULTS)
 
 
-if len(sys.argv) == 1 or '-h' in sys.argv or '--help' in sys.argv:
+clargs = sys.argv[1:]
+if not clargs or '-h' in clargs or '--help' in clargs:
     sys.exit(__doc__)
 
-interpreters = sys.argv[1]
+interpreters = clargs.pop(0)
 if ':' in interpreters:
     server_interpreter, runner_interpreter = interpreters.rsplit(':', 1)
 else:
     server_interpreter = runner_interpreter = interpreters
+if clargs and clargs[0].startswith('libraryfile='):
+    library_file = clargs.pop(0).split('=')[1]
+else:
+    library_file = 'StaticApiLibrary.py'
 
-servercontroller.start(server_interpreter)
+servercontroller.start(server_interpreter, library_file)
 
-args = [runner_interpreter, '-m', 'robot.run', '--name', interpreters,
+name = interpreters + '_-_' + library_file.rsplit('.', 1)[0]
+args = [runner_interpreter, '-m', 'robot.run', '--name', name,
         '--output', OUTPUT, '--log', 'NONE', '--report', 'NONE']
-args.extend(sys.argv[2:] or [join(BASE, 'tests')])
+args.extend(clargs or [join(BASE, 'tests')])
 print 'Running tests with command:\n%s' % ' '.join(args)
 subprocess.call(args)
 
