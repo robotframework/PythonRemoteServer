@@ -1,6 +1,6 @@
 import sys
 from StaticApiLibrary import AcceptanceTestLibrary
-from util.dynamic import DynamicApi
+from util.dynamiclibrary import DynamicApi
 
 
 if __name__ == '__main__':

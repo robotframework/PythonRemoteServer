@@ -51,6 +51,8 @@ servercontroller.start(server_interpreter, library_file)
 name = interpreters + '_-_' + library_file.rsplit('.', 1)[0]
 args = [runner_interpreter, '-m', 'robot.run', '--name', name,
         '--output', OUTPUT, '--log', 'NONE', '--report', 'NONE']
+if 'Minimal' in library_file:
+    args.extend(['--exclude', 'argsknown'])
 args.extend(clargs or [join(BASE, 'tests')])
 print 'Running tests with command:\n%s' % ' '.join(args)
 subprocess.call(args)
