@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
 import unittest
+import sys
+import os
+from os.path import dirname as parent
+
+sys.path.insert(0, os.path.join(parent(parent(__file__)), 'src'))
 
 from robotremoteserver import RobotRemoteServer
 
@@ -8,6 +13,8 @@ from robotremoteserver import RobotRemoteServer
 class NonServingRemoteServer(RobotRemoteServer):
     def __init__(self, library):
         self._library = library
+        self._is_dynamic = self._get_routine('run_keyword') and \
+                           self._get_routine('get_keyword_names')
 
 class StaticLibrary:
     def passing_keyword(self):
@@ -24,6 +31,22 @@ class HybridLibrary:
         return [n for n in dir(StaticLibrary) if n.endswith('_keyword')]
     def __getattr__(self, name):
         return getattr(StaticLibrary(), name)
+    def not_included(self):
+        """Not returned by get_keyword_names"""
+
+class DynamicLibrary:
+    def get_keyword_names(self):
+        return [n for n in dir(StaticLibrary) if n.endswith('_keyword')]
+    def run_keyword(self, name, args):
+        return getattr(StaticLibrary(), name)(*args)
+    def not_included(self):
+        """Not returned by get_keyword_names"""
+
+class CamelCaseLibrary:
+    def getKeywordNames(self):
+        return [n for n in dir(StaticLibrary) if n.endswith('_keyword')]
+    def runKeyword(self, name, args):
+        return getattr(StaticLibrary(), name)(*args)
     def not_included(self):
         """Not returned by get_keyword_names"""
 
@@ -64,6 +87,14 @@ class TestStaticApi(unittest.TestCase):
 
 class TestHybridApi(TestStaticApi):
     library = HybridLibrary()
+
+
+class TestDynamicApi(TestStaticApi):
+    library = DynamicLibrary()
+
+
+class TestDynamicApiUsingCamelCase(TestStaticApi):
+    library = CamelCaseLibrary()
 
 
 if __name__ == '__main__':
