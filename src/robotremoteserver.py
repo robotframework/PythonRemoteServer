@@ -34,7 +34,8 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def __init__(self, library, host='localhost', port=8270, allow_stop=True):
         SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
         self._library = library
-        self._is_dynamic = not self._get_routine('run_keyword') is None
+        self._is_dynamic = self._get_routine('run_keyword') and \
+                           self._get_routine('get_keyword_names')
         self._allow_stop = allow_stop
         self._register_functions()
         self._register_signal_handlers()
@@ -146,7 +147,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             return 'Stops the remote server.\n\n' + \
                    'The server may be configured so that users cannot stop it.'
         get_kw_doc = self._get_routine('get_keyword_documentation')
-        if get_kw_doc:
+        if self._is_dynamic and get_kw_doc:
             return get_kw_doc(name)
         if name == '__intro__':
             return inspect.getdoc(self._library) or ''
