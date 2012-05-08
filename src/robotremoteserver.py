@@ -115,18 +115,15 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                 return []
             return self._arguments_from_kw(kw)
 
-    def _get_routine(self, name):
-        rnames = {
-            'run_keyword':
-                ['run_keyword', 'runKeyword'],
-            'get_keyword_names':
-                ['get_keyword_names', 'getKeywordNames'],
-            'get_keyword_arguments':
-                ['get_keyword_arguments', 'getKeywordArguments'],
-            'get_keyword_documentation':
-                ['get_keyword_documentation', 'getKeywordDocumentation']}
-        for rname in rnames[name]:
-            rt = getattr(self._library, rname, None)
+    def _get_routine(self, py_name):
+        cc_name = {
+            'run_keyword': 'runKeyword',
+            'get_keyword_names': 'getKeywordNames',
+            'get_keyword_arguments': 'getKeywordArguments',
+            'get_keyword_documentation': 'getKeywordDocumentation'
+        }
+        for name in [py_name, cc_name[py_name]]:
+            rt = getattr(self._library, name, None)
             if inspect.isroutine(rt):
                 return rt
         return None
