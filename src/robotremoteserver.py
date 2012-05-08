@@ -15,6 +15,7 @@
 import sys
 import inspect
 import traceback
+import re
 from StringIO import StringIO
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 try:
@@ -116,13 +117,8 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             return self._arguments_from_kw(kw)
 
     def _get_routine(self, py_name):
-        cc_name = {
-            'run_keyword': 'runKeyword',
-            'get_keyword_names': 'getKeywordNames',
-            'get_keyword_arguments': 'getKeywordArguments',
-            'get_keyword_documentation': 'getKeywordDocumentation'
-        }
-        for name in [py_name, cc_name[py_name]]:
+        repl = lambda x: x.group(1).upper()
+        for name in [py_name, re.sub('_(.)', repl, py_name)]:
             rt = getattr(self._library, name, None)
             if inspect.isroutine(rt):
                 return rt
