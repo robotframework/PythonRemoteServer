@@ -1,24 +1,33 @@
-Robot Framework Remote Servers
-==============================
+Robot Framework Python Remote Server
+====================================
+
+Remote server for `Robot Framework`_ implemented with Python.
 
 Introduction
 ------------
 
-This directory contains remote server implementations that can be used
-with Robot Framework's Remote library. The main source for information 
-related to the Remote library and remote servers is the User Guide. 
+`Robot Framework`_ is a generic test automation framework implemented
+with Python_ that also runs on Jython_ (JVM) and IronPython_
+(.NET). Its testing capabilities can be easily extended with generic
+and custom test libraries implemented using Python and also Java when
+using Jython. It also has a `remote library interface`_ that allows
+using test libraries implemented using other languages or running on
+different machines.
 
-Implemented Remote Servers
---------------------------
+The `remote library architecture`_ consists of `Remote` test library
+that is part of normal Robot Framework installation and separate
+language specific remote servers.  This project contains Python_
+implementation of the remote server.
 
-There are currently remote server implementations for Python and Ruby in
-following files::
+.. _Robot Framework: http://robotframework.org>
+.. _Python: http://python.org
+.. _Jython: http://jython.org
+.. _IronPython: TODO
+.. _remote library interface:
+.. _remote library architecture: TODO
 
-   robotremoteserver.py
-   robotremoteserver.rb
 
-Notice that the Python version works also with Jython. New remote
-servers, for example for Java and Perl, can be added in the future.
+*CONTENT BELOW (AND ALSO ABOVE) WORK-IN-PROGRESS*
 
 Examples Using Remote Servers
 -----------------------------
