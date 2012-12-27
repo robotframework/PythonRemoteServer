@@ -1,4 +1,5 @@
 *** Settings ***
+Default Tags  argsknown
 Resource    resource.txt
 
 *** Test Cases ***

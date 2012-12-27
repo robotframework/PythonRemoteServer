@@ -3,13 +3,15 @@
 """Module/script for controlling remote server used in tests.
 
 When used as module, provides `start`, `test`, and `stop` methods.
+The server's stdin and stdout streams are redirected to results/server.txt
 
-Command line usage:
-    servercontroller.py start [interpreter=sys.executable]
-    servercontroller.py test [port=8270] [attempts=1]
-    servercontroller.py stop [port=8270]
+Usage:  servercontroller.py start|stop|test [args]
 
-Note: Starting from CLI leaves the terminal into messed up state.
+  start args: [interpreter=sys.executable] [library='StaticApiLibrary.py']
+  test args:  [port=8270] [attempts=1]
+  stop args:  [port=8270]
+
+Note: Starting from CLI leaves the terminal in a messed up state.
 """
 
 from __future__ import with_statement
@@ -25,7 +27,7 @@ import sys
 BASE = dirname(abspath(__file__))
 
 
-def start(interpreter=sys.executable, library='atestlibrary.py'):
+def start(interpreter=sys.executable, library='StaticApiLibrary.py'):
     results = _get_result_directory()
     with open(join(results, 'server.txt'), 'w') as output:
         server = subprocess.Popen([interpreter, join(BASE, 'libs', library)],
