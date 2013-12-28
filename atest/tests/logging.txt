@@ -44,7 +44,7 @@ Logging And Returning
     ...    LOG 1:1 INFO Logged message
     ...    LOG 1:2 INFO \${ret} = Returned value
     ...    LOG 3:1 WARN This keyword returns nothing
-    ...    LOG 3:2 INFO \${ret} = ${EMPTY}
+    ...    LOG 3:2 INFO \${ret} =
     ${ret} =    Logging And Returning
     Should Be Equal    ${ret}    Returned value
     ${ret} =    Logging    This keyword returns nothing    WARN
