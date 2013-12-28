@@ -2,11 +2,10 @@
 
 """Script for running the remote server tests using different interpreters.
 
-usage: run.py server[:runner] [[options] datasources]
+Usage: run.py interpreter [[options] datasources]
 
-`server` is the only required argument and specifies the server interpreter
-to use. `runner` is the interpreter to use for running tests, defaulting to
-the server interpreter.
+`interpreter` is the only required argument and specifies the Python
+interpreter to run the server with.
 
 By default all tests under `tests` directory are executed. This can be
 changed by giving data sources and options explicitly.
@@ -19,40 +18,37 @@ from os import mkdir
 from shutil import rmtree
 
 import robot
+import robotstatuschecker
 
 import servercontroller
-import statuschecker
-
-BASE = dirname(abspath(__file__))
-RESULTS = join(BASE, 'results')
-OUTPUT = join(RESULTS, 'output.xml')
-if exists(RESULTS):
-    rmtree(RESULTS)
-mkdir(RESULTS)
 
 
 if len(sys.argv) == 1 or '-h' in sys.argv or '--help' in sys.argv:
     sys.exit(__doc__)
 
-interpreters = sys.argv[1]
-if ':' in interpreters:
-    server_interpreter, runner_interpreter = interpreters.rsplit(':', 1)
-else:
-    server_interpreter = runner_interpreter = interpreters
+curdir = dirname(abspath(__file__))
+results = join(curdir, 'results')
+output = join(results, 'output.xml')
+interpreter = sys.argv[1]
+arguments = sys.argv[2:] or [join(curdir, 'tests')]
 
-servercontroller.start(server_interpreter)
+if exists(results):
+    rmtree(results)
+mkdir(results)
 
-args = [runner_interpreter, '-m', 'robot.run', '--name', interpreters,
-        '--output', OUTPUT, '--log', 'NONE', '--report', 'NONE']
-args.extend(sys.argv[2:] or [join(BASE, 'tests')])
-print 'Running tests with command:\n%s' % ' '.join(args)
-subprocess.call(args)
+servercontroller.start(interpreter)
+
+command = ['python', '-m', 'robot.run',
+           '--name', '%s Remote Server' % interpreter.title(),
+           '--output', output, '--log', 'NONE', '--report', 'NONE'] + arguments
+print 'Running tests with command:\n%s' % ' '.join(command)
+subprocess.call(command)
 
 servercontroller.stop()
 print
-statuschecker.process_output(OUTPUT)
-rc = robot.rebot(OUTPUT, outputdir=RESULTS)
+robotstatuschecker.process_output(output)
+rc = robot.rebot(output, outputdir=results)
 if rc == 0:
-    print 'All tests passed'
+    print 'All tests passed.'
 else:
-    print '%d test%s failed' % (rc, 's' if rc != 1 else '')
+    print '%d test%s failed.' % (rc, 's' if rc != 1 else '')
