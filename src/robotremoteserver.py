@@ -39,14 +39,14 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     _generic_exceptions = (AssertionError, RuntimeError, Exception)
     _fatal_exceptions = (SystemExit, KeyboardInterrupt)
 
-    def __init__(self, library, host='127.0.0.1', port=8270, allow_stop=True):
+    def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
+                 allow_stop=True):
         SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
         self._library = library
         self._allow_stop = allow_stop
         self._register_functions()
         self._register_signal_handlers()
-        self._log('Robot Framework remote server starting at %s:%s'
-                  % (host, port))
+        self._announce_start(port_file)
         self.serve_forever()
 
     def _register_functions(self):
@@ -64,6 +64,17 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             signal.signal(signal.SIGHUP, stop_with_signal)
         if hasattr(signal, 'SIGINT'):
             signal.signal(signal.SIGINT, stop_with_signal)
+
+    def _announce_start(self, port_file=None):
+        host, port = self.server_address
+        self._log('Robot Framework remote server starting at %s:%s.'
+                  % (host, port))
+        if port_file:
+            pf = open(port_file, 'w')
+            try:
+                pf.write(str(port))
+            finally:
+                pf.close()
 
     def serve_forever(self):
         self._shutdown = False
@@ -216,4 +227,5 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _log(self, msg, level=None):
         if level:
             msg = '*%s* %s' % (level.upper(), msg)
-        print msg
+        sys.stdout.write(msg + '\n')
+        sys.stdout.flush()
