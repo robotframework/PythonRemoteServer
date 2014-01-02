@@ -1,15 +1,41 @@
 *** Settings ***
-Library          Remote    localhost:${PORT}
-Variables        variables.py
+Library           OperatingSystem
+Library           Process
+Variables         variables.py
 
 *** Variables ***
-${PORT}              8270
-${ORIG LOG LEVEL}    INFO
+${INTERPRETER}    python
 
 *** Keywords ***
-Set Debug Log Level
-    ${ORIG LOG LEVEL} =    Set Log Level    DEBUG
-    Set Suite Variable    ${ORIG LOG LEVEL}
+Start And Import Remote Library
+    [Arguments]    ${library}
+    Set Pythonpath
+    ${port} =    Start Remote Library    ${library}
+    Import Library    Remote    http://127.0.0.1:${port}
+    Set Log Level    DEBUG
 
-Reset Log Level
-    Set Log Level    ${ORIG LOG LEVEL}
+Start Remote Library
+    [Arguments]    ${library}    ${port}=0
+    ${library} =    Normalize Path    ${CURDIR}/../libs/${library}
+    ${port file} =    Normalize Path    ${CURDIR}/../results/server_port.txt
+    ${output} =    Normalize Path    ${CURDIR}/../results/server_output.txt
+    Start Process    ${INTERPRETER}    ${library}    ${port}    ${port file}
+    ...    alias=${library}    stdout=${output}    stderr=STDOUT
+    Run Keyword And Return    Read Port File    ${port file}
+
+Read Port File
+    [Arguments]    ${path}
+    Wait Until Created    ${path}    timeout=5s
+    Run Keyword And Return   Get File    ${path}
+    [Teardown]    Remove File    ${path}
+
+Set Pythonpath
+    ${src} =    Normalize Path    ${CURDIR}/../../src
+    Set Environment Variable    PYTHONPATH    ${src}
+    Set Environment Variable    JYTHONPATH    ${src}
+    Set Environment Variable    IRONPYTHONPATH    ${src}
+
+Stop Remote Library
+    [Arguments]    ${library}=${NONE}
+    ${result} =    Terminate Process    handle=${library}
+    Log    ${result.stdout}

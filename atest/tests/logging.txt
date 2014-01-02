@@ -1,8 +1,7 @@
 *** Settings ***
-Resource          resource.txt
-Suite Setup       Set Debug Log Level
-Suite Teardown    Reset Log Level
-
+Resource         resource.txt
+Suite Setup      Start And Import Remote Library    atestlibrary.py
+Suite Teardown   Stop Remote Library
 
 *** Test Cases ***
 One message Without Level

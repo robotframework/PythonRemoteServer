@@ -1,8 +1,9 @@
 *** Settings ***
-Resource    resource.txt
+Resource         resource.txt
+Suite Setup      Start And Import Remote Library    atestlibrary.py
+Suite Teardown   Stop Remote Library
 
 *** Test Cases ***
-
 Using Arguments When No Accepted
     [Documentation]  FAIL Keyword 'Remote.No Arguments' expected 0 arguments, got 1.
     No Arguments  not allowed

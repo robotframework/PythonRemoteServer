@@ -1,7 +1,7 @@
 *** Settings ***
-Resource          resource.txt
-Suite Setup       Set Debug Log Level
-Suite Teardown    Reset Log Level
+Resource         resource.txt
+Suite Setup      Start And Import Remote Library    atestlibrary.py
+Suite Teardown   Stop Remote Library
 
 *** Test Cases ***
 Remote Traceback Is Shown In Log
@@ -26,4 +26,3 @@ Local Traceback Is Not Shown In Log
     ...    LOG 1:2 DEBUG REGEXP: Traceback .*
     ...    LOG 1:3 NONE
     Failing    Yet another error
-

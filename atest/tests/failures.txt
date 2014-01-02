@@ -1,5 +1,7 @@
 *** Settings ***
 Resource         resource.txt
+Suite Setup      Start And Import Remote Library    atestlibrary.py
+Suite Teardown   Stop Remote Library
 
 *** Test Cases ***
 Base Exception

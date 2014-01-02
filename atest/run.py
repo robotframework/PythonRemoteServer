@@ -20,8 +20,6 @@ from shutil import rmtree
 import robot
 import robotstatuschecker
 
-import servercontroller
-
 
 if len(sys.argv) == 1 or '-h' in sys.argv or '--help' in sys.argv:
     sys.exit(__doc__)
@@ -36,15 +34,13 @@ if exists(results):
     rmtree(results)
 mkdir(results)
 
-servercontroller.start(interpreter)
-
 command = ['python', '-m', 'robot.run',
+           '--variable', 'INTERPRETER:%s' % interpreter,
            '--name', '%s Remote Server' % interpreter.title(),
            '--output', output, '--log', 'NONE', '--report', 'NONE'] + arguments
 print 'Running tests with command:\n%s' % ' '.join(command)
 subprocess.call(command)
 
-servercontroller.stop()
 print
 robotstatuschecker.process_output(output)
 rc = robot.rebot(output, outputdir=results)

@@ -306,4 +306,4 @@ class MyException(Exception):
 if __name__ == '__main__':
     from robotremoteserver import RobotRemoteServer
 
-    RobotRemoteServer(AcceptanceTestLibrary(), *sys.argv[1:])
+    RobotRemoteServer(AcceptanceTestLibrary(), '127.0.0.1', *sys.argv[1:])
