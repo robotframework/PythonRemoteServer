@@ -44,6 +44,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
         self._library = library
         self._allow_stop = allow_stop
+        self._shutdown = False
         self._register_functions()
         self._register_signal_handlers()
         self._announce_start(port_file)
@@ -77,7 +78,6 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                 pf.close()
 
     def serve_forever(self):
-        self._shutdown = False
         while not self._shutdown:
             self.handle_request()
 
