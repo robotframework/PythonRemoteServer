@@ -8,32 +8,6 @@ class AcceptanceTestLibrary:
     def get_server_language(self):
         return 'Jython' if sys.platform.startswith('java') else 'Python'
 
-    # Basic communication (and documenting keywords)
-
-    def passing(self):
-        """This keyword passes.
-
-        See `Failing`, `Logging`, and `Returning` for other basic keywords.
-        """
-        pass
-
-    def failing(self, message):
-        """This keyword fails with provided `message`"""
-        raise AssertionError(message)
-
-    def logging(self, message, level='INFO'):
-        """This keywords logs given `message` with given `level`
-
-        Example:
-        | Logging | Hello, world! |      |
-        | Logging | Warning!!!    | WARN |
-        """
-        print '*%s* %s' % (level, message)
-
-    def returning(self):
-        """This keyword returns a string 'returned string'."""
-        return 'returned string'
-
     # Logging
 
     def one_message_without_level(self):
