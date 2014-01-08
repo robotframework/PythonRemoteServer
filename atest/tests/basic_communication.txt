@@ -1,10 +1,10 @@
 *** Settings ***
-Resource         resource.txt
-Suite Setup      Start And Import Remote Library    atestlibrary.py
-Suite Teardown   Stop Remote Library
+Resource          resource.txt
+Suite Setup       Start And Import Remote Library    basics.py
+Suite Teardown    Stop Remote Library
 
 *** Variables ***
-${COUNT}    100
+${COUNT}          100
 
 *** Test Cases ***
 Passing
@@ -17,11 +17,11 @@ Failing
 Logging
     [Documentation]    LOG 1 INFO Hello, world! LOG 2 WARN Warning, warning!!
     Logging    Hello, world!
-    Logging    Warning, warning!!  WARN
+    Logging    Warning, warning!!    WARN
 
 Returning
-    ${ret} =    Returning
-    Should Be Equal    ${ret}    returned string
+    ${ret} =    Returning    return this
+    Should Be Equal    ${ret}    return this
 
 Use Remote Keyword Multiple Times
     [Documentation]
@@ -30,4 +30,3 @@ Use Remote Keyword Multiple Times
     ...    LOG 1.${COUNT}.1 Round ${COUNT}
     : FOR    ${i}    IN RANGE    ${COUNT}
     \  Logging    Round ${i + 1}
-
