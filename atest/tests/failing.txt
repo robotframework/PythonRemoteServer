@@ -1,6 +1,6 @@
 *** Settings ***
 Resource          resource.txt
-Suite Setup       Start And Import Remote Library    failures.py
+Suite Setup       Start And Import Remote Library    failing.py
 Suite Teardown    Stop Remote Library
 Test Template     Correct failure should occur
 
@@ -44,7 +44,7 @@ Traceback
     [Documentation]  FAIL MyException: My error message
     ...    LOG 1:1 FAIL MyException: My error message
     ...    LOG 1:2 DEBUG REGEXP: Traceback \\(most recent call last\\):
-    ...    \\s+File "[\\w /\\\\]+failures.py", line 15, in failure
+    ...    \\s+File "[\\w /\\\\]+failing.py", line 15, in failure
     ...    \\s+raise exception\\(message\\)
     [Template]    NONE
     Failure    MyException    My error message
@@ -53,11 +53,11 @@ Traceback with multiple entries
     [Documentation]  FAIL Finally failing
     ...    LOG 1:1 FAIL Finally failing
     ...    LOG 1:2 DEBUG REGEXP: Traceback \\(most recent call last\\):
-    ...    \\s+File "[\\w /\\\\]+failures.py", line 21, in failure_deeper
+    ...    \\s+File "[\\w /\\\\]+failing.py", line 21, in failure_deeper
     ...    \\s+self.failure_deeper\\(rounds-1\\)
-    ...    \\s+File "[\\w /\\\\]+failures.py", line 21, in failure_deeper
+    ...    \\s+File "[\\w /\\\\]+failing.py", line 21, in failure_deeper
     ...    \\s+self.failure_deeper\\(rounds-1\\)
-    ...    \\s+File "[\\w /\\\\]+failures.py", line 20, in failure_deeper
+    ...    \\s+File "[\\w /\\\\]+failing.py", line 20, in failure_deeper
     ...    \\s+raise RuntimeError\\('Finally failing'\\)
     [Template]    NONE
     Failure Deeper    rounds=3
