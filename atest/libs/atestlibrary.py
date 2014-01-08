@@ -37,37 +37,6 @@ class AcceptanceTestLibrary:
     def log_control_char(self):
         print '>\x01<'
 
-    # Failures
-
-    def base_exception(self):
-        raise Exception('My message')
-
-    def exception_without_message(self):
-        raise Exception
-
-    def assertion_error(self):
-        raise AssertionError('Failure message')
-
-    def runtime_error(self):
-        raise RuntimeError('Error message')
-
-    def zero_division(self):
-        1/0
-
-    def custom_exception(self):
-        raise MyException('My message')
-
-    def failure_deeper(self, rounds=10):
-        if rounds == 1:
-            raise RuntimeError('Finally failing')
-        self.failure_deeper(rounds-1)
-
-    def error_message_with_non_ascii_unicode(self):
-        raise Exception(self._unicode)
-
-    def error_message_with_non_ascii_bytes(self):
-        raise Exception('hyv\xe4')
-
     # Return values
 
     def return_string(self):
@@ -168,9 +137,6 @@ class MyObject:
         self.index = index
     def __str__(self):
         return '<MyObject%s>' % self.index
-
-class MyException(Exception):
-    pass
 
 
 if __name__ == '__main__':

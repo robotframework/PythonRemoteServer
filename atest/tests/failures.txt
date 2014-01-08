@@ -1,41 +1,46 @@
 *** Settings ***
-Resource         resource.txt
-Suite Setup      Start And Import Remote Library    atestlibrary.py
-Suite Teardown   Stop Remote Library
+Resource          resource.txt
+Suite Setup       Start And Import Remote Library    failures.py
+Suite Teardown    Stop Remote Library
+Test Template     Correct failure should occur
 
 *** Test Cases ***
-Base Exception
-    [Documentation]    FAIL My message
-    Base Exception
+Generic exceptions
+    Exception    My message
+    AssertionError    Another message
+    RuntimeError    Yet another message
 
-Exception Without Message
-    [Documentation]    FAIL Exception
-    Exception Without Message
+Non-generic exceptions
+    NameError    My message    NameError: My message
+    ZeroDivisionError    Another message    ZeroDivisionError: Another message
 
-AssertionError
-    [Documentation]    FAIL Failure message
-    Assertion Error
+Custom exceptions
+    MyException    The message    MyException: The message
 
-RuntimeError
-    [Documentation]    FAIL Error message
-    Runtime Error
+No message
+    Exception    ${NONE}    Exception
 
-Zero Division
-    [Documentation]    FAIL STARTS: ZeroDivisionError:
-    Zero Division
+Empty message
+    Exception    ${EMPTY}    Exception
 
-Custom Exception
-    [Documentation]    FAIL MyException: My message
-    Custom Exception
+Multiline message
+    Exception    Can\n\haz\n4\n\lines?\n\n\nYezzz!!!\n
 
-Failure Deeper
+Non-ASCII message
+    Exception    Hyvä \u2603!!
+
+Non-ASCII bytes
+    Exception    'Hyv\\xe4'    Hyv\uFFFD    evaluate=yes
+
+Failure deeper
     [Documentation]    FAIL Finally failing
+    [Template]    NONE
     Failure Deeper
 
-Error Message With Non-ASCII Unicode
-    [Documentation]    FAIL ${UNICODE STRING}
-    Error Message With Non ASCII Unicode
-
-Error Message With Non-ASCII Bytes
-    [Documentation]    FAIL hyv${REPLACEMENT CHARACTER}
-    Error Message With Non ASCII Bytes
+*** Keywords ***
+Correct failure should occur
+    [Arguments]    ${exception}    ${message}    ${expected}=    ${evaluate}=
+    ${expected} =    Set Variable If    """${expected}""" != ""
+    ...    ${expected}    ${message}
+    Run Keyword And Expect Error    ${expected}
+    ...    Failure    ${exception}    ${message}    ${evaluate}
