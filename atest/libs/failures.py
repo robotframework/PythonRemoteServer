@@ -15,6 +15,7 @@ class Failures(object):
         raise exception(message)
 
     def failure_deeper(self, rounds=10):
+        rounds = int(rounds)
         if rounds == 1:
             raise RuntimeError('Finally failing')
         self.failure_deeper(rounds-1)
