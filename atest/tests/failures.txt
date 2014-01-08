@@ -32,6 +32,9 @@ Non-ASCII message
 Non-ASCII bytes
     Exception    'Hyv\\xe4'    Hyv\uFFFD    evaluate=yes
 
+Binary message
+    Exception    \x00.\x01.\x02
+
 Failure deeper
     [Documentation]    FAIL Finally failing
     [Template]    NONE

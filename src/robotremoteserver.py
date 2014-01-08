@@ -177,9 +177,10 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _get_message_from_exception(self, value):
         # UnicodeError occurs below 2.6 and if message contains non-ASCII bytes
         try:
-            return unicode(value)
+            msg = unicode(value)
         except UnicodeError:
-            return ' '.join([unicode(a, errors='replace') for a in value.args])
+            msg = ' '.join([unicode(a, errors='replace') for a in value.args])
+        return self._handle_binary_result(msg)
 
     def _get_error_traceback(self, exc_tb):
         # Latest entry originates from this class so it can be removed
