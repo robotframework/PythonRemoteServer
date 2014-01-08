@@ -62,11 +62,10 @@ Dictionary With Non-String Keys
     [Documentation]    XML-RPC supports only strings as keys so must convert them
     {42: 42, True: False, None: None}    {'42': 42, 'True': False, '': ''}
 
-
 *** Keywords ***
 Argument Should Be Correct
      [Arguments]    ${argument}    ${expected}=
-     ${expected} =    Set Variable If    """${expected}""" != ""
+     ${expected} =    Set Variable If    """${expected}"""
      ...    ${expected}    ${argument}
      ${argument} =    Evaluate    ${argument}
      Remote.Argument Should Be Correct    ${argument}    ${expected}

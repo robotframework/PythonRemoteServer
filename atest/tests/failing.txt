@@ -65,7 +65,7 @@ Traceback with multiple entries
 *** Keywords ***
 Correct failure should occur
     [Arguments]    ${exception}    ${message}    ${expected}=    ${evaluate}=
-    ${expected} =    Set Variable If    """${expected}""" != ""
+    ${expected} =    Set Variable If    """${expected}"""
     ...    ${expected}    ${message}
     Run Keyword And Expect Error    ${expected}
     ...    Failure    ${exception}    ${message}    ${evaluate}
