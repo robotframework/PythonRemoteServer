@@ -1,4 +1,9 @@
-class ArgumentCounts(object):
+class Arguments(object):
+
+    def argument_should_be_correct(self, argument, expected):
+        expected = eval(expected)
+        if argument != expected:
+            raise AssertionError('%r != %r' % (argument, expected))
 
     def no_arguments(self):
         return self._format()
@@ -29,4 +34,4 @@ if __name__ == '__main__':
     import sys
     from robotremoteserver import RobotRemoteServer
 
-    RobotRemoteServer(ArgumentCounts(), '127.0.0.1', *sys.argv[1:])
+    RobotRemoteServer(Arguments(), '127.0.0.1', *sys.argv[1:])
