@@ -30,3 +30,11 @@ Use Remote Keyword Multiple Times
     ...    LOG 1.${COUNT}.1 Round ${COUNT}
     : FOR    ${i}    IN RANGE    ${COUNT}
     \  Logging    Round ${i + 1}
+
+Private methods should ne ignored
+    [Documentation]    FAIL No keyword with name 'Private Method' found.
+    Private Method
+
+Attributes should be ignored
+    [Documentation]    FAIL No keyword with name 'attribute' found.
+    attribute

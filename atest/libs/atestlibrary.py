@@ -121,16 +121,6 @@ class AcceptanceTestLibrary:
         return {1: {None: False},
                 2: {'A': {'n': None}, 'B': {'o': MyObject(), 'e': {}}}}
 
-    # Not keywords
-
-    def _private_method(self):
-        pass
-
-    def __private_method(self):
-        pass
-
-    attribute = 'Not a keyword'
-
 
 class MyObject:
     def __init__(self, index=''):

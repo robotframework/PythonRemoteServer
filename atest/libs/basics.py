@@ -25,6 +25,15 @@ class BasicCommunication(object):
         """This keyword returns the given `value`."""
         return value
 
+    def _private_method(self):
+        """This is not a keyword. Nor is the next one."""
+        pass
+
+    def __private_method(self):
+        pass
+
+    attribute = 'Not a keyword'
+
 
 if __name__ == '__main__':
     import sys
