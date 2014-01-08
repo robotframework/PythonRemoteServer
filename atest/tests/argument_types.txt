@@ -1,77 +1,72 @@
 *** Settings ***
-Resource         resource.txt
-Suite Setup      Start And Import Remote Library    atestlibrary.py
-Suite Teardown   Stop Remote Library
+Resource          resource.txt
+Suite Setup       Start And Import Remote Library    argtypes.py
+Suite Teardown    Stop Remote Library
+Test Template     Argument Should Be Correct
 
 *** Test Cases ***
-String As Argument
-    String As Argument    ${BYTE STRING}
+Empty string
+    ''
 
-Non-ASCII String As Argument
-    Unicode String As Argument    ${UNICODE STRING}
+ASCII string
+    u'Hello, world!'
+    'Hello, world!'
 
-Control Char As Argument
-    [Documentation]    Fails with ExpatError when server runs on Jython 2.5.
-    Control Char As Argument    ${CONTROL CHAR}
+Non-ASCII String
+    u'Hyv\\xe4'
+    u'\\u2603'
 
-Empty String As Argument
-    Empty String As Argument    ${EMPTY}
+Binary
+    '\\x00\\x01'
 
-Integer As Argument
-    Integer As Argument    ${42}
-    Negative Integer As Argument    ${-1}
+Integer
+    42
+    -1
+    0
 
-Float As Argument
-    Float As Argument    ${3.14}
-    Negative Float As Argument    ${-0.5}
+Float
+    3.14
+    -0.1e10
+    0.0
 
-Zero As Argument
-    Zero As Argument    ${0}
+Boolean
+    True
+    False
 
-Boolean As Argument
-    Boolean True As Argument    ${True}
-    Boolean False As Argument    ${False}
-
-None As Argument
+None
     [Documentation]    None is converted to empty string because it is not supported by all XML-RPC versions.
-    None As Argument    ${None}
+    None    ''
 
-Arbitrary Object As Argument
+Arbitrary Object
     [Documentation]    Arbitrary objects cannot be transferred over XML-RPC and thus only their string presentation is used
-    Object As Argument    ${MyObject()}
+    [Template]    NONE
+    Remote.Argument Should Be Correct    ${MyObject()}    '<MyObject>'
 
-List As Argument
-    List As Argument    ${LIST}
-    Empty List As Argument    ${EMPTY LIST}
+List
+    \[]
+    \['Hei', u'\\xe4iti', 63, True]
+    \[None]    ['']
+    \[[], [1, 2], [[True], False], 'xxx']
 
-List Containing None As Argument
-    List Containing None As Argument    ${LIST WITH NONE}
-
-List Containing Arbitrary Objects As Argument
-    List Containing Objects As Argument    ${LIST WITH OBJECTS}
-
-Nested List As Argument
-    Nested List As Argument  ${NESTED LIST}
-
-Tuple As Argument
+Tuple
     [Documentation]    Tuples are converted to lists
-    List As Argument    ${TUPLE}
-    Empty List As Argument    ${EMPTY TUPLE}
-    Nested List As Argument    ${NESTED TUPLE}
+    ()    []
+    ('Hei', u'\\xe4iti', 63, (), None)    ['Hei', u'\\xe4iti', 63, [], '']
 
-Dictionary As Argument
-    Dictionary As Argument    ${DICT}
-    Empty Dictionary As Argument    ${EMPTY DICT}
+Dictionary
+    {}
+    {'a': 1, u'\\xe4': 2, 'nested': {'k': 'v'}}
+    {'x': None}    {'x': ''}
 
-Dictionary With Non-String Keys As Argument
+Dictionary With Non-String Keys
     [Documentation]    XML-RPC supports only strings as keys so must convert them
-    Dictionary With Non String Keys As Argument    ${DICT WITH NON STRING KEYS}
+    {42: 42, True: False, None: None}    {'42': 42, 'True': False, '': ''}
 
-Dictionary Containing None As Argument
-    Dictionary Containing None As Argument    ${DICT WITH NONE}
 
-Dictionary Containing Objects As Argument
-    Dictionary Containing Objects As Argument    ${DICT WITH OBJECTS}
-
-Nested Dictionary As Argument
-    Nested Dictionary As Argument    ${NESTED DICT}
+*** Keywords ***
+Argument Should Be Correct
+     [Arguments]    ${argument}    ${expected}=
+     ${expected} =    Set Variable If    """${expected}""" != ""
+     ...    ${expected}    ${argument}
+     ${argument} =    Evaluate    ${argument}
+     Remote.Argument Should Be Correct    ${argument}    ${expected}
