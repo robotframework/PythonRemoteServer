@@ -94,29 +94,6 @@ class AcceptanceTestLibrary:
     def error_message_with_non_ascii_bytes(self):
         raise Exception('hyv\xe4')
 
-    # Arguments counts
-
-    def no_arguments(self):
-        return 'no arguments'
-
-    def one_argument(self, arg):
-        return arg
-
-    def two_arguments(self, arg1, arg2):
-        return '%s %s' % (arg1, arg2)
-
-    def seven_arguments(self, arg1, arg2, arg3, arg4, arg5, arg6, arg7):
-        return ' '.join((arg1, arg2, arg3, arg4, arg5, arg6, arg7))
-
-    def arguments_with_default_values(self, arg1, arg2='2', arg3=3):
-        return '%s %s %s' % (arg1, arg2, arg3)
-
-    def variable_number_of_arguments(self, *args):
-        return ' '.join(args)
-
-    def required_defaults_and_varargs(self, req, default='world', *varargs):
-        return ' '.join((req, default) + varargs)
-
     # Argument types
 
     def string_as_argument(self, arg):
