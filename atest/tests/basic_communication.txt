@@ -23,13 +23,14 @@ Returning
     ${ret} =    Returning    return this
     Should Be Equal    ${ret}    return this
 
-Use Remote Keyword Multiple Times
+Use multiple times
     [Documentation]
-    ...    LOG 1.1.1 Round 1
-    ...    LOG 1.2.1 Round 2
-    ...    LOG 1.${COUNT}.1 Round ${COUNT}
+    ...    LOG 1.1.2 Round 1
+    ...    LOG 1.2.2 Round 2
+    ...    LOG 1.${COUNT}.2 Round ${COUNT}
     : FOR    ${i}    IN RANGE    ${COUNT}
-    \  Logging    Round ${i + 1}
+    \    Passing
+    \    Logging    Round ${i + 1}
 
 Private methods should ne ignored
     [Documentation]    FAIL No keyword with name 'Private Method' found.
