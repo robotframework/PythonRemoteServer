@@ -8,35 +8,6 @@ class AcceptanceTestLibrary:
     def get_server_language(self):
         return 'Jython' if sys.platform.startswith('java') else 'Python'
 
-    # Logging
-
-    def one_message_without_level(self):
-        print 'Hello, world!'
-
-    def multiple_messages_with_different_levels(self):
-        print 'Info message'
-        print '*DEBUG* Debug message'
-        print '*INFO* Second info'
-        print 'this time with two lines'
-        print '*INFO* Third info'
-        print '*TRACE* This is ignored'
-        print '*WARN* Warning'
-
-    def log_unicode(self):
-        print self._unicode
-
-    def logging_and_failing(self):
-        print '*INFO* This keyword will fail!'
-        print '*WARN* Run for your lives!!'
-        raise AssertionError('Too slow')
-
-    def logging_and_returning(self):
-        print 'Logged message'
-        return 'Returned value'
-
-    def log_control_char(self):
-        print '>\x01<'
-
     # Return values
 
     def return_string(self):

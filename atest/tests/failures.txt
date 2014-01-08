@@ -24,7 +24,7 @@ Empty message
     Exception    ${EMPTY}    Exception
 
 Multiline message
-    Exception    Can\n\haz\n4\n\lines?\n\n\nYezzz!!!\n
+    Exception    Can\n\haz\nmultiple\n\lines?\n\n\nYezzz!!!\n
 
 Non-ASCII message
     Exception    Hyvä \u2603!!

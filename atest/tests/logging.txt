@@ -1,14 +1,26 @@
 *** Settings ***
-Resource         resource.txt
-Suite Setup      Start And Import Remote Library    atestlibrary.py
-Suite Teardown   Stop Remote Library
+Resource          resource.txt
+Suite Setup       Start And Import Remote Library    logging.py
+Suite Teardown    Stop Remote Library
 
 *** Test Cases ***
-One message Without Level
+Simple message
     [Documentation]    LOG 1 INFO Hello, world!
-    One Message Without Level
+    Logging    Hello, world!
 
-Log Levels
+Multiline message
+    [Documentation]    LOG 1 INFO Can\n\haz\nmultiple\n\lines?\n\n\nYezzz!!!\n
+    Logging    Can\n\haz\nmultiple\n\lines?\n\n\nYezzz!!!\n
+
+Non-ASCII message
+    [Documentation]    LOG 1 INFO Hyvä \u2603
+    Logging    Hyvä \u2603
+
+Binary
+    [Documentation]    LOG 1 INFO ..
+    Logging    '\\x00.\\x01.\\x02'    evaluate=yes
+
+Log levels
     [Documentation]
     ...    LOG 1 DEBUG Debug message
     ...    LOG 2 INFO Information message
@@ -17,7 +29,7 @@ Log Levels
     Logging    Information message    INFO
     Logging    Warning message    WARN
 
-Multiple Messages With Different Levels
+Multiple messages with different levels
     [Documentation]
     ...    LOG 1:1 INFO Info message
     ...    LOG 1:2 DEBUG Debug message
@@ -26,11 +38,7 @@ Multiple Messages With Different Levels
     ...    LOG 1:5 WARN Warning
     Multiple Messages With Different Levels
 
-Log Unicode
-    [Documentation]    LOG 1 INFO ${UNICODE STRING}
-    Log Unicode
-
-Logging And Failing
+Logging and failing
     [Documentation]  FAIL Too slow
     ...    LOG 1:1 INFO This keyword will fail!
     ...    LOG 1:2 WARN Run for your lives!!
@@ -38,18 +46,13 @@ Logging And Failing
     ...    LOG 1:4 DEBUG REGEXP: Traceback.*
     Logging And Failing
 
-Logging And Returning
+Logging and returning
     [Documentation]
-    ...    LOG 1:1 INFO Logged message
-    ...    LOG 1:2 INFO \${ret} = Returned value
-    ...    LOG 3:1 WARN This keyword returns nothing
+    ...    LOG 1:1 INFO This is logged
+    ...    LOG 1:2 INFO \${ret} = This is returned
+    ...    LOG 3:1 INFO This keyword returns nothing
     ...    LOG 3:2 INFO \${ret} =
-    ${ret} =    Logging And Returning
-    Should Be Equal    ${ret}    Returned value
-    ${ret} =    Logging    This keyword returns nothing    WARN
+    ${ret} =    Logging and returning    This is logged    This is returned
+    Should Be Equal    ${ret}    This is returned
+    ${ret} =    Logging    This keyword returns nothing
     Should Be Equal    ${ret}    ${EMPTY}
-
-Log Control Char
-    [Documentation]    Fails with ExpatError when running tests on Jython 2.5.
-    ...    LOG 1:1 INFO ><
-    Log Control Char
