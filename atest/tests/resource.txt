@@ -25,7 +25,7 @@ Start Remote Library
 
 Read Port File
     [Arguments]    ${path}
-    Wait Until Created    ${path}    timeout=5s
+    Wait Until Created    ${path}    timeout=30s
     Run Keyword And Return   Get File    ${path}
     [Teardown]    Remove File    ${path}
 
