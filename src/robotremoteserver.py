@@ -179,6 +179,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         try:
             msg = unicode(value)
         except UnicodeError:
+            # TODO: This fails if args contain non-strings
             msg = ' '.join([unicode(a, errors='replace') for a in value.args])
         return self._handle_binary_result(msg)
 
@@ -203,10 +204,14 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def _handle_binary_result(self, result):
         if not BINARY.search(result):
+            # TODO: Clean-up. This isn't the right place to do this.
+            if isinstance(result, str):
+                result = unicode(result, errors='replace')
             return result
         try:
             result = str(result)
         except UnicodeError:
+            # TODO: Is this tested anywhere?
             raise ValueError("Cannot represent %r as binary." % result)
         return Binary(result)
 

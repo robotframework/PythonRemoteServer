@@ -16,6 +16,10 @@ Non-ASCII message
     [Documentation]    LOG 1 INFO Hyvä \u2603
     Logging    Hyvä \u2603
 
+Non-ASCII bytes
+    [Documentation]    LOG 1 INFO Hyv\uFFFD
+    Logging    'Hyv\\xe4'    evaluate=yes
+
 Binary
     [Documentation]    LOG 1 INFO ..
     Logging    '\\x00.\\x01.\\x02'    evaluate=yes
