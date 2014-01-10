@@ -37,5 +37,6 @@ Set Pythonpath
 
 Stop Remote Library
     [Arguments]    ${library}=${NONE}
-    ${result} =    Terminate Process    handle=${library}
+    Stop Remote Server
+    ${result} =    Wait For Process    ${library}    10s    terminate
     Log    ${result.stdout}
