@@ -1,91 +1,100 @@
 *** Settings ***
-Resource         resource.txt
-Suite Setup      Start And Import Remote Library    atestlibrary.py
-Suite Teardown   Stop Remote Library
-Test Template    Return Value Should Be
+Resource          resource.txt
+Suite Setup       Start And Import Remote Library    returning.py
+Suite Teardown    Stop Remote Library
+Test Template     Return Value Should Be
 
 *** Test Cases ***
-Return String
-    Return String    Hello, world!
+Empty string
+    ''
 
-Return Empty String
-    Return Empty String    ${EMPTY}
+ASCII string
+    u'Hello, world!'
+    'Hello, world!'
 
-Return Unicode String
-    Return Unicode String    ${UNICODE STRING}
+Non-ASCII String
+    u'Hyv\\xe4'
+    u'\\u2603'
 
-Return Control Char
-    [Documentation]    Fails with ExpatError when running tests on Jython 2.5.
-    Return Control Char    ${CONTROL CHAR}
+Binary
+    '\\x00\\x01'
 
-Return Integer
-    Return Integer    ${42}
-    Return Negative Integer    ${-1}
+Integer
+    42
+    -1
+    0
 
-Return Float
-    Return Float    ${3.14}
-    Return Negative Float    ${-0.5}
+Float
+    3.14
+    -0.1e10
+    0.0
 
-Return Zero
-    Return Zero    ${0}
+Boolean
+    True
+    False
 
-Return Boolean
-    Return Boolean True    ${True}
-    Return Boolean False    ${False}
+None
+    [Documentation]    None is converted to empty string because it is not supported by all XML-RPC versions.
+    None    ''
 
-Return None
-    [Documentation]    None is not supported by all XML-RPC versions and thus it is converted to an empty string
-    Return Nothing    ${EMPTY}
+Custom object
+    [Documentation]    Arbitrary objects cannot be transferred over XML-RPC and thus only their string presentation is used
+    MyObject()    '<MyObject>'
+    MyObject('xxx')    'xxx'
 
-Return Arbitrary Object
-    [Documentation]    Arbitrary objects cannot be transferred over XML-RPC and thus only their string presentation is returned
-    Return Object    <MyObject>
+Custom object with non-ASCII representation
+    MyObject(u'hyv\\xe4')    u'hyv\\xe4'
 
-Return List
-    Return List    ${LIST}
-    Return Empty List    ${EMPTY LIST}
+Custom object with binary representation
+    MyObject('\\x00\\x01')    '\\x00\\x01'
 
-Return List Containing None
-    Return List Containing None    ['']    eval
+List
+    \[]
+    \['Hei', u'\\xe4iti', 63, True, '\\x00']
+    \[None, MyObject('xxx'), MyObject(u'\\xe4')]    ['', 'xxx', u'\\xe4']
+    \[[0, [[]]], [1, 2], [[True], False], 'xxx']
 
-Return List Containing Arbitrary Objects
-    Return List Containing Objects      ['<MyObject1>', '<MyObject2>']    eval
+List-like
+    [Documentation]    Tuples etc. are converted to lists
+    ()    []
+    ('Hei', u'\\xe4iti', 63, (), None)    ['Hei', u'\\xe4iti', 63, [], '']
+    set(['hello'])    ['hello']
+    range(5)    [0, 1, 2, 3, 4]
 
-Return Nested List
-    Return Nested List  [[True, False], [[1, '', '<MyObject>', {}]]]    eval
+Dictionary
+    {}
+    {'a': 1, u'b': 2, 'nested': {'k': 'v'}}
+    {'x': None}    {'x': ''}
 
-Return Tuple
-    [Documentation]    Tuples are converted to lists
-    Return Tuple    ${LIST}
-    Return Empty Tuple    ${EMPTY LIST}
-    Return Nested Tuple  [[True, False], [[1, '', '<MyObject>', {}]]]    eval
+Dictionary with non-ASCII keys and values
+    {u'\\xe4': u'\\xe4', u'\\u2603': u'\\u2603'}
 
-Return Dictionary
-    Return Dictionary    ${DICT}
-    Return Empty Dictionary    ${EMPTY DICT}
+Dictionary with non-ASCII byte keys and values
+    {'\\xe4': '\\xe4'}    {u'\\uFFFD': u'\\uFFFD'}
 
-Return Dictionary With Non-String Keys
+Dictionary with binary keys is not supported and values
+    [Documentation]  FAIL <type 'exceptions.TypeError'>:unhashable instance
+    {'\\x00': 'value'}
+
+Dictionary with binary values
+    {'0': '\\x00', '1': '\\x01'}
+
+Dictionary with non-string keys and values
     [Documentation]    XML-RPC supports only strings as keys so must convert them
-    Return Dictionary With Non String Keys    {'1': 2, '': 1}    eval
+    {42: 42, True: False, None: None}    {'42': 42, 'True': False, '': ''}
+    {MyObject('key'): MyObject('value')}    {'key': 'value'}
+    {MyObject(u'\\xe4'): MyObject(u'\\xe4')}    {u'\\xe4': u'\\xe4'}
 
-Return Dictionary Containing None
-    Return Dictionary Containing None  {'As value': '', '': 'As key'}    eval
-
-Return Dictionary Containing Objects
-    Return Dictionary Containing Objects  {'As value': '<MyObject1>', '<MyObject2>': 'As key'}    eval
-
-Return Nested Dictionary
-    Return Nested Dictionary  {'1': {'': False}, '2': {'A': {'n': ''}, 'B': {'o': '<MyObject>', 'e': {}}}}    eval
+Mapping
+    MyMapping()    {}
+    MyMapping({'a': 1, 2: 'b', u'\\xe4': '\\x00'})    {'a': 1, '2': 'b', u'\\xe4': '\\x00'}
+    MyMapping({'x': MyMapping(), 'y': None})    {'x': {}, 'y': ''}
 
 *** Keywords ***
 Return Value Should Be
-    [Arguments]    ${keyword}    ${expected}    ${evaluate}=
-    ${actual} =    Run Keyword    ${keyword}
-    ${tester} =    Set Variable If    "${evaluate}"
-    ...    Should Be Equal Evaluated    Should Be Equal
-    Run Keyword    ${tester}    ${actual}    ${expected}
-
-Should Be Equal Evaluated
-    [Arguments]    ${actual}    ${expected}
+    [Arguments]    ${value}    ${expected}=
+    ${actual} =    Return Evaluated    ${value}
+    ${expected} =    Set Variable If    """${expected}"""
+    ...    ${expected}    ${value}
     ${expected} =    Evaluate    ${expected}
-    Should Be Equal  ${actual}    ${expected}
+    Should Be Equal    ${actual}    ${expected}

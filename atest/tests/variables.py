@@ -1,9 +1,11 @@
-# Can be used in the test data like ${MyObject()} or ${MyObject(1)}
 class MyObject:
-    def __init__(self, index=''):
-        self.index = index
+
+    def __init__(self, name='<MyObject>'):
+        self.name = name
+
     def __str__(self):
-        return '<MyObject%s>' % self.index
+        return self.name
+
 
 BYTE_STRING = 'Hello, world!'
 UNICODE_STRING = (u'Hyv\u00E4\u00E4 y\u00F6t\u00E4. '

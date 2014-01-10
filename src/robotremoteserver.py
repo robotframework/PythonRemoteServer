@@ -218,7 +218,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _str(self, item):
         if item is None:
             return ''
-        return str(item)
+        if not isinstance(item, basestring):
+            item = unicode(item)
+        return self._handle_binary_result(item)
 
     def _intercept_stdout(self):
         # TODO: What about stderr?
