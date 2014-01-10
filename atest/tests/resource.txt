@@ -1,6 +1,7 @@
 *** Settings ***
 Library           OperatingSystem
 Library           Process
+Library           Collections
 Variables         variables.py
 
 *** Variables ***

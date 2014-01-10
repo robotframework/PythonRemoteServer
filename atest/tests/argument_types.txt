@@ -1,4 +1,5 @@
 *** Settings ***
+Documentation     These tests actually test the Remote library more than the remote server.
 Resource          resource.txt
 Suite Setup       Start And Import Remote Library    arguments.py
 Suite Teardown    Stop Remote Library
@@ -37,10 +38,12 @@ None
     [Documentation]    None is converted to empty string because it is not supported by all XML-RPC versions.
     None    ''
 
-Arbitrary Object
+Custom object
     [Documentation]    Arbitrary objects cannot be transferred over XML-RPC and thus only their string presentation is used
-    [Template]    NONE
-    Remote.Argument Should Be Correct    ${MyObject()}    '<MyObject>'
+    MyObject()            '<MyObject>'
+    MyObject('xxx')       'xxx'
+    MyObject(u'\\xe4')    u'\\xe4'
+    MyObject('\\x00')     '\\x00'
 
 List
     \[]
@@ -48,10 +51,12 @@ List
     \[None]    ['']
     \[[], [1, 2], [[True], False], 'xxx']
 
-Tuple
-    [Documentation]    Tuples are converted to lists
+List-like
+    [Documentation]    Tuples etc. are converted to lists
     ()    []
     ('Hei', u'\\xe4iti', 63, (), None)    ['Hei', u'\\xe4iti', 63, [], '']
+    set(['hello'])    ['hello']
+    range(5)    [0, 1, 2, 3, 4]
 
 Dictionary
     {}
@@ -67,5 +72,6 @@ Argument Should Be Correct
      [Arguments]    ${argument}    ${expected}=
      ${expected} =    Set Variable If    """${expected}"""
      ...    ${expected}    ${argument}
-     ${argument} =    Evaluate    ${argument}
+     ${ns} =    Create Dictionary    MyObject=${MyObject}
+     ${argument} =    Evaluate    ${argument}    namespace=${ns}
      Remote.Argument Should Be Correct    ${argument}    ${expected}
