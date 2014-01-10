@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation     These tests actually test the Remote library more than the remote server.
 Resource          resource.txt
-Variables         variables.py
+Variables         arguments.py
 Suite Setup       Start And Import Remote Library    arguments.py
 Suite Teardown    Stop Remote Library
 Test Template     Argument Should Be Correct
