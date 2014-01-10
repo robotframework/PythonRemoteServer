@@ -1,4 +1,4 @@
-#  Copyright 2008-2013 Nokia Siemens Networks Oyj
+#  Copyright 2008-2014 Nokia Solutions and Networks
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -205,6 +205,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _handle_binary_result(self, result):
         if not BINARY.search(result):
             # TODO: Clean-up. This isn't the right place to do this.
+            # Or at least this method is badly named.
             if isinstance(result, str):
                 result = unicode(result, errors='replace')
             return result
