@@ -21,13 +21,11 @@ Multiple kwargs
 
 Args and kwargs
     ${result} =    Args and kwargs    arg
-    Should Be Equal    ${result}    arg, default2
+    Should Be Equal    ${result}    arg, default
     ${result} =    Args and kwargs    arg    foo=bar
-    Should Be Equal    ${result}    arg, default2, foo:bar
+    Should Be Equal    ${result}    arg, default, foo:bar
     ${result} =    Args and kwargs    a    arg2=b    c=3    d=4
     Should Be Equal    ${result}    a, b, c:3, d:4
-    ${result} =    Args and kwargs    arg2=b    c=3    d=4
-    Should Be Equal    ${result}    default1, b, c:3, d:4
 
 Varargs and kwargs
     ${result} =    Varargs and kwargs

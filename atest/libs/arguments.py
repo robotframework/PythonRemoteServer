@@ -29,7 +29,7 @@ class Arguments(object):
     def kwargs(self, **kwargs):
         return self._format_args(**kwargs)
 
-    def args_and_kwargs(self, arg1='default1', arg2='default2', **kwargs):
+    def args_and_kwargs(self, arg1, arg2='default', **kwargs):
         return self._format_args(arg1, arg2, **kwargs)
 
     def varargs_and_kwargs(self, *varargs, **kwargs):

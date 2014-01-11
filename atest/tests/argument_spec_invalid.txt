@@ -27,3 +27,19 @@ Too many arguments when using default values
 Too few arguments when using varargs
     [Documentation]  FAIL Keyword 'Remote.Required Defaults And Varargs' expected at least 1 argument, got 0.
     Required Defaults And Varargs
+
+Using arguments when only kwargs accepted
+    [Documentation]  FAIL Keyword 'Remote.Kwargs' expected 0 non-keyword arguments, got 4.
+    Kwargs    normal    args    are    no-no
+
+Too few arguments when kwargs accepted
+    [Documentation]  FAIL Keyword 'Remote.Args And Kwargs' expected 1 to 2 non-keyword arguments, got 0.
+    Args and kwargs
+
+Too many arguments when kwargs accepted
+    [Documentation]  FAIL Keyword 'Remote.Args And Kwargs' expected 1 to 2 non-keyword arguments, got 7.
+    Args and kwargs    we    do    not    accept    this    many    args
+
+Missing argument when using kwargs
+    [Documentation]  FAIL Keyword 'Remote.Args And Kwargs' missing value for argument 'arg1'.
+    Args and kwargs    arg2=2    foo=bar
