@@ -179,8 +179,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         try:
             msg = unicode(value)
         except UnicodeError:
-            # TODO: This fails if args contain non-strings
-            msg = ' '.join([unicode(a, errors='replace') for a in value.args])
+            return ' '.join([self._str(a) for a in value.args])
         return self._handle_binary_result(msg)
 
     def _get_error_traceback(self, exc_tb):

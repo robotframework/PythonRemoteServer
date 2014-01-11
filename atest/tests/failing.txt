@@ -5,7 +5,7 @@ Suite Teardown    Stop Remote Library
 Test Template     Correct failure should occur
 
 *** Variables ***
-${SOURCE}         [\\w: /\\\\]+failing.py
+${SOURCE}         File "[\\w: /\\\\]+failing.py", line \\d+
 
 *** Test Cases ***
 Generic exceptions
@@ -38,6 +38,12 @@ Non-ASCII bytes
 Binary message
     Exception    \x00.\x01.\x02
 
+Non-string message
+    Exception    42    evaluate=yes
+    Exception    None
+    Exception    ('Message', 42)    evaluate=yes
+    Exception    (u'\\xe4 ', 42)    evaluate=yes
+
 Failure deeper
     [Documentation]    FAIL Finally failing
     [Template]    NONE
@@ -47,7 +53,7 @@ Traceback
     [Documentation]  FAIL MyException: My error message
     ...    LOG 1:1 FAIL MyException: My error message
     ...    LOG 1:2 DEBUG REGEXP: Traceback \\(most recent call last\\):
-    ...    \\s+File "${SOURCE}", line 15, in failure
+    ...    \\s+${SOURCE}, in failure
     ...    \\s+raise exception\\(message\\)
     [Template]    NONE
     Failure    MyException    My error message
@@ -56,11 +62,11 @@ Traceback with multiple entries
     [Documentation]  FAIL Finally failing
     ...    LOG 1:1 FAIL Finally failing
     ...    LOG 1:2 DEBUG REGEXP: Traceback \\(most recent call last\\):
-    ...    \\s+File "${SOURCE}", line 21, in failure_deeper
+    ...    \\s+${SOURCE}, in failure_deeper
     ...    \\s+self.failure_deeper\\(rounds-1\\)
-    ...    \\s+File "${SOURCE}", line 21, in failure_deeper
+    ...    \\s+${SOURCE}, in failure_deeper
     ...    \\s+self.failure_deeper\\(rounds-1\\)
-    ...    \\s+File "${SOURCE}", line 20, in failure_deeper
+    ...    \\s+${SOURCE}, in failure_deeper
     ...    \\s+raise RuntimeError\\('Finally failing'\\)
     [Template]    NONE
     Failure Deeper    rounds=3

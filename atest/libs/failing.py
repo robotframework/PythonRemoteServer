@@ -12,6 +12,8 @@ class Failures(object):
             raise exception
         if evaluate:
             message = eval(message)
+        if isinstance(message, tuple):
+            raise exception(*message)
         raise exception(message)
 
     def failure_deeper(self, rounds=10):
