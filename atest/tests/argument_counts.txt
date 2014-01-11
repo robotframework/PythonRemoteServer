@@ -1,34 +1,34 @@
 *** Settings ***
-Resource         resource.txt
-Suite Setup      Start And Import Remote Library    arguments.py
-Test Template    Arguments Should Be Accepted
-Suite Teardown   Stop Remote Library
+Resource          resource.txt
+Suite Setup       Start And Import Remote Library    arguments.py
+Test Template     Arguments Should Be Accepted
+Suite Teardown    Stop Remote Library
 
 *** Test Cases ***
-No Arguments
-    ${EMPTY}              No Arguments
+No arguments
+    ${EMPTY}            No Arguments
 
-Required Arguments
-    some argument          One Argument       some argument
-    arg1, arg2             Two Arguments      arg1    arg2
-    1, 2, 3, 4, 5, 6, 7    Seven Arguments    1    2    3    4    5    6    7
+Required arguments
+    some argument       One Argument       some argument
+    arg1, arg2          Two Arguments      arg1    arg2
+    1, 2, 3, 4, 5, 6    Six Arguments    1    2    3    4    5    6
 
-Arguments With Default Values
-    one, two, three        Arguments With Default Values    one    two    three
-    one, two, 3            Arguments With Default Values    one    two
-    one, 2, 3              Arguments With Default Values    one
+Arguments with default values
+    one, two, three     Arguments With Default Values    one    two    three
+    one, two, 3         Arguments With Default Values    one    two
+    one, 2, 3           Arguments With Default Values    one
 
-Variable Number Of Arguments
-    ${EMPTY}               Variable Number Of Arguments
-    One argument           Variable Number Of Arguments    One argument
-    3, args, now           Variable Number Of Arguments    3    args    now
-    1, 2, 3, 4, 5          Variable Number Of Arguments    1    2    3    4    5
+Variable number of arguments
+    ${EMPTY}            Variable Number Of Arguments
+    One argument        Variable Number Of Arguments    One argument
+    3, args, now        Variable Number Of Arguments    3    args    now
+    1, 2, 3, 4, 5       Variable Number Of Arguments    1    2    3    4    5
 
-Required Arguments, Default Values and Varargs
-    Hello, world           Required Defaults And Varargs    Hello
-    Hi, tellus             Required Defaults And Varargs    Hi    tellus
-    Hei, taas, maa         Required Defaults And Varargs    Hei    taas    maa
-    1, 2, 3, 4, 5          Required Defaults And Varargs    1    2    3    4    5
+Required arguments, default values and varargs
+    Hello, world        Required Defaults And Varargs    Hello
+    Hi, tellus          Required Defaults And Varargs    Hi    tellus
+    Hei, taas, maa      Required Defaults And Varargs    Hei    taas    maa
+    1, 2, 3, 4, 5       Required Defaults And Varargs    1    2    3    4    5
 
 *** Keywords ***
 Arguments Should Be Accepted

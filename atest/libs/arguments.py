@@ -14,8 +14,8 @@ class Arguments(object):
     def two_arguments(self, arg1, arg2):
         return self._format(arg1, arg2)
 
-    def seven_arguments(self, arg1, arg2, arg3, arg4, arg5, arg6, arg7):
-        return self._format(arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+    def six_arguments(self, arg1, arg2, arg3, arg4, arg5, arg6):
+        return self._format(arg1, arg2, arg3, arg4, arg5, arg6)
 
     def arguments_with_default_values(self, arg1, arg2='2', arg3=3):
         return self._format(arg1, arg2, arg3)

@@ -1,29 +1,29 @@
 *** Settings ***
-Resource         resource.txt
-Suite Setup      Start And Import Remote Library    arguments.py
-Suite Teardown   Stop Remote Library
+Resource          resource.txt
+Suite Setup       Start And Import Remote Library    arguments.py
+Suite Teardown    Stop Remote Library
 
 *** Test Cases ***
-Using Arguments When No Accepted
+Using arguments when no accepted
     [Documentation]  FAIL Keyword 'Remote.No Arguments' expected 0 arguments, got 1.
     No Arguments  not allowed
 
-Too Few Arguments When Using Only Required Args
+Too few arguments when using only required arguments
     [Documentation]  FAIL Keyword 'Remote.One Argument' expected 1 argument, got 0.
     One Argument
 
-Too Many Arguments When Using Only Required Args
+Too many arguments when using only required arguments
     [Documentation]  FAIL Keyword 'Remote.Two Arguments' expected 2 arguments, got 3.
     Two Arguments    too    many    arguments
 
-Too Few Arguments When Using Default Values
+Too few arguments when using default values
     [Documentation]  FAIL Keyword 'Remote.Arguments With Default Values' expected 1 to 3 arguments, got 0.
     Arguments With Default Values
 
-Too Many Arguments When Using Default Values
+Too many arguments when using default values
     [Documentation]  FAIL Keyword 'Remote.Arguments With Default Values' expected 1 to 3 arguments, got 5.
     Arguments With Default Values    this    is    way    too    much
 
-Too Few Arguments When Using Varargs
+Too few arguments when using varargs
     [Documentation]  FAIL Keyword 'Remote.Required Defaults And Varargs' expected at least 1 argument, got 0.
     Required Defaults And Varargs

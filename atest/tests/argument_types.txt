@@ -14,7 +14,7 @@ ASCII string
     u'Hello, world!'
     'Hello, world!'
 
-Non-ASCII String
+Non-ASCII string
     u'Hyv\\xe4'
     u'\\u2603'
 
