@@ -15,20 +15,20 @@ Required arguments
 
 Arguments with default values
     one, two, three     Arguments With Default Values    one    two    three
-    one, two, 3         Arguments With Default Values    one    two
-    one, 2, 3           Arguments With Default Values    one
+    one, two, 3 (int)   Arguments With Default Values    one    two
+    one, 2, 3 (int)     Arguments With Default Values    one
 
 Variable number of arguments
     ${EMPTY}            Variable Number Of Arguments
     One argument        Variable Number Of Arguments    One argument
     3, args, now        Variable Number Of Arguments    3    args    now
-    1, 2, 3, 4, 5       Variable Number Of Arguments    1    2    3    4    5
+    1, 2, 3 (int), 4    Variable Number Of Arguments    1    2    ${3}    4
 
 Required arguments, default values and varargs
     Hello, world        Required Defaults And Varargs    Hello
     Hi, tellus          Required Defaults And Varargs    Hi    tellus
     Hei, taas, maa      Required Defaults And Varargs    Hei    taas    maa
-    1, 2, 3, 4, 5       Required Defaults And Varargs    1    2    3    4    5
+    1, 2, 3 (int), 4    Required Defaults And Varargs    1    2    ${3}    4
 
 *** Keywords ***
 Arguments Should Be Accepted
