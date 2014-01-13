@@ -5,7 +5,6 @@ Library    Remote    http://localhost:${PORT}
 ${PORT}    8270
 
 *** Test Cases ***
-
 Count Items in Directory
     ${items1} =    Count Items In Directory    ${CURDIR}
     ${items2} =    Count Items In Directory    ${TEMPDIR}
