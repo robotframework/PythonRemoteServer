@@ -1,5 +1,5 @@
 *** Settings ***
-Resource          resource.txt
+Resource          resource.robot
 Suite Setup       Start And Import Remote Library    returning.py
 Suite Teardown    Stop Remote Library
 Test Template     Return Value Should Be

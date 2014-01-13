@@ -1,5 +1,5 @@
 *** Settings ***
-Resource          resource.txt
+Resource          resource.robot
 Suite Setup       Start And Import Remote Library    failing.py
 Suite Teardown    Stop Remote Library
 Test Template     Correct failure should occur

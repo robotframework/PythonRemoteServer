@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation     These tests actually test the Remote library more than the remote server.
-Resource          resource.txt
+Resource          resource.robot
 Variables         arguments.py
 Suite Setup       Start And Import Remote Library    arguments.py
 Suite Teardown    Stop Remote Library

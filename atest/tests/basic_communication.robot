@@ -1,5 +1,5 @@
 *** Settings ***
-Resource          resource.txt
+Resource          resource.robot
 Suite Setup       Start And Import Remote Library    basics.py
 Suite Teardown    Stop Remote Library
 
