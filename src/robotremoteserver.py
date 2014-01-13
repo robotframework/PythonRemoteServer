@@ -32,6 +32,7 @@ except ImportError:
 
 
 BINARY = re.compile('[\x00-\x08\x0B\x0C\x0E-\x1F]')
+NON_ASCII = re.compile('[\x80-\xff]')
 
 
 class RobotRemoteServer(SimpleXMLRPCServer):
@@ -102,16 +103,20 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def run_keyword(self, name, args, kwargs=None):
         args, kwargs = self._handle_binary_args(args, kwargs or {})
-        result = {'return': '', 'output': '', 'error': '', 'traceback': ''}
+        result = {'status': 'FAIL', 'return': '', 'output': '',
+                  'error': '', 'traceback': ''}
         self._intercept_stdout()
         try:
             return_value = self._get_keyword(name)(*args, **kwargs)
         except:
-            result['status'] = 'FAIL'
             result['error'], result['traceback'] = self._get_error_details()
         else:
-            result['status'] = 'PASS'
-            result['return'] = self._handle_return_value(return_value)
+            try:
+                result['return'] = self._handle_return_value(return_value)
+            except:
+                result['error'] = self._get_error_message()
+            else:
+                result['status'] = 'PASS'
         result['output'] = self._restore_stdout()
         return result
 
@@ -165,7 +170,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return (self._get_error_message(exc_type, exc_value),
                 self._get_error_traceback(exc_tb))
 
-    def _get_error_message(self, exc_type, exc_value):
+    def _get_error_message(self, exc_type=None, exc_value=None):
+        if exc_type is None:
+            exc_type, exc_value = sys.exc_info()[:2]
         name = exc_type.__name__
         message = self._get_message_from_exception(exc_value)
         if not message:
@@ -179,7 +186,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         try:
             msg = unicode(value)
         except UnicodeError:
-            return ' '.join([self._str(a) for a in value.args])
+            msg = ' '.join([self._str(a, handle_binary=False) for a in value.args])
         return self._handle_binary_result(msg)
 
     def _get_error_traceback(self, exc_tb):
@@ -202,25 +209,24 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             return self._str(ret)
 
     def _handle_binary_result(self, result):
-        if not BINARY.search(result):
-            # TODO: Clean-up. This isn't the right place to do this.
-            # Or at least this method is badly named.
-            if isinstance(result, str):
-                result = unicode(result, errors='replace')
+        if not self._contains_binary(result):
             return result
         try:
             result = str(result)
         except UnicodeError:
-            # TODO: Is this tested anywhere?
             raise ValueError("Cannot represent %r as binary." % result)
         return Binary(result)
 
-    def _str(self, item):
+    def _contains_binary(self, result):
+        return (BINARY.search(result) or isinstance(result, str) and
+                sys.platform != 'cli' and NON_ASCII.search(result))
+
+    def _str(self, item, handle_binary=True):
         if item is None:
             return ''
         if not isinstance(item, basestring):
             item = unicode(item)
-        return self._handle_binary_result(item)
+        return self._handle_binary_result(item) if handle_binary else item
 
     def _intercept_stdout(self):
         # TODO: What about stderr?

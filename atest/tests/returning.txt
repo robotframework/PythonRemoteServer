@@ -6,6 +6,7 @@ Test Template     Return Value Should Be
 
 *** Test Cases ***
 Empty string
+    u''
     ''
 
 ASCII string
@@ -16,8 +17,18 @@ Non-ASCII String
     u'Hyv\\xe4'
     u'\\u2603'
 
+Non-ASCII Bytes
+    'Hyv\\xe4'
+    '\\x80\\xff'
+
 Binary
-    '\\x00\\x01'
+    '\\x00\\x01\\x02'
+    u'\\x00\\x01\\x02'
+    '\\x00\\xe4\\xff'
+
+Unrepresentable binary
+    [Documentation]    FAIL ValueError: Cannot represent u'\\x00\\xe4\\xff' as binary.
+    u'\\x00\\xe4\\xff'
 
 Integer
     42
@@ -69,11 +80,15 @@ Dictionary
 Dictionary with non-ASCII keys and values
     {u'\\xe4': u'\\xe4', u'\\u2603': u'\\u2603'}
 
-Dictionary with non-ASCII byte keys and values
-    {'\\xe4': '\\xe4'}    {u'\\uFFFD': u'\\uFFFD'}
+Dictionary with non-ASCII byte keys is not supported
+    [Documentation]  FAIL TypeError: unhashable instance
+    {'\\xe4': 'value'}
 
-Dictionary with binary keys is not supported and values
-    [Documentation]  FAIL <type 'exceptions.TypeError'>:unhashable instance
+Dictionary with non-ASCII byte values
+    {'key': '\\xe4'}
+
+Dictionary with binary keys is not supported
+    [Documentation]  FAIL TypeError: unhashable instance
     {'\\x00': 'value'}
 
 Dictionary with binary values

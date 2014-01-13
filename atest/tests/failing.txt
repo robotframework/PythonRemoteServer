@@ -33,7 +33,7 @@ Non-ASCII message
     Exception    Hyvä \u2603!!
 
 Non-ASCII bytes
-    Exception    'Hyv\\xe4'    Hyv\uFFFD    evaluate=yes
+    Exception    'Hyv\\xe4'    Hyv\\xe4    evaluate=yes
 
 Binary message
     Exception    \x00.\x01.\x02
