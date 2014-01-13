@@ -1,11 +1,15 @@
+import sys
+
+
 class Logging(object):
 
-    def logging(self, message, level='', evaluate=False):
-        if evaluate:
+    def logging(self, message, level='', evaluate=False, stderr=False):
+        if evaluate and evaluate != 'False':
             message = eval(message)
         if level:
             message = '*%s* %s' % (level, message)
-        print message
+        stream = sys.stdout if not stderr else sys.stderr
+        stream.write(message + '\n')
 
     def multiple_messages_with_different_levels(self):
         print 'Info message'
@@ -25,9 +29,12 @@ class Logging(object):
         print logged
         return returned
 
+    def logging_both_to_stdout_and_stderr(self, *messages):
+        for index, msg in enumerate(messages):
+            stream = sys.stdout if index % 2 == 0 else sys.stderr
+            stream.write(msg)
 
 if __name__ == '__main__':
-    import sys
     from robotremoteserver import RobotRemoteServer
 
     RobotRemoteServer(Logging(), '127.0.0.1', *sys.argv[1:])

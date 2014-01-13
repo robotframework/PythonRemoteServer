@@ -60,3 +60,25 @@ Logging and returning
     Should Be Equal    ${ret}    This is returned
     ${ret} =    Logging    This keyword returns nothing
     Should Be Equal    ${ret}    ${EMPTY}
+
+Logging through stderr
+    [Documentation]
+    ...    LOG 1 INFO Hello, stderr!
+    ...    LOG 2 DEBUG Hyvä \u2603
+    ...    LOG 3 INFO 0\n1
+    Logging    Hello, stderr!    stderr=yes
+    Logging    Hyvä \u2603    level=DEBUG    stderr=yes
+    Logging    '0\\x00\\n1\\x01'    evaluate=yes    stderr=yes
+
+Logging both through stdout and stderr
+    [Documentation]
+    ...    LOG 1:1 INFO stdout
+    ...    LOG 1:2 INFO stderr
+    ...    LOG 2:1 DEBUG stdout-continue
+    ...    LOG 2:2 INFO stderr
+    ...    LOG 3:1 INFO o\no2
+    ...    LOG 3:2 DEBUG e
+    ...    LOG 3:3 INFO e2
+    Logging both to stdout and stderr    stdout    stderr
+    Logging both to stdout and stderr    *DEBUG* stdout    stderr    -continue
+    Logging both to stdout and stderr    o\n    *DEBUG* e\n    o2    *INFO* e2

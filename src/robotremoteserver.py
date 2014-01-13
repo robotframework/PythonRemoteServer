@@ -105,7 +105,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         args, kwargs = self._handle_binary_args(args, kwargs or {})
         result = {'status': 'FAIL', 'return': '', 'output': '',
                   'error': '', 'traceback': ''}
-        self._intercept_stdout()
+        self._intercept_std_streams()
         try:
             return_value = self._get_keyword(name)(*args, **kwargs)
         except:
@@ -117,7 +117,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                 result['error'] = self._get_error_message()
             else:
                 result['status'] = 'PASS'
-        result['output'] = self._restore_stdout()
+        result['output'] = self._restore_std_streams()
         return result
 
     def _handle_binary_args(self, args, kwargs):
@@ -165,7 +165,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _get_error_details(self):
         exc_type, exc_value, exc_tb = sys.exc_info()
         if exc_type in self._fatal_exceptions:
-            self._restore_stdout()
+            self._restore_std_streams()
             raise
         return (self._get_error_message(exc_type, exc_value),
                 self._get_error_traceback(exc_tb))
@@ -228,15 +228,25 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             item = unicode(item)
         return self._handle_binary_result(item) if handle_binary else item
 
-    def _intercept_stdout(self):
-        # TODO: What about stderr?
+    def _intercept_std_streams(self):
         sys.stdout = StringIO()
+        sys.stderr = StringIO()
 
-    def _restore_stdout(self):
-        output = sys.stdout.getvalue()
-        sys.stdout.close()
+    def _restore_std_streams(self):
+        stdout = sys.stdout.getvalue()
+        stderr = sys.stderr.getvalue()
+        close = [sys.stdout, sys.stderr]
         sys.stdout = sys.__stdout__
-        return self._handle_binary_result(output)
+        sys.stderr = sys.__stderr__
+        for stream in close:
+            stream.close()
+        if stdout and stderr:
+            if not stderr.startswith(('*TRACE*', '*DEBUG*', '*INFO*', '*HTML*',
+                                      '*WARN*')):
+                stderr = '*INFO* %s' % stderr
+            if not stdout.endswith('\n'):
+                stdout += '\n'
+        return self._handle_binary_result(stdout + stderr)
 
     def _log(self, msg, level=None):
         if level:
