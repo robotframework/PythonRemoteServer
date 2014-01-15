@@ -177,7 +177,8 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         message = self._get_message_from_exception(exc_value)
         if not message:
             return name
-        if exc_type in self._generic_exceptions:
+        if exc_type in self._generic_exceptions \
+                or getattr(exc_value, 'ROBOT_SUPPRESS_NAME', False):
             return message
         return '%s: %s' % (name, message)
 

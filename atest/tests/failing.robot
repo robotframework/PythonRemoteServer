@@ -20,11 +20,16 @@ Non-generic exceptions
 Custom exceptions
     MyException    The message    MyException: The message
 
+Suppress name
+    SuppressNameException    The message    The message
+
 No message
     Exception    ${NONE}    Exception
+    SuppressNameException    ${NONE}    SuppressNameException
 
 Empty message
     Exception    ${EMPTY}    Exception
+    SuppressNameException    ${EMPTY}    SuppressNameException
 
 Multiline message
     Exception    Can\n\haz\nmultiple\n\lines?\n\n\nYezzz!!!\n

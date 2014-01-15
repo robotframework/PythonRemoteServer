@@ -27,6 +27,10 @@ class MyException(Exception):
     pass
 
 
+class SuppressNameException(Exception):
+    ROBOT_SUPPRESS_NAME = True
+
+
 if __name__ == '__main__':
     import sys
     from robotremoteserver import RobotRemoteServer
