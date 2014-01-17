@@ -42,5 +42,7 @@ Stop Remote Library
 
 Server Should Be Stopped And Correct Messages Logged
     ${result} =    Wait For Process    timeout=10s    on_timeout=terminate
-    Should Be Equal    ${result.stdout}
-    ...    Robot Framework remote server starting at 127.0.0.1:${ACTIVE PORT}.
+    ${expected} =    Catenate    SEPARATOR=\n
+    ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} starting.
+    ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} stopping.
+    Should Be Equal    ${result.stdout}    ${expected}

@@ -69,7 +69,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def _announce_start(self, port_file=None):
         host, port = self.server_address
-        self._log('Robot Framework remote server starting at %s:%s.'
+        self._log('Robot Framework remote server at %s:%s starting.'
                   % (host, port))
         if port_file:
             pf = open(port_file, 'w')
@@ -252,5 +252,10 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _log(self, msg, level=None):
         if level:
             msg = '*%s* %s' % (level.upper(), msg)
-        sys.stdout.write(msg + '\n')
-        sys.stdout.flush()
+        self._write_to_stream(msg, sys.stdout)
+        if sys.__stdout__ is not sys.stdout:
+            self._write_to_stream(msg, sys.__stdout__)
+
+    def _write_to_stream(self, msg, stream):
+        stream.write(msg + '\n')
+        stream.flush()
