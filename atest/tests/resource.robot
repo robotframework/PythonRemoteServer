@@ -12,6 +12,7 @@ Start And Import Remote Library
     Set Pythonpath
     ${port} =    Start Remote Library    ${library}
     Import Library    Remote    http://127.0.0.1:${port}
+    Set Suite Variable    ${ACTIVE PORT}    ${port}
     Set Log Level    DEBUG
 
 Start Remote Library
@@ -36,7 +37,10 @@ Set Pythonpath
     Set Environment Variable    IRONPYTHONPATH    ${src}
 
 Stop Remote Library
-    [Arguments]    ${library}=${NONE}
     Stop Remote Server
-    ${result} =    Wait For Process    ${library}    10s    terminate
-    Log    ${result.stdout}
+    Server Should Be Stopped And Correct Messages Logged
+
+Server Should Be Stopped And Correct Messages Logged
+    ${result} =    Wait For Process    timeout=10s    on_timeout=terminate
+    Should Be Equal    ${result.stdout}
+    ...    Robot Framework remote server starting at 127.0.0.1:${ACTIVE PORT}.

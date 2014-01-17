@@ -85,10 +85,10 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def stop_remote_server(self):
         prefix = 'Robot Framework remote server at %s:%s ' % self.server_address
         if self._allow_stop:
-            self._log(prefix + 'stopping')
+            self._log(prefix + 'stopping.')
             self._shutdown = True
         else:
-            self._log(prefix + 'does not allow stopping', 'WARN')
+            self._log(prefix + 'does not allow stopping.', 'WARN')
         return True
 
     def get_keyword_names(self):
