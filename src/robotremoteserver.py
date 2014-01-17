@@ -63,10 +63,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             self._allow_stop = True
             self.stop_remote_server()
             raise KeyboardInterrupt
-        if hasattr(signal, 'SIGHUP'):
-            signal.signal(signal.SIGHUP, stop_with_signal)
-        if hasattr(signal, 'SIGINT'):
-            signal.signal(signal.SIGINT, stop_with_signal)
+        for name in 'SIGINT', 'SIGTERM', 'SIGHUP':
+            if hasattr(signal, name):
+                signal.signal(getattr(signal, name), stop_with_signal)
 
     def _announce_start(self, port_file=None):
         host, port = self.server_address

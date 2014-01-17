@@ -13,6 +13,9 @@ SIGINT
 SIGHUP
     Send Signal To Process    SIGHUP
 
+SIGTERM
+    Send Signal To Process    SIGTERM
+
 *** Keywords ***
 Start Server
     Start And Import Remote Library    basics.py   ${TEST NAME}
