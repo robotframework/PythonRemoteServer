@@ -62,6 +62,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         def stop_with_signal(signum, frame):
             self._allow_stop = True
             self.stop_remote_server()
+            raise KeyboardInterrupt
         if hasattr(signal, 'SIGHUP'):
             signal.signal(signal.SIGHUP, stop_with_signal)
         if hasattr(signal, 'SIGINT'):
@@ -79,8 +80,11 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                 pf.close()
 
     def serve_forever(self):
-        while not self._shutdown:
-            self.handle_request()
+        try:
+            while not self._shutdown:
+                self.handle_request()
+        except KeyboardInterrupt:
+            pass
 
     def stop_remote_server(self):
         prefix = 'Robot Framework remote server at %s:%s ' % self.server_address

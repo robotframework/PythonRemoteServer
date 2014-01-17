@@ -8,10 +8,10 @@ ${INTERPRETER}    python
 
 *** Keywords ***
 Start And Import Remote Library
-    [Arguments]    ${library}
+    [Arguments]    ${library}    ${name}=Remote
     Set Pythonpath
     ${port} =    Start Remote Library    ${library}
-    Import Library    Remote    http://127.0.0.1:${port}
+    Import Library    Remote    http://127.0.0.1:${port}    WITH NAME    ${name}
     Set Suite Variable    ${ACTIVE PORT}    ${port}
     Set Log Level    DEBUG
 
@@ -46,3 +46,4 @@ Server Should Be Stopped And Correct Messages Logged
     ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} starting.
     ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} stopping.
     Should Be Equal    ${result.stdout}    ${expected}
+    Should Be Equal    ${result.rc}    ${0}
