@@ -13,6 +13,7 @@ Passing
 Failing
     [Documentation]    FAIL This is the error we get
     Failing    This is the error we get
+    Fail    This should not be executed
 
 Logging
     [Documentation]    LOG 1 INFO Hello, world! LOG 2 WARN Warning, warning!!
