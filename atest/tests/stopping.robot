@@ -18,7 +18,7 @@ SIGTERM
 
 *** Keywords ***
 Start Server
-    Start And Import Remote Library    basics.py   ${TEST NAME}
+    Start And Import Remote Library    basics.py    ${TEST NAME}
     Server Should Be Started
 
 Server Should Be Started
@@ -28,3 +28,4 @@ Server Should Be Stopped
     Server Should Be Stopped And Correct Messages Logged
     Run Keyword And Expect Error    Connection to remote server broken: *
     ...    Server Should Be Started
+    [Teardown]    Run Keyword And Ignore Error    ${TEST NAME}.Stop Remote Server
