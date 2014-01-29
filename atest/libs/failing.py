@@ -22,6 +22,21 @@ class Failures(object):
             raise RuntimeError('Finally failing')
         self.failure_deeper(rounds-1)
 
+    def continuable(self, message):
+        self._raise_special(message, continuable=True)
+
+    def fatal(self, message):
+        self._raise_special(message, fatal='yes')
+
+    def not_special(self, message):
+        self._raise_special(message)
+
+    def _raise_special(self, message, continuable=False, fatal=False):
+        special = AssertionError(message)
+        special.ROBOT_CONTINUE_ON_FAILURE = continuable
+        special.ROBOT_EXIT_ON_FAILURE = fatal
+        raise special
+
 
 class MyException(Exception):
     pass

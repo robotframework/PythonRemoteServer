@@ -106,21 +106,33 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def run_keyword(self, name, args, kwargs=None):
         args, kwargs = self._handle_binary_args(args, kwargs or {})
-        result = {'status': 'FAIL', 'return': '', 'output': '',
-                  'error': '', 'traceback': ''}
+        result = {'status': 'FAIL'}
         self._intercept_std_streams()
         try:
             return_value = self._get_keyword(name)(*args, **kwargs)
         except:
-            result['error'], result['traceback'] = self._get_error_details()
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            self._add_to_result(result, 'error',
+                                self._get_error_message(exc_type, exc_value))
+            self._add_to_result(result, 'traceback',
+                                self._get_error_traceback(exc_tb))
+            self._add_to_result(result, 'continuable',
+                                self._get_error_attribute(exc_value, 'CONTINUE'),
+                                default=False)
+            self._add_to_result(result, 'fatal',
+                                self._get_error_attribute(exc_value, 'EXIT'),
+                                default=False)
         else:
             try:
-                result['return'] = self._handle_return_value(return_value)
+                self._add_to_result(result, 'return',
+                                    self._handle_return_value(return_value))
             except:
-                result['error'] = self._get_error_message()
+                exc_type, exc_value, _ = sys.exc_info()
+                self._add_to_result(result, 'error',
+                                    self._get_error_message(exc_type, exc_value))
             else:
                 result['status'] = 'PASS'
-        result['output'] = self._restore_std_streams()
+        self._add_to_result(result, 'output', self._restore_std_streams())
         return result
 
     def _handle_binary_args(self, args, kwargs):
@@ -132,6 +144,10 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         if isinstance(arg, Binary):
             return arg.data
         return arg
+
+    def _add_to_result(self, result, key, value, default=''):
+        if value != default:
+            result[key] = value
 
     def get_keyword_arguments(self, name):
         kw = self._get_keyword(name)
@@ -167,17 +183,10 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             return kw
         return None
 
-    def _get_error_details(self):
-        exc_type, exc_value, exc_tb = sys.exc_info()
+    def _get_error_message(self, exc_type, exc_value):
         if exc_type in self._fatal_exceptions:
             self._restore_std_streams()
             raise
-        return (self._get_error_message(exc_type, exc_value),
-                self._get_error_traceback(exc_tb))
-
-    def _get_error_message(self, exc_type=None, exc_value=None):
-        if exc_type is None:
-            exc_type, exc_value = sys.exc_info()[:2]
         name = exc_type.__name__
         message = self._get_message_from_exception(exc_value)
         if not message:
@@ -200,6 +209,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         entries = traceback.extract_tb(exc_tb)[1:]
         trace = ''.join(traceback.format_list(entries))
         return 'Traceback (most recent call last):\n' + trace
+
+    def _get_error_attribute(self, exc_value, name):
+        return bool(getattr(exc_value, 'ROBOT_%s_ON_FAILURE' % name, False))
 
     def _handle_return_value(self, ret):
         if isinstance(ret, basestring):
