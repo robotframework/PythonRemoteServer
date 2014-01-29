@@ -129,7 +129,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return args, kwargs
 
     def _handle_binary_arg(self, arg):
-        return arg if not isinstance(arg, Binary) else str(arg)
+        if isinstance(arg, Binary):
+            return arg.data
+        return arg
 
     def get_keyword_arguments(self, name):
         kw = self._get_keyword(name)
@@ -230,7 +232,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             return ''
         if not isinstance(item, basestring):
             item = unicode(item)
-        return self._handle_binary_result(item) if handle_binary else item
+        if handle_binary:
+            return self._handle_binary_result(item)
+        return item
 
     def _intercept_std_streams(self):
         sys.stdout = StringIO()
