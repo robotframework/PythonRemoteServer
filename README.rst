@@ -1,69 +1,100 @@
-Robot Framework Python Remote Server
-====================================
-
-Remote server for `Robot Framework`_ implemented with Python.
+Python Remote Server for Robot Framework
+========================================
 
 Introduction
 ------------
 
-`Robot Framework`_ is a generic test automation framework implemented
-with Python_ that also runs on Jython_ (JVM) and IronPython_
-(.NET). Its testing capabilities can be easily extended with generic
-and custom test libraries implemented using Python and also Java when
-using Jython. It also has a `remote library interface`_ that allows
-using test libraries implemented using other languages or running on
-different machines.
+`Robot Framework`_ remote servers allow hosting test libraries on different
+processes or machines than Robot Framework itself is running on. This version
+is implemented in Python_ and supports also Jython_ (JVM) and
+IronPython_ (.NET). See `remote library interface documentation`_ for more
+information about the remote interface in general as well as for a list of
+remote server implementations in other programming languages.
 
-The `remote library architecture`_ consists of `Remote` test library
-that is part of normal Robot Framework installation and separate
-language specific remote servers.  This project contains Python_
-implementation of the remote server.
+This project is hosted in GitHub_ and downloads are available in PyPI_.
 
-.. _Robot Framework: http://robotframework.org>
+.. _Robot Framework: http://robotframework.org
 .. _Python: http://python.org
 .. _Jython: http://jython.org
-.. _IronPython: TODO
-.. _remote library interface:
-.. _remote library architecture: TODO
+.. _IronPython: http://ironpython.codeplex.com
+.. _remote library interface documentation: http://code.google.com/p/robotframework/wiki/RemoteLibrary
+.. _GitHub: https://github.com/robotframework/PythonRemoteServer
+.. _PyPI: http://pypi.python.org/pypi/robotremoteserver
 
+Installation
+------------
 
-*CONTENT BELOW (AND ALSO ABOVE) WORK-IN-PROGRESS*
+The easiest installation approach is using `pip`_:
 
-Examples Using Remote Servers
------------------------------
+.. sourcecode:: bash
 
-Examples on how test libraries can use the remote servers can be found from
-`example` directory. These example libraries can be started with commands::
+    $ pip install robotremoteserver
 
-   python example/examplelibrary.py
-   jython example/examplelibrary.py
-   ruby example/examplelibrary.rb
+Alternatively you can download the `source distributions`_, extract it, and
+install it using:
 
-Note that all the above commands require that language's module search
-path is set so that the respective remote server module can be imported.
-By default the servers listen to connections to localhost on port 8270, 
-but this can be configured like::
+.. sourcecode:: bash
 
-   python example/examplelibrary.py localhost 7777
-   ruby example/examplelibrary.rb 192.168.0.1 8270
+    $ python setup.py install
 
-These examples will start the remote server so that it provides
-keywords implemented in the example module. After the remote server is
-started, an example test case file can be executed using the familiar
-`pybot` or `jybot` commands, possibly giving the port where the server
-is listening as a variable::
+.. _`pip`: http://www.pip-installer.org
+.. _`source distributions`: PyPI_
 
-   pybot example/remote_tests.html
-   jybot example/remote_tests.html
-   pybot --variable PORT:7777 example/remote_tests.html 
+Usage
+-----
 
-The results should be the same regardless of the example library or start-up
-script used.
+Starting
+~~~~~~~~
 
-Testing Remote Servers
-----------------------
+The remote server can be started by simply creating an instance of the server
+and passing a test library instance or module to it:
 
-Tests for the remote servers are inside `test` directory. Acceptance tests
-can be executed using `tests/run.py` script and running the script without
-arguments provides more information. Notice that tests are not included in 
-source distributions.
+.. sourcecode:: python
+
+    from robotremoteserver import RobotRemoteServer
+    from mylibrary import MyLibrary
+
+    RobotRemoteServer(MyLibrary())
+
+By default the server listens to address 127.0.0.1 and port 8270. See the next
+section for information how to configure them.
+
+Configuration
+~~~~~~~~~~~~~
+
+The remote server accepts following configuration parameters:
+
+    ==============  ================  ========================================
+       Argument        Default                   Explanation
+    ==============  ================  ========================================
+    ``host``         ``'127.0.0.1'``  Address to listen. Use ``'0.0.0.0'`` to listen to all available interfaces.
+    ``port``         ``8270``         Port to listen. Use ``0`` to select free port automatically.
+    ``port_file``    ``None``         File to write port that is used.
+    ``allow_stop``   ``True``         Allow/disallow stopping the server using ``Stop Remote Server`` keyword.
+    ==============  ================  ========================================
+
+Address and port that are used are printed to the console where the server is
+started. Writing port to a file by using ``port_file`` argument is especially
+useful when the server selects a free port automatically. Other tools can then
+easily read the active port from the file. If the file is removed prior to
+starting the server, tools can also wait until the file exists to know that
+the server is up and running.
+
+Example:
+
+.. sourcecode:: python
+
+    from robotremoteserver import RobotRemoteServer
+    from mylibrary import MyLibrary
+
+    RobotRemoteServer(MyLibrary(), host='10.0.0.42', port=0,
+                      port_file='/tmp/remote-port.txt', allow_stop=False)
+
+Stopping
+~~~~~~~~
+
+The remote server can be gracefully stopped using three different methods:
+
+- Hitting ``Ctrl-C`` on the console where the server is running.
+- Sending the process ``SIGINT``, ``SIGTERM``, or ``SIGHUP`` signal.
+- Using ``Stop Remote Server`` keyword (unless explicitly disabled).
