@@ -2,3 +2,4 @@ MANIFEST
 .idea
 atest/results
 *.pyc
+build
