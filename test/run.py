@@ -65,6 +65,7 @@ print 'Running acceptance tests with command:\n%s' % ' '.join(command)
 subprocess.call(command)
 print
 
+print 'Verifying results.'
 robotstatuschecker.process_output(output)
 rc = robot.rebot(output, outputdir=results)
 print
