@@ -60,6 +60,7 @@ if not arguments:
 command = ['python', '-m', 'robot.run',
            '--variable', 'INTERPRETER:%s' % interpreter,
            '--name', '%s Remote Server' % interpreter.title(),
+           '--noncritical', 'skip',
            '--output', output, '--log', 'NONE', '--report', 'NONE'] + arguments
 print 'Running acceptance tests with command:\n%s' % ' '.join(command)
 subprocess.call(command)
@@ -67,7 +68,7 @@ print
 
 print 'Verifying results.'
 robotstatuschecker.process_output(output)
-rc = robot.rebot(output, outputdir=results)
+rc = robot.rebot(output, outputdir=results, noncritical='skip')
 print
 if rc == 0:
     print 'All tests passed.'
