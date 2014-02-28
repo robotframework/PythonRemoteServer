@@ -17,7 +17,7 @@ Non-ASCII message
     Logging    Hyvä \u2603
 
 Non-ASCII bytes
-    [Documentation]    LOG 1 INFO Hyv\\xe4
+    [Documentation]    LOG 1 INFO STARTS: Hyv
     Logging    'Hyv\\xe4'    evaluate=yes
 
 Binary
