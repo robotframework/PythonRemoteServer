@@ -7,7 +7,7 @@ import unittest
 
 
 curdir = dirname(abspath(__file__))
-sys.path.insert(0, join(dirname(curdir), 'src'))
+sys.path.insert(0, join(curdir, '..', '..', 'src'))
 
 test_files = [f[:-3] for f in os.listdir(curdir)
               if f.startswith('test_') and f.endswith('.py')]
