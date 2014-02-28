@@ -27,7 +27,7 @@ Examples:
 
 import sys
 import subprocess
-from os.path import abspath, dirname, exists, join
+from os.path import abspath, basename, dirname, exists, join, splitext
 from os import mkdir
 from shutil import rmtree
 
@@ -59,7 +59,8 @@ if not arguments:
 
 command = ['python', '-m', 'robot.run',
            '--variable', 'INTERPRETER:%s' % interpreter,
-           '--name', '%s Remote Server' % interpreter.title(),
+           '--name', '%s Remote Server' % splitext(basename(interpreter))[0].title(),
+           '--metadata', 'Server_Interpreter:%s' % interpreter,
            '--noncritical', 'skip',
            '--output', output, '--log', 'NONE', '--report', 'NONE'] + arguments
 print 'Running acceptance tests with command:\n%s' % ' '.join(command)
