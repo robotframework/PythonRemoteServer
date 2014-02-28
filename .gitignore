@@ -1,5 +1,5 @@
 MANIFEST
 .idea
-atest/results
+test/results
 *.pyc
 build
