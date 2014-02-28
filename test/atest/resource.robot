@@ -37,13 +37,16 @@ Set Pythonpath
     Set Environment Variable    IRONPYTHONPATH    ${src}
 
 Stop Remote Library
+    [Arguments]    ${test logging}=True
     Stop Remote Server
-    Server Should Be Stopped And Correct Messages Logged
+    Server Should Be Stopped And Correct Messages Logged    ${test logging}
 
 Server Should Be Stopped And Correct Messages Logged
+    [Arguments]    ${test logging}=True
     ${result} =    Wait For Process    timeout=10s    on_timeout=terminate
     ${expected} =    Catenate    SEPARATOR=\n
     ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} starting.
     ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} stopping.
-    Should Be Equal    ${result.stdout}    ${expected}
+    Run Keyword If    ${test logging}
+    ...    Should Be Equal    ${result.stdout}    ${expected}
     Should Be Equal    ${result.rc}    ${0}

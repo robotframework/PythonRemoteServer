@@ -1,7 +1,7 @@
 *** Settings ***
 Resource          resource.robot
 Suite Setup       Start And Import Remote Library    returning.py
-Suite Teardown    Stop Remote Library
+Suite Teardown    Stop Remote Library    test logging='ipy' not in '${INTERPRETER}'
 Test Template     Return Value Should Be
 
 *** Test Cases ***
