@@ -5,13 +5,13 @@ from os.path import abspath, dirname, join
 import re
 
 NAME = 'robotremoteserver'
-CLASSIFIERS = """
+CLASSIFIERS = '''
 Development Status :: 5 - Production/Stable
 License :: OSI Approved :: Apache Software License
 Operating System :: OS Independent
 Programming Language :: Python
 Topic :: Software Development :: Testing
-""".strip().splitlines()
+'''.strip().splitlines()
 CURDIR = dirname(abspath(__file__))
 with open(join(CURDIR, 'src', NAME+'.py')) as source:
     VERSION = re.search("\n__version__ = '(.*)'\n", source.read()).group(1)
@@ -28,7 +28,7 @@ setup(
     license          = 'Apache License 2.0',
     description      = 'Python Remote Server for Robot Framework',
     long_description = README,
-    keywords         = 'robotframework testing testautomation remote',
+    keywords         = 'robotframework testing testautomation remoteinterface',
     platforms        = 'any',
     classifiers      = CLASSIFIERS,
     package_dir      = {'': 'src'},
