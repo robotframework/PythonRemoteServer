@@ -30,7 +30,7 @@ The easiest installation approach is using `pip`_:
 
     $ pip install robotremoteserver
 
-Alternatively you can download the `source distributions`_, extract it, and
+Alternatively you can download the `source distribution`_, extract it, and
 install it using:
 
 .. sourcecode:: bash
@@ -38,7 +38,7 @@ install it using:
     $ python setup.py install
 
 .. _`pip`: http://www.pip-installer.org
-.. _`source distributions`: PyPI_
+.. _`source distribution`: PyPI_
 
 Usage
 -----
@@ -98,3 +98,12 @@ The remote server can be gracefully stopped using three different methods:
 - Hitting ``Ctrl-C`` on the console where the server is running.
 - Sending the process ``SIGINT``, ``SIGTERM``, or ``SIGHUP`` signal.
 - Using ``Stop Remote Server`` keyword (unless explicitly disabled).
+
+Example
+-------
+
+The remote server project contains an `example`_ that can be studied and also
+executed once the library is installed. The example is also included in the
+`source distribution`_.
+
+.. _example: https://github.com/robotframework/PythonRemoteServer/tree/master/example
