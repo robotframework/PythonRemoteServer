@@ -97,12 +97,17 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def get_keyword_names(self):
         get_kw_names = getattr(self._library, 'get_keyword_names', None) or \
                        getattr(self._library, 'getKeywordNames', None)
-        if inspect.isroutine(get_kw_names):
+        if self._is_function_or_method(get_kw_names):
             names = get_kw_names()
         else:
-            names = [attr for attr in dir(self._library) if attr[0] != '_'
-                     and inspect.isroutine(getattr(self._library, attr))]
+            names = [attr for attr in dir(self._library) if attr[0] != '_' and
+                     self._is_function_or_method(getattr(self._library, attr))]
         return names + ['stop_remote_server']
+
+    def _is_function_or_method(self, item):
+        # Cannot use inspect.isroutine because it returns True for
+        # object().__init__ with Jython and IronPython
+        return inspect.isfunction(item) or inspect.ismethod(item)
 
     def run_keyword(self, name, args, kwargs=None):
         args, kwargs = self._handle_binary_args(args, kwargs or {})
@@ -179,9 +184,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         if name == 'stop_remote_server':
             return self.stop_remote_server
         kw = getattr(self._library, name, None)
-        if inspect.isroutine(kw):
-            return kw
-        return None
+        return kw if self._is_function_or_method(kw) else None
 
     def _get_error_message(self, exc_type, exc_value):
         if exc_type in self._fatal_exceptions:
