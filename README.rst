@@ -54,7 +54,7 @@ and passing a test library instance or module to it:
     RobotRemoteServer(MyLibrary())
 
 By default the server listens to address 127.0.0.1 and port 8270. See the next
-section for information how to configure them.
+section for information about configuring the server.
 
 Configuration
 -------------
@@ -65,7 +65,7 @@ The remote server accepts following configuration parameters:
        Argument        Default                   Explanation
     ==============  ================  ========================================
     ``host``         ``'127.0.0.1'``  Address to listen. Use ``'0.0.0.0'`` to listen to all available interfaces.
-    ``port``         ``8270``         Port to listen. Use ``0`` to select free port automatically.
+    ``port``         ``8270``         Port to listen. Use ``0`` to select a free port automatically.
     ``port_file``    ``None``         File to write port that is used.
     ``allow_stop``   ``True``         Allow/disallow stopping the server using ``Stop Remote Server`` keyword.
     ==============  ================  ========================================

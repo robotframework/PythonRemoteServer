@@ -2,8 +2,8 @@ Remote server example
 =====================
 
 This directory contains a very simple remote library example in
-`<examplelibrary.py>`__ file and tests using it in `<example_tests.robot>`__.
-The example library can be executed with Python, Jython, and IronPython.
+`<examplelibrary.py>`__ file and tests using it in `<example_tests.robot>`__
+file. The example library can be executed with Python, Jython, and IronPython.
 Also tests can be run with any of these interpreters, independently from
 the interpreter used for executing the library.
 
