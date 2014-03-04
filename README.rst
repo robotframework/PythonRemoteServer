@@ -40,11 +40,8 @@ install it using:
 .. _`pip`: http://www.pip-installer.org
 .. _`source distribution`: PyPI_
 
-Usage
------
-
 Starting
-~~~~~~~~
+--------
 
 The remote server can be started by simply creating an instance of the server
 and passing a test library instance or module to it:
@@ -60,7 +57,7 @@ By default the server listens to address 127.0.0.1 and port 8270. See the next
 section for information how to configure them.
 
 Configuration
-~~~~~~~~~~~~~
+-------------
 
 The remote server accepts following configuration parameters:
 
@@ -91,7 +88,7 @@ Example:
                       port_file='/tmp/remote-port.txt', allow_stop=False)
 
 Stopping
-~~~~~~~~
+--------
 
 The remote server can be gracefully stopped using three different methods:
 
