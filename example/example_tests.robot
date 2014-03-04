@@ -1,8 +1,9 @@
 *** Settings ***
-Library    Remote    http://localhost:${PORT}
+Library       Remote    http://${ADDRESS}:${PORT}
 
 *** Variables ***
-${PORT}    8270
+${ADDRESS}    127.0.0.1
+${PORT}       8270
 
 *** Test Cases ***
 Count Items in Directory
