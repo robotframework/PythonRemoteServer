@@ -9,15 +9,15 @@ Stop Remote Server
 
 SIGINT
     Skip On Windows
-    Send Signal To Process    SIGINT
+    Send Signal To Remote Server    SIGINT
 
 SIGHUP
     Skip On Windows
-    Send Signal To Process    SIGHUP
+    Send Signal To Remote Server    SIGHUP
 
 SIGTERM
     Skip On Windows
-    Send Signal To Process    SIGTERM
+    Send Signal To Remote Server    SIGTERM
 
 *** Keywords ***
 Start Server
@@ -36,3 +36,8 @@ Server Should Be Stopped
 
 Skip On Windows
     Run Keyword If    "${:}" == ";"    Fail    Skipped on Windows    skip
+
+Send Signal To Remote Server
+   [Arguments]     ${signal}
+   ${process pid}=   Run Keyword    ${TEST NAME}.get_pid
+   Evaluate   os.kill(${process pid}, signal.${signal})   os,signal

@@ -1,3 +1,6 @@
+import os
+
+
 class BasicCommunication(object):
     """Testing basic communication and keyword documentation."""
 
@@ -7,6 +10,12 @@ class BasicCommunication(object):
         See `Failing`, `Logging`, and `Returning` for other basic keywords.
         """
         pass
+
+    def get_pid(self):
+        """
+        Returns process id for the remote server that is serving this library.
+        """
+        return os.getpid()
 
     def failing(self, message):
         """This keyword fails with provided `message`"""
