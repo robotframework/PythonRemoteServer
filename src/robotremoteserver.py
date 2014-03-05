@@ -184,7 +184,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         if name == 'stop_remote_server':
             return self.stop_remote_server
         kw = getattr(self._library, name, None)
-        return kw if self._is_function_or_method(kw) else None
+        if not self._is_function_or_method(kw):
+            return None
+        return kw
 
     def _get_error_message(self, exc_type, exc_value):
         if exc_type in self._fatal_exceptions:
