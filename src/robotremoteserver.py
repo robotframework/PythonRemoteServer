@@ -14,7 +14,9 @@
 
 __version__ = 'devel'
 
+import errno
 import re
+import select
 import sys
 import inspect
 import traceback
@@ -83,7 +85,11 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         else:
             self.socket.settimeout(0.5)
         while not self._shutdown:
-            self.handle_request()
+            try:
+                self.handle_request()
+            except (OSError, select.error) as e:
+                if e.args[0] != errno.EINTR:
+                    raise
 
     def stop_remote_server(self):
         prefix = 'Robot Framework remote server at %s:%s ' % self.server_address
