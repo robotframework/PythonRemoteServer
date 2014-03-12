@@ -21,6 +21,20 @@ This project is hosted in GitHub_ and downloads are available in PyPI_.
 .. _GitHub: https://github.com/robotframework/PythonRemoteServer
 .. _PyPI: http://pypi.python.org/pypi/robotremoteserver
 
+Supported Python versions
+-------------------------
+
+As already mentioned, this remote server officially supports Python_, Jython_,
+and IronPython_, but it should work also with PyPY_. The server has been tested
+on Linux, OSX, and Windows, but should work also on other operating systems.
+
+Remote server 1.0 series ought to support all Python, Jython, and IronPython
+versions between 2.2 and 2.7, but not all combinations have been thoroughly
+tested. Support for versions prior and possibly including 2.5 will likely
+be dropped in the future when we target Python 3 compatibility.
+
+.. _PyPy: http://pypy.org/
+
 Installation
 ------------
 
@@ -36,6 +50,9 @@ install it using:
 .. sourcecode:: bash
 
     $ python setup.py install
+
+Change ``python`` above to ``jython`` or ``ipy`` to install using Jython
+or IronPython, respectively, instead of Python.
 
 .. _`pip`: http://www.pip-installer.org
 .. _`source distribution`: PyPI_
