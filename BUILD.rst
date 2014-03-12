@@ -1,6 +1,19 @@
 Releasing remote server
 =======================
 
+0. Run tests on different operating systems and with different interpreters::
+
+    python test/run.py python
+    python test/run.py jython    # use jython.bat on windows
+    python test/run.py ipy       # some tests fail due to unicode/str issues
+
+   Above commands run both unit and acceptance tests. See `<test/README.rst>`__
+   for more details.
+
+   Unfortunately the test system does not support testing using Jython 2.2.
+   We will likely drop support for it in the future, but before that it can
+   be tested by running the `example <example/README.rst>`__ using it.
+
 1. Set ``$VERSION`` shell variable to ease copy-pasting further commands::
 
     VERSION=x.y
