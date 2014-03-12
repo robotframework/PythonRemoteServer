@@ -50,9 +50,10 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         :param host:        Address to listen. Use ``'0.0.0.0'`` to listen
                             to all available interfaces.
         :param port:        Port to listen. Use ``0`` to select a free port
-                            automatically.
+                            automatically. Can be given as an integer or as
+                            a string.
         :param port_file:   File to write port that is used. ``None`` means
-                            file is not written.
+                            no such file is written.
         :param allow_stop:  Allow/disallow stopping the server using
                             ``Stop Remote Server`` keyword.
         """

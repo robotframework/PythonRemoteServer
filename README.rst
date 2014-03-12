@@ -83,8 +83,8 @@ The remote server accepts following configuration parameters:
     ==============  ================  ========================================
     ``library``                       Test library instance or module to host. Mandatory argument.
     ``host``         ``'127.0.0.1'``  Address to listen. Use ``'0.0.0.0'`` to listen to all available interfaces.
-    ``port``         ``8270``         Port to listen. Use ``0`` to select a free port automatically.
-    ``port_file``    ``None``         File to write port that is used. ``None`` means file is not written.
+    ``port``         ``8270``         Port to listen. Use ``0`` to select a free port automatically. Can be given as an integer or as a string.
+    ``port_file``    ``None``         File to write port that is used. ``None`` means no such file is written.
     ``allow_stop``   ``True``         Allow/disallow stopping the server using ``Stop Remote Server`` keyword.
     ==============  ================  ========================================
 
