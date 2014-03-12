@@ -39,5 +39,6 @@ Skip On Windows
 
 Send Signal To Remote Server
    [Arguments]     ${signal}
-   ${process pid}=   Run Keyword    ${TEST NAME}.get_pid
-   Evaluate   os.kill(${process pid}, signal.${signal})   os,signal
+   [Documentation]  Send signal to server, not to possible wrapper (e.g. jython) running it.
+   ${pid}=   Run Keyword    ${TEST NAME}.Get PID
+   Evaluate   os.kill(${pid}, signal.${signal})   os,signal
