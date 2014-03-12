@@ -129,7 +129,7 @@ The remote server can be gracefully stopped using three different methods:
 
 - Hitting ``Ctrl-C`` on the console where the server is running. Starting from
   version 1.0.1 this ought to work regardless the operating system and Python
-  interpreter.
+  interpreter. Python 2.5 and Jython 2.5 on Windows are known exceptions, though.
 
 - Sending the process ``SIGINT``, ``SIGTERM``, or ``SIGHUP`` signal. Does not
   work on Windows. Notice that with Jython you need to send the signal to the
@@ -138,8 +138,8 @@ The remote server can be gracefully stopped using three different methods:
 - Using ``Stop Remote Server`` keyword. This can be disabled by using
   ``allow_stop=False`` when starting the server.
 
-- Running ``python -m robotremoteserver stop [uri]`` similarly as when testing
-  is the server running. Also this can be disabled using ``allow_stop=False``.
+- Running ``python -m robotremoteserver stop [uri]`` similarly as when `testing
+  is server running`_. Also this can be disabled using ``allow_stop=False``.
   New in version 1.0.1.
 
 Example
