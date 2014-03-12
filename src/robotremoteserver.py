@@ -315,7 +315,7 @@ if __name__ == '__main__':
         actions = {'stop': stop, 'test': test}
         if not args or len(args) > 2 or args[0] not in actions:
             sys.exit('Usage:  python -m robotremoteserver test|stop [uri]')
-        uri = args[1] if len(args) == 2 else 'http://127.0.0.1:8270'
+        uri = len(args) == 2 and args[1] or 'http://127.0.0.1:8270'
         if '://' not in uri:
             uri = 'http://' + uri
         return actions[args[0]], uri
