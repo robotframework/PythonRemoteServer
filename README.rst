@@ -87,14 +87,43 @@ Example:
     RobotRemoteServer(MyLibrary(), host='10.0.0.42', port=0,
                       port_file='/tmp/remote-port.txt', allow_stop=False)
 
+Testing is server running
+-------------------------
+
+Starting from version 1.0.1 , ``robotremoteserver`` module supports testing is
+a remote server running. This can be accomplished by running the module as
+a script with ``test`` argument and an optional URI:
+
+.. sourcecode:: bash
+
+    $ python -m robotremoteserver test
+    Remote server running at http://127.0.0.1:8270.
+    $ python -m robotremoteserver test http://10.0.0.42:57347
+    No remote server running at http://10.0.0.42:57347.
+
+.. tip:: As discussed below, using ``stop`` instead of ``test`` allows stopping
+         the server. Both testing and stopping works also against other Robot
+         Framework remote server implementations.
+
 Stopping
 --------
 
 The remote server can be gracefully stopped using three different methods:
 
-- Hitting ``Ctrl-C`` on the console where the server is running.
-- Sending the process ``SIGINT``, ``SIGTERM``, or ``SIGHUP`` signal.
-- Using ``Stop Remote Server`` keyword (unless explicitly disabled).
+- Hitting ``Ctrl-C`` on the console where the server is running. Starting from
+  version 1.0.1 this ought to work regardless the operating system and Python
+  interpreter.
+
+- Sending the process ``SIGINT``, ``SIGTERM``, or ``SIGHUP`` signal. Does not
+  work on Windows. Notice that with Jython you need to send the signal to the
+  started Java process, not to the shell typically started by ``jython`` command.
+
+- Using ``Stop Remote Server`` keyword. This can be disabled by using
+  ``allow_stop=False`` when starting the server.
+
+- Running ``python -m robotremoteserver stop [uri]`` similarly as when testing
+  is the server running. Also this can be disabled using ``allow_stop=False``.
+  New in version 1.0.1.
 
 Example
 -------

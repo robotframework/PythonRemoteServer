@@ -289,3 +289,36 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _write_to_stream(self, msg, stream):
         stream.write(msg + '\n')
         stream.flush()
+
+
+if __name__ == '__main__':
+    import xmlrpclib
+
+    def stop(uri):
+        server = test(uri, log_success=False)
+        if server is not None:
+            print 'Stopping remote server at %s.' % uri
+            server.stop_remote_server()
+
+    def test(uri, log_success=True):
+        server = xmlrpclib.ServerProxy(uri)
+        try:
+            server.get_keyword_names()
+        except:
+            print 'No remote server running at %s.' % uri
+            return None
+        if log_success:
+            print 'Remote server running at %s.' % uri
+        return server
+
+    def parse_args(args):
+        actions = {'stop': stop, 'test': test}
+        if not args or len(args) > 2 or args[0] not in actions:
+            sys.exit('Usage:  python -m robotremoteserver test|stop [uri]')
+        uri = args[1] if len(args) == 2 else 'http://127.0.0.1:8270'
+        if '://' not in uri:
+            uri = 'http://' + uri
+        return actions[args[0]], uri
+
+    action, uri = parse_args(sys.argv[1:])
+    action(uri)
