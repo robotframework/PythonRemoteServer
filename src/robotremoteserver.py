@@ -44,6 +44,18 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
                  allow_stop=True):
+        """Configure and start-up remote server.
+
+        :param library:     Test library instance or module to host.
+        :param host:        Address to listen. Use ``'0.0.0.0'`` to listen
+                            to all available interfaces.
+        :param port:        Port to listen. Use ``0`` to select a free port
+                            automatically.
+        :param port_file:   File to write port that is used. ``None`` means
+                            file is not written.
+        :param allow_stop:  Allow/disallow stopping the server using
+                            ``Stop Remote Server`` keyword.
+        """
         SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
         self._library = library
         self._allow_stop = allow_stop
