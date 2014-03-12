@@ -79,7 +79,7 @@ Configuration
 The remote server accepts following configuration parameters:
 
     ==============  ================  ========================================
-       Argument       Default value               Explanation
+       Argument         Default                    Explanation
     ==============  ================  ========================================
     ``library``                       Test library instance or module to host. Mandatory argument.
     ``host``         ``'127.0.0.1'``  Address to listen. Use ``'0.0.0.0'`` to listen to all available interfaces.
