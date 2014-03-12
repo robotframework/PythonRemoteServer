@@ -87,8 +87,8 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         while not self._shutdown:
             try:
                 self.handle_request()
-            except (OSError, select.error) as e:
-                if e.args[0] != errno.EINTR:
+            except (OSError, select.error), err:
+                if err.args[0] != errno.EINTR:
                     raise
 
     def stop_remote_server(self):
