@@ -82,7 +82,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def serve_forever(self):
         if hasattr(self, 'timeout'):
             self.timeout = 0.5
-        else:
+        elif sys.platform.startswith('java'):
             self.socket.settimeout(0.5)
         while not self._shutdown:
             try:
