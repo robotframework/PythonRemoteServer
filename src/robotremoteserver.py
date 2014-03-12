@@ -98,7 +98,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             self._shutdown = True
         else:
             self._log(prefix + 'does not allow stopping.', 'WARN')
-        return True
+        return self._shutdown
 
     def get_keyword_names(self):
         get_kw_names = getattr(self._library, 'get_keyword_names', None) or \
