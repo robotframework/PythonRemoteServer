@@ -33,7 +33,7 @@ Use multiple times
     \    Passing
     \    Logging    Round ${i + 1}
 
-Private methods should ne ignored
+Private methods should be ignored
     [Documentation]    FAIL No keyword with name 'Private Method' found.
     Private Method
 
