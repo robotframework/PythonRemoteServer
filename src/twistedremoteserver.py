@@ -21,7 +21,13 @@ from robotremoteserver import RobotRemoteInterface
 
 
 class TwistedRemoteServer(XMLRPC):
+    """A Robot Framework Remote Server using the Twisted event loop.
 
+    This is useful if you have other network functionality to be exposed by
+    the remote server, using Twisted, and want to offer both the RF XML-RPC
+    interface and the other interface from the one process.
+    """
+    
     def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
                  allow_stop=True):
         """Configure remote Twisted-based server.
