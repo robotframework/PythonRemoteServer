@@ -9,5 +9,6 @@ install:
   - pip install Twisted
 
 script:
-  - python test/utest/run.py
+  - cd test
+  - python run.py python
 
