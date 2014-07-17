@@ -1,0 +1,13 @@
+language: python
+python:
+  - "2.7"
+  - "2.6"
+
+install:
+  - pip install 'robotframework>=2.8.4'
+  - pip install robotstatuschecker
+  - pip install Twisted
+
+script:
+  - python test/atest/run.py
+
