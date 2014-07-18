@@ -50,9 +50,9 @@ Non-string message
     Exception    (u'\\xe4 ', 42)    evaluate=yes
 
 Failure deeper
-    [Documentation]    FAIL Finally failing
+    Comment    FAIL Finally failing
     [Template]    NONE
-    Failure Deeper
+    Run Keyword And Expect Error    Finally failing    Failure Deeper
 
 Traceback
     [Documentation]  FAIL MyException: My error message
@@ -61,7 +61,7 @@ Traceback
     ...    \\s+${SOURCE}, in failure
     ...    \\s+raise exception\\(message\\)
     [Template]    NONE
-    Failure    MyException    My error message
+    Run Keyword And Expect Error    MyException*    Failure    MyException    My error message
 
 Traceback with multiple entries
     [Documentation]  FAIL Finally failing
@@ -74,7 +74,7 @@ Traceback with multiple entries
     ...    \\s+${SOURCE}, in failure_deeper
     ...    \\s+raise RuntimeError\\('Finally failing'\\)
     [Template]    NONE
-    Failure Deeper    rounds=3
+    Run Keyword And Expect Error   Finally failing    Failure Deeper    rounds=3
 
 *** Keywords ***
 Correct failure should occur
