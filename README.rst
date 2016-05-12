@@ -17,7 +17,7 @@ This project is hosted in GitHub_ and downloads are available in PyPI_.
 .. _Python: http://python.org
 .. _Jython: http://jython.org
 .. _IronPython: http://ironpython.codeplex.com
-.. _remote library interface documentation: http://code.google.com/p/robotframework/wiki/RemoteLibrary
+.. _remote library interface documentation: https://github.com/robotframework/RemoteInterface
 .. _GitHub: https://github.com/robotframework/PythonRemoteServer
 .. _PyPI: http://pypi.python.org/pypi/robotremoteserver
 
