@@ -133,7 +133,11 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         result = {'status': 'FAIL'}
         self._intercept_std_streams()
         try:
-            return_value = self._get_keyword(name)(*args, **kwargs)
+            lib_run_keyword = self._get_run_keyword()
+            if lib_run_keyword:
+                return_value = lib_run_keyword(name, *args, **kwargs)
+            else:
+                return_value = self._get_keyword(name)(*args, **kwargs)
         except:
             exc_type, exc_value, exc_tb = sys.exc_info()
             self._add_to_result(result, 'error',
@@ -198,6 +202,12 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         if name == '__init__' and inspect.ismodule(self._library):
             return ''
         return inspect.getdoc(self._get_keyword(name)) or ''
+
+    def _get_run_keyword(self):
+        lib_run_keyword = getattr(self._library, 'run_keyword', None)
+        if not self._is_function_or_method(lib_run_keyword):
+            return None
+        return lib_run_keyword
 
     def _get_keyword(self, name):
         if name == 'stop_remote_server':

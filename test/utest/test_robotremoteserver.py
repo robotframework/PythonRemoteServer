@@ -56,6 +56,22 @@ class HybridLibrary:
         """Not returned by get_keyword_names"""
 
 
+class DynamicLibrary:
+
+    def __init__(self):
+        self.library = StaticLibrary()
+
+    def get_keyword_names(self):
+        return [n for n in dir(self.library) if n.endswith('_keyword')]
+
+    def run_keyword(self, name, *args, **kwargs):
+        return getattr(self.library, name)(*args, **kwargs)
+
+    @property
+    def streams(self):
+        return self.library.streams
+
+
 class TestStaticApi(unittest.TestCase):
     library = StaticLibrary()
 
@@ -130,6 +146,9 @@ class TestStaticApi(unittest.TestCase):
 class TestHybridApi(TestStaticApi):
     library = HybridLibrary()
 
+
+class TestDynamicApi(TestStaticApi):
+    library = DynamicLibrary()
 
 if __name__ == '__main__':
     unittest.main()
