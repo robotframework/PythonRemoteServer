@@ -3,13 +3,19 @@
 import unittest
 import sys
 
-from robotremoteserver import RobotRemoteServer
+from robotremoteserver import RobotRemoteInterface
 
 
-class NonServingRemoteServer(RobotRemoteServer):
+class NonServingRemoteServer(RobotRemoteInterface):
 
     def __init__(self, library):
         self._library = library
+
+    def register_function(self, function, name=None):
+        return
+
+    def stop_remote_server(self):
+        return
 
 
 class StaticLibrary:

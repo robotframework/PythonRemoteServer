@@ -48,7 +48,7 @@ Logging and failing
     ...    LOG 1:2 WARN Run for your lives!!
     ...    LOG 1:3 FAIL Too slow
     ...    LOG 1:4 DEBUG REGEXP: Traceback.*
-    Logging And Failing
+    Run Keyword And Expect Error    Too slow    Logging And Failing
 
 Logging and returning
     [Documentation]

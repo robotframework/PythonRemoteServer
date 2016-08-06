@@ -12,8 +12,7 @@ Passing
 
 Failing
     [Documentation]    FAIL This is the error we get
-    Failing    This is the error we get
-    Fail    This should not be executed
+    Run Keyword And Expect Error    Expected error message    Expected Fail
 
 Logging
     [Documentation]    LOG 1 INFO Hello, world! LOG 2 WARN Warning, warning!!
@@ -33,10 +32,17 @@ Use multiple times
     \    Passing
     \    Logging    Round ${i + 1}
 
-Private methods should ne ignored
-    [Documentation]    FAIL No keyword with name 'Private Method' found.
-    Private Method
+Private methods should be ignored
+    Comment    FAIL No keyword with name 'Private Method' found.
+    Run Keyword And Expect Error    No keyword*    Keyword Should Exist    Private Method
 
 Attributes should be ignored
-    [Documentation]    FAIL No keyword with name 'attribute' found.
-    attribute
+    Comment    FAIL No keyword with name 'attribute' found.
+    Run Keyword And Expect Error    No keyword*    Keyword Should Exist    attribute
+
+
+*** Keywords ***
+Expected Fail
+    Failing    Expected error message
+    Fail    This should not be executed
+
