@@ -12,17 +12,25 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-__version__ = 'devel'
-
 import errno
 import re
 import select
 import sys
 import inspect
 import traceback
-from StringIO import StringIO
-from SimpleXMLRPCServer import SimpleXMLRPCServer
-from xmlrpclib import Binary
+from six import string_types
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+try:
+    from SimpleXMLRPCServer import SimpleXMLRPCServer
+except ImportError:
+    from xmlrpc.server import SimpleXMLRPCServer
+try:
+    from xmlrpclib import Binary
+except ImportError:
+    from xmlrpc.client import Binary
 try:
     import signal
 except ImportError:
@@ -32,6 +40,7 @@ try:
 except ImportError:
     Mapping = dict
 
+__version__ = 'devel'
 
 BINARY = re.compile('[\x00-\x08\x0B\x0C\x0E-\x1F]')
 NON_ASCII = re.compile('[\x80-\xff]')
@@ -100,7 +109,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         while not self._shutdown:
             try:
                 self.handle_request()
-            except (OSError, select.error), err:
+            except (OSError, select.error) as err:
                 if err.args[0] != errno.EINTR:
                     raise
 
@@ -210,7 +219,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _get_error_message(self, exc_type, exc_value):
         if exc_type in self._fatal_exceptions:
             self._restore_std_streams()
-            raise
+            raise Exception()
         name = exc_type.__name__
         message = self._get_message_from_exception(exc_value)
         if not message:
@@ -223,7 +232,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _get_message_from_exception(self, value):
         # UnicodeError occurs below 2.6 and if message contains non-ASCII bytes
         try:
-            msg = unicode(value)
+            msg = u'{}'.format(value)
         except UnicodeError:
             msg = ' '.join([self._str(a, handle_binary=False) for a in value.args])
         return self._handle_binary_result(msg)
@@ -238,9 +247,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return bool(getattr(exc_value, 'ROBOT_%s_ON_FAILURE' % name, False))
 
     def _handle_return_value(self, ret):
-        if isinstance(ret, basestring):
+        if isinstance(ret, string_types):
             return self._handle_binary_result(ret)
-        if isinstance(ret, (int, long, float)):
+        if isinstance(ret, (int, float)):
             return ret
         if isinstance(ret, Mapping):
             return dict([(self._str(key), self._handle_return_value(value))
@@ -266,8 +275,8 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _str(self, item, handle_binary=True):
         if item is None:
             return ''
-        if not isinstance(item, basestring):
-            item = unicode(item)
+        if not isinstance(item, string_types):
+            item = u'{}'.format(item)
         if handle_binary:
             return self._handle_binary_result(item)
         return item
@@ -305,23 +314,26 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
 
 if __name__ == '__main__':
-    import xmlrpclib
+    try:
+        from xmlrpclib import ServerProxy
+    except ImportError:
+        from xmlrpc.client import ServerProxy
 
     def stop(uri):
         server = test(uri, log_success=False)
         if server is not None:
-            print 'Stopping remote server at %s.' % uri
+            print('Stopping remote server at %s.' % uri)
             server.stop_remote_server()
 
     def test(uri, log_success=True):
-        server = xmlrpclib.ServerProxy(uri)
+        server = ServerProxy(uri)
         try:
             server.get_keyword_names()
         except:
-            print 'No remote server running at %s.' % uri
+            print('No remote server running at %s.' % uri)
             return None
         if log_success:
-            print 'Remote server running at %s.' % uri
+            print('Remote server running at %s.' % uri)
         return server
 
     def parse_args(args):

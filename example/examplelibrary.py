@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+from six import string_types
 
 
 class ExampleRemoteLibrary(object):
@@ -14,8 +15,8 @@ class ExampleRemoteLibrary(object):
         return len([i for i in os.listdir(path) if not i.startswith('.')])
 
     def strings_should_be_equal(self, str1, str2):
-        print "Comparing '%s' to '%s'." % (str1, str2)
-        if not (isinstance(str1, basestring) and isinstance(str2, basestring)):
+        print("Comparing '%s' to '%s'." % (str1, str2))
+        if not (isinstance(str1, string_types) and isinstance(str2, string_types)):
             raise AssertionError("Given strings are not strings.")
         if str1 != str2:
             raise AssertionError("Given strings are not equal.")

@@ -1,3 +1,6 @@
+from six import string_types
+
+
 class Arguments(object):
 
     def argument_should_be_correct(self, argument, expected):
@@ -45,7 +48,7 @@ class Arguments(object):
         return ', '.join(self._format_arg(a) for a in args)
 
     def _format_arg(self, arg):
-        if isinstance(arg, basestring):
+        if isinstance(arg, string_types):
             return arg
         return '%s (%s)' % (arg, type(arg).__name__)
 
