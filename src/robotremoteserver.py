@@ -33,7 +33,7 @@ try:
 except ImportError:
     Mapping = dict
 
-__version__ = '1.0.2.dev'
+__version__ = 'devel'
 
 BINARY = re.compile('[\x00-\x08\x0B\x0C\x0E-\x1F]')
 NON_ASCII = re.compile(b'[\x80-\xff]')
