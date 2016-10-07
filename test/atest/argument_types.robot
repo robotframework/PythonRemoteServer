@@ -19,7 +19,7 @@ Non-ASCII string
     u'\\u2603'
 
 Binary
-    '\\x00\\x01'
+    b'\\x00\\x01'
 
 Integer
     42
@@ -44,7 +44,7 @@ Custom object
     MyObject()            '<MyObject>'
     MyObject('xxx')       'xxx'
     MyObject(u'\\xe4')    u'\\xe4'
-    MyObject('\\x00')     '\\x00'
+    MyObject('\\x00')     b'\\x00'
 
 List
     \[]
@@ -57,7 +57,7 @@ List-like
     ()    []
     ('Hei', u'\\xe4iti', 63, (), None)    ['Hei', u'\\xe4iti', 63, [], '']
     set(['hello'])    ['hello']
-    xrange(5)    [0, 1, 2, 3, 4]
+    range(5)    [0, 1, 2, 3, 4]
 
 Dictionary
     {}

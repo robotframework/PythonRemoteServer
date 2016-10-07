@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-__version__ = 'devel'
+from __future__ import print_function
 
 import errno
 import re
@@ -20,9 +20,10 @@ import select
 import sys
 import inspect
 import traceback
-from StringIO import StringIO
-from SimpleXMLRPCServer import SimpleXMLRPCServer
-from xmlrpclib import Binary
+from six import integer_types, string_types, text_type as unicode
+from six.moves import StringIO
+from six.moves.xmlrpc_server import SimpleXMLRPCServer
+from six.moves.xmlrpc_client import Binary
 try:
     import signal
 except ImportError:
@@ -32,9 +33,10 @@ try:
 except ImportError:
     Mapping = dict
 
+__version__ = 'devel'
 
 BINARY = re.compile('[\x00-\x08\x0B\x0C\x0E-\x1F]')
-NON_ASCII = re.compile('[\x80-\xff]')
+NON_ASCII = re.compile(b'[\x80-\xff]')
 
 
 class RobotRemoteServer(SimpleXMLRPCServer):
@@ -100,7 +102,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         while not self._shutdown:
             try:
                 self.handle_request()
-            except (OSError, select.error), err:
+            except (OSError, select.error) as err:
                 if err.args[0] != errno.EINTR:
                     raise
 
@@ -238,9 +240,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return bool(getattr(exc_value, 'ROBOT_%s_ON_FAILURE' % name, False))
 
     def _handle_return_value(self, ret):
-        if isinstance(ret, basestring):
+        if isinstance(ret, (bytes, unicode)):
             return self._handle_binary_result(ret)
-        if isinstance(ret, (int, long, float)):
+        if isinstance(ret, integer_types + (float, )):
             return ret
         if isinstance(ret, Mapping):
             return dict([(self._str(key), self._handle_return_value(value))
@@ -254,19 +256,27 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         if not self._contains_binary(result):
             return result
         try:
-            result = str(result)
+            result = self._bytes(result)
         except UnicodeError:
             raise ValueError("Cannot represent %r as binary." % result)
         return Binary(result)
 
     def _contains_binary(self, result):
-        return (BINARY.search(result) or isinstance(result, str) and
-                sys.platform != 'cli' and NON_ASCII.search(result))
+        return (isinstance(result, bytes) and NON_ASCII.search(result)
+                or (isinstance(result, string_types)
+                    and BINARY.search(result)))
+
+    def _bytes(self, item):
+        if isinstance(item, bytes):
+            return item
+        if isinstance(item, unicode):
+            return item.encode('ascii')
+        return unicode(item).encode('ascii')
 
     def _str(self, item, handle_binary=True):
         if item is None:
             return ''
-        if not isinstance(item, basestring):
+        if not isinstance(item, (bytes, unicode)):
             item = unicode(item)
         if handle_binary:
             return self._handle_binary_result(item)
@@ -305,23 +315,23 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
 
 if __name__ == '__main__':
-    import xmlrpclib
+    from six.moves.xmlrpc_client import ServerProxy
 
     def stop(uri):
         server = test(uri, log_success=False)
         if server is not None:
-            print 'Stopping remote server at %s.' % uri
+            print('Stopping remote server at %s.' % uri)
             server.stop_remote_server()
 
     def test(uri, log_success=True):
-        server = xmlrpclib.ServerProxy(uri)
+        server = ServerProxy(uri)
         try:
             server.get_keyword_names()
         except:
-            print 'No remote server running at %s.' % uri
+            print('No remote server running at %s.' % uri)
             return None
         if log_success:
-            print 'Remote server running at %s.' % uri
+            print('Remote server running at %s.' % uri)
         return server
 
     def parse_args(args):

@@ -1,5 +1,10 @@
 MANIFEST
 .idea
 test/results
+temp
+*.egg-info
 *.pyc
+*.html
+*.xml
 build
+setup.cfg

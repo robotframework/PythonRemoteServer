@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 
 
@@ -28,7 +30,7 @@ class BasicCommunication(object):
         | Logging | Hello, world! |      |
         | Logging | Warning!!!    | WARN |
         """
-        print '*%s* %s' % (level, message)
+        print('*%s* %s' % (level, message))
 
     def returning(self, value):
         """This keyword returns the given `value`."""

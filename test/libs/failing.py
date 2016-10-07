@@ -1,4 +1,7 @@
-import exceptions
+try:
+    import exceptions
+except ImportError:
+    import builtins as exceptions
 
 
 class Failures(object):

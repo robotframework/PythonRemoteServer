@@ -24,6 +24,7 @@ Examples:
   run.py jython atest/logging.robot  # One suite with Jython outside Windows
   run.py ipy --test NoMessage atest  # Specific test using IronPython
 """
+from __future__ import print_function
 
 import sys
 import subprocess
@@ -49,11 +50,10 @@ if exists(results):
 mkdir(results)
 
 if not arguments:
-    print 'Running unit tests with %s.' % interpreter
+    print('Running unit tests with %s.' % interpreter)
     rc = subprocess.call([interpreter, join(curdir, 'utest', 'run.py')])
-    print
     if rc != 0:
-        print '%d unit test%s failed.' % (rc, 's' if rc != 1 else '')
+        print('%d unit test%s failed.' % (rc, 's' if rc != 1 else ''))
         sys.exit(rc)
     arguments = [join(curdir, 'atest')]
 
@@ -63,16 +63,14 @@ command = ['python', '-m', 'robot.run',
            '--metadata', 'Server_Interpreter:%s' % interpreter,
            '--noncritical', 'skip',
            '--output', output, '--log', 'NONE', '--report', 'NONE'] + arguments
-print 'Running acceptance tests with command:\n%s' % ' '.join(command)
+print('Running acceptance tests with command:\n%s' % ' '.join(command))
 subprocess.call(command)
-print
 
-print 'Verifying results.'
+print('Verifying results.')
 robotstatuschecker.process_output(output)
 rc = robot.rebot(output, outputdir=results, noncritical='skip')
-print
 if rc == 0:
-    print 'All tests passed.'
+    print('All tests passed.')
 else:
-    print '%d acceptance test%s failed.' % (rc, 's' if rc != 1 else '')
+    print('%d acceptance test%s failed.' % (rc, 's' if rc != 1 else ''))
 sys.exit(rc)
