@@ -24,6 +24,7 @@ Examples:
   run.py jython atest/logging.robot  # One suite with Jython outside Windows
   run.py ipy --test NoMessage atest  # Specific test using IronPython
 """
+from __future__ import print_function
 
 import sys
 import subprocess
