@@ -11,23 +11,23 @@ Empty string
 
 ASCII string
     u'Hello, world!'
-    'Hello, world!'
+    b'Hello, world!'
 
 Non-ASCII String
     u'Hyv\\xe4'
     u'\\u2603'
 
 Non-ASCII Bytes
-    'Hyv\\xe4'
-    '\\x80\\xff'
+    b'Hyv\\xe4'
+    b'\\x80\\xff'
 
 Binary
-    '\\x00\\x01\\x02'
-    u'\\x00\\x01\\x02'
-    '\\x00\\xe4\\xff'
+    b'\\x00\\x01\\x02'
+    u'\\x00\\x01\\x02'    b'\\x00\\x01\\x02'
+    b'\\x00\\xe4\\xff'
 
 Unrepresentable binary
-    [Documentation]    FAIL ValueError: Cannot represent u'\\x00\\xe4\\xff' as binary.
+    [Documentation]    FAIL REGEXP: ValueError: Cannot represent (u'\\x00\\xe4\\xff'|'\x00дя') as binary.
     u'\\x00\\xe4\\xff'
 
 Integer
@@ -57,11 +57,11 @@ Custom object with non-ASCII representation
     MyObject(u'hyv\\xe4')    u'hyv\\xe4'
 
 Custom object with binary representation
-    MyObject('\\x00\\x01')    '\\x00\\x01'
+    MyObject('\\x00\\x01')    b'\\x00\\x01'
 
 List
     \[]
-    \['Hei', u'\\xe4iti', 63, True, '\\x00']
+    \['Hei', u'\\xe4iti', 63, True, '\\x00']    ['Hei', u'\\xe4iti', 63, True, b'\\x00']
     \[None, MyObject('xxx'), MyObject(u'\\xe4')]    ['', 'xxx', u'\\xe4']
     \[[0, [[]]], [1, 2], [[True], False], 'xxx']
 
@@ -81,18 +81,18 @@ Dictionary with non-ASCII keys and values
     {u'\\xe4': u'\\xe4', u'\\u2603': u'\\u2603'}
 
 Dictionary with non-ASCII byte keys is not supported
-    [Documentation]  FAIL TypeError: unhashable instance
-    {'\\xe4': 'value'}
+    [Documentation]  FAIL REGEXP: TypeError: unhashable .*
+    {b'\\xe4': 'value'}
 
 Dictionary with non-ASCII byte values
-    {'key': '\\xe4'}
+    {'key': b'\\xe4'}
 
 Dictionary with binary keys is not supported
-    [Documentation]  FAIL TypeError: unhashable instance
+    [Documentation]  FAIL REGEXP: TypeError: unhashable .*
     {'\\x00': 'value'}
 
 Dictionary with binary values
-    {'0': '\\x00', '1': '\\x01'}
+    {'0': b'\\x00', '1': b'\\x01'}
 
 Dictionary with non-string keys and values
     [Documentation]    XML-RPC supports only strings as keys so must convert them
@@ -102,7 +102,7 @@ Dictionary with non-string keys and values
 
 Mapping
     MyMapping()    {}
-    MyMapping({'a': 1, 2: 'b', u'\\xe4': '\\x00'})    {'a': 1, '2': 'b', u'\\xe4': '\\x00'}
+    MyMapping({'a': 1, 2: 'b', u'\\xe4': '\\x00'})    {'a': 1, '2': 'b', u'\\xe4': b'\\x00'}
     MyMapping({'x': MyMapping(), 'y': None})    {'x': {}, 'y': ''}
 
 *** Keywords ***
