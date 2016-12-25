@@ -9,7 +9,7 @@ from robotremoteserver import RobotRemoteServer
 class NonServingRemoteServer(RobotRemoteServer):
 
     def __init__(self, library):
-        self._library = library
+        RobotRemoteServer.__init__(self, library, serve=False)
 
 
 class StaticLibrary:

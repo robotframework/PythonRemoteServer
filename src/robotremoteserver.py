@@ -43,7 +43,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     _fatal_exceptions = (SystemExit, KeyboardInterrupt)
 
     def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
-                 allow_stop=True):
+                 allow_stop=True, serve=True):
         """Configure and start-up remote server.
 
         :param library:     Test library instance or module to host.
@@ -56,15 +56,17 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                             no such file is written.
         :param allow_stop:  Allow/disallow stopping the server using
                             ``Stop Remote Server`` keyword.
+        :param serve:       Start the server.
         """
-        SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
+        SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False, bind_and_activate=serve)
         self._library = library
         self._allow_stop = allow_stop
         self._shutdown = False
         self._register_functions()
         self._register_signal_handlers()
         self._announce_start(port_file)
-        self.serve_forever()
+        if serve:
+            self.serve_forever()
 
     def _register_functions(self):
         self.register_function(self.get_keyword_names)
