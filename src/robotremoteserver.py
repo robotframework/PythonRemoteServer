@@ -43,7 +43,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     _fatal_exceptions = (SystemExit, KeyboardInterrupt)
 
     def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
-                 allow_stop=True):
+                 allow_stop=True, serve=True):
         """Configure and start-up remote server.
 
         :param library:     Test library instance or module to host.
@@ -56,15 +56,18 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                             no such file is written.
         :param allow_stop:  Allow/disallow stopping the server using
                             ``Stop Remote Server`` keyword.
+        :param serve:       Start the server.
         """
-        SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
+        SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False, bind_and_activate=serve)
         self._library = library
         self._allow_stop = allow_stop
         self._shutdown = False
+        self._robot_name_index = {}
         self._register_functions()
         self._register_signal_handlers()
         self._announce_start(port_file)
-        self.serve_forever()
+        if serve:
+            self.serve_forever()
 
     def _register_functions(self):
         self.register_function(self.get_keyword_names)
@@ -119,8 +122,16 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         if self._is_function_or_method(get_kw_names):
             names = get_kw_names()
         else:
-            names = [attr for attr in dir(self._library) if attr[0] != '_' and
-                     self._is_function_or_method(getattr(self._library, attr))]
+            names = []
+            for attr_name in dir(self._library):
+                attr = getattr(self._library, attr_name)
+                if self._is_function_or_method(attr):
+                    if getattr(attr, 'robot_name', None) not in (None, ''):
+                        names.append(attr.robot_name)
+                        self._robot_name_index[attr.robot_name] = attr_name
+                    else:
+                        if attr_name[0] != '_':
+                            names.append(attr_name)
         return names + ['stop_remote_server']
 
     def _is_function_or_method(self, item):
@@ -197,11 +208,17 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             return inspect.getdoc(self._library) or ''
         if name == '__init__' and inspect.ismodule(self._library):
             return ''
-        return inspect.getdoc(self._get_keyword(name)) or ''
+        keyword = self._get_keyword(name)
+        doc = inspect.getdoc(keyword) or ''
+        if len(getattr(keyword, 'robot_tags')):
+            doc += "\nTags: %s\n" % ', '.join(keyword.robot_tags)
+        return doc
 
     def _get_keyword(self, name):
         if name == 'stop_remote_server':
             return self.stop_remote_server
+        if name in self._robot_name_index:
+            name = self._robot_name_index[name]
         kw = getattr(self._library, name, None)
         if not self._is_function_or_method(kw):
             return None
