@@ -265,19 +265,17 @@ class KeywordResult(object):
         self.data = {'status': 'FAIL'}
 
     def set_error(self, exc_type, exc_value, exc_tb=None):
-        self._add('error', self._get_error_message(exc_type, exc_value))
+        self.data['error'] = self._get_message(exc_type, exc_value)
         if exc_tb:
-            self._add('traceback', self._get_error_traceback(exc_tb))
-        self._add('continuable', self._get_error_attribute(exc_value, 'CONTINUE'),
-                  default=False)
-        self._add('fatal', self._get_error_attribute(exc_value, 'EXIT'),
-                  default=False)
+            self.data['traceback'] = self._get_traceback(exc_tb)
+        continuable = self._get_error_attribute(exc_value, 'CONTINUE')
+        if continuable:
+            self.data['continuable'] = continuable
+        fatal = self._get_error_attribute(exc_value, 'EXIT')
+        if fatal:
+            self.data['fatal'] = fatal
 
-    def _add(self, key, value, default=''):
-        if value != default:
-            self.data[key] = value
-
-    def _get_error_message(self, exc_type, exc_value):
+    def _get_message(self, exc_type, exc_value):
         name = exc_type.__name__
         message = self._get_message_from_exception(exc_value)
         if not message:
@@ -288,16 +286,15 @@ class KeywordResult(object):
         return '%s: %s' % (name, message)
 
     def _get_message_from_exception(self, value):
-        # UnicodeError occurs below 2.6 and if message contains non-ASCII bytes
-        # TODO: Can try/except be removed here?
+        # UnicodeError occurs if message contains non-ASCII bytes
         try:
             msg = unicode(value)
         except UnicodeError:
             msg = ' '.join(self._str(a, handle_binary=False) for a in value.args)
         return self._handle_binary_result(msg)
 
-    def _get_error_traceback(self, exc_tb):
-        # Latest entry originates from this class so it can be removed
+    def _get_traceback(self, exc_tb):
+        # Latest entry originates from this module so it can be removed
         entries = traceback.extract_tb(exc_tb)[1:]
         trace = ''.join(traceback.format_list(entries))
         return 'Traceback (most recent call last):\n' + trace
@@ -306,7 +303,9 @@ class KeywordResult(object):
         return bool(getattr(exc_value, 'ROBOT_%s_ON_FAILURE' % name, False))
 
     def set_return(self, value):
-        self._add('return', self._handle_return_value(value))
+        value = self._handle_return_value(value)
+        if value != '':
+            self.data['return'] = value
 
     def _handle_return_value(self, ret):
         if isinstance(ret, (str, unicode, bytes)):
