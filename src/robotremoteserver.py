@@ -28,12 +28,12 @@ if sys.version_info < (3,):
     from StringIO import StringIO
     from SimpleXMLRPCServer import SimpleXMLRPCServer
     from xmlrpclib import Binary
-    PY3 = False
+    PY2, PY3 = True, False
 else:
     from io import StringIO
     from xmlrpc.client import Binary
     from xmlrpc.server import SimpleXMLRPCServer
-    PY3 = True
+    PY2, PY3 = False, True
     unicode = str
     long = int
 
@@ -314,7 +314,10 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
 
 if __name__ == '__main__':
-    import xmlrpclib
+    if PY2:
+        from xmlrpclib import ServerProxy
+    else:
+        from xmlrpc.client import ServerProxy
 
     def stop(uri):
         server = test(uri, log_success=False)
@@ -323,7 +326,7 @@ if __name__ == '__main__':
             server.stop_remote_server()
 
     def test(uri, log_success=True):
-        server = xmlrpclib.ServerProxy(uri)
+        server = ServerProxy(uri)
         try:
             server.get_keyword_names()
         except:
