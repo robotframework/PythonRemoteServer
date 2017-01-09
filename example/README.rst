@@ -30,7 +30,7 @@ to the library, which passes them further to the remote server, and overriding
 related variables when running tests::
 
     python examplelibrary.py 0.0.0.0 7777
-    pybot --variable PORT:7777 example_tests.py
+    pybot --variable PORT:7777 example_tests.robot
 
 See the example library and tests themselves for details how configuration
 is implemented and the general `remote server documentation <../README.rst>`__
