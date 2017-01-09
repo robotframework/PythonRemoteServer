@@ -1,5 +1,8 @@
 MANIFEST
 .idea
-test/results
 *.pyc
 build
+test/results
+example/log.html
+example/report.html
+example/output.xml

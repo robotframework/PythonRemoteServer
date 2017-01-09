@@ -2,35 +2,38 @@ Remote server example
 =====================
 
 This directory contains a very simple remote library example in
-`<examplelibrary.py>`__ file and tests using it in `<example_tests.robot>`__
-file. The example library can be executed with Python, Jython, and IronPython.
-Also tests can be run with any of these interpreters, independently from
-the interpreter used for executing the library.
+`<examplelibrary.py>`__ file and tests using it in `<tests.robot>`__
+file. The example library can be executed with Python (both 2 and 3), Jython,
+IronPython or PyPy. Also tests can be run with any of these interpreters,
+independently from the interpreter used for executing the library.
 
 A precondition to running the example is installing the remote server or
-putting it into PYTHONPATH or equivalent otherwise. After that the remote
+putting it into ``PYTHONPATH`` or equivalent otherwise. After that the remote
 library can be started from the command line by just executing it with
 the selected interpreter::
 
-    python examplelibrary.py     # Execute on Python
-    jython examplelibrary.py     # Execute on Jython
-    ipy examplelibrary.py        # Execute on IronPython
+    python examplelibrary.py     # Start library on Python
+    jython examplelibrary.py     # Start library on Jython
 
-Alternatively the library can be double-clicked on a file manager. In that
-case it will run on Python.
+Depending on the operating system configuration, it may also be possible to
+simply double-click the library on a file manager.
 
 After the library is running, tests can be executed normally::
 
-    pybot example_tests.robot    # Execute with Python
-    jybot example_tests.robot    # Execute with Jython
-    ipy example_tests.robot      # Execute with IronPython
+    robot tests.robot            # Execute with the `robot` command
+    pypy -m robot tests.robot    # Execute `robot` module using PyPy
 
-It is possible to use custom address and port by passing them as arguments
-to the library, which passes them further to the remote server, and overriding
-related variables when running tests::
+My default the library starts to listen on connections from the localhost on
+port 8270. Both the address and the port to listen to can be configured with
+command line arguments to the library, and also given as variables to tests
+that are run::
 
-    python examplelibrary.py 0.0.0.0 7777
-    pybot --variable PORT:7777 example_tests.robot
+    python examplelibrary.py 192.168.1.15 7777
+    robot --variable ADDRESS:192.168.1.15 --variable PORT:7777 tests.robot
+
+Although the remote server in general can be used from a different machine,
+this example only works correctly when tests are run on the same machine
+where the server is running.
 
 See the example library and tests themselves for details how configuration
 is implemented and the general `remote server documentation <../README.rst>`__
