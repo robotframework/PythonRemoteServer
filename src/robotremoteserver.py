@@ -207,20 +207,19 @@ class KeywordRunner(object):
     def run_keyword(self, args, kwargs=None):
         args, kwargs = self._handle_binary_args(args, kwargs or {})
         result = KeywordResult()
-        self._intercept_std_streams()
-        try:
-            return_value = self._keyword(*args, **kwargs)
-        except Exception:
-            result.set_error(*sys.exc_info())
-        else:
+        with StandardStreamInterceptor() as interceptor:
             try:
-                result.set_return(return_value)
+                return_value = self._keyword(*args, **kwargs)
             except Exception:
-                result.set_error(*sys.exc_info()[:2])
+                result.set_error(*sys.exc_info())
             else:
-                result.set_status('PASS')
-        finally:
-            result.set_output(self._restore_std_streams())
+                try:
+                    result.set_return(return_value)
+                except Exception:
+                    result.set_error(*sys.exc_info()[:2])
+                else:
+                    result.set_status('PASS')
+        result.set_output(interceptor.output)
         return result.data
 
     def _handle_binary_args(self, args, kwargs):
@@ -231,11 +230,18 @@ class KeywordRunner(object):
     def _handle_binary_arg(self, arg):
         return arg if not isinstance(arg, Binary) else arg.data
 
-    def _intercept_std_streams(self):
+
+class StandardStreamInterceptor(object):
+
+    def __init__(self):
+        self.output = ''
+
+    def __enter__(self):
         sys.stdout = StringIO()
         sys.stderr = StringIO()
+        return self
 
-    def _restore_std_streams(self):
+    def __exit__(self, *exc_info):
         stdout = sys.stdout.getvalue()
         stderr = sys.stderr.getvalue()
         close = [sys.stdout, sys.stderr]
@@ -249,7 +255,7 @@ class KeywordRunner(object):
                 stderr = '*INFO* %s' % stderr
             if not stdout.endswith('\n'):
                 stdout += '\n'
-        return stdout + stderr
+        self.output = stdout + stderr
 
 
 class KeywordResult(object):
