@@ -23,7 +23,7 @@ After the library is running, tests can be executed normally::
     robot tests.robot            # Execute with the `robot` command
     pypy -m robot tests.robot    # Execute `robot` module using PyPy
 
-My default the library starts to listen on connections from the localhost on
+By default the library starts to listen on connections from the localhost on
 port 8270. Both the address and the port to listen to can be configured with
 command line arguments to the library, and also given as variables to tests
 that are run::
