@@ -27,11 +27,11 @@ import traceback
 if sys.version_info < (3,):
     from StringIO import StringIO
     from SimpleXMLRPCServer import SimpleXMLRPCServer
-    from xmlrpclib import Binary
+    from xmlrpclib import Binary, ServerProxy
     PY2, PY3 = True, False
 else:
     from io import StringIO
-    from xmlrpc.client import Binary
+    from xmlrpc.client import Binary, ServerProxy
     from xmlrpc.server import SimpleXMLRPCServer
     PY2, PY3 = False, True
     unicode = str
@@ -314,11 +314,6 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
 
 if __name__ == '__main__':
-    if PY2:
-        from xmlrpclib import ServerProxy
-    else:
-        from xmlrpc.client import ServerProxy
-
     def stop(uri):
         server = test(uri, log_success=False)
         if server is not None:
@@ -340,7 +335,7 @@ if __name__ == '__main__':
         actions = {'stop': stop, 'test': test}
         if not args or len(args) > 2 or args[0] not in actions:
             sys.exit('Usage:  python -m robotremoteserver test|stop [uri]')
-        uri = len(args) == 2 and args[1] or 'http://127.0.0.1:8270'
+        uri = args[1] if len(args) == 2 else 'http://127.0.0.1:8270'
         if '://' not in uri:
             uri = 'http://' + uri
         return actions[args[0]], uri
