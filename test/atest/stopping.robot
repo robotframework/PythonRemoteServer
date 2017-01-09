@@ -21,7 +21,7 @@ SIGTERM
 
 *** Keywords ***
 Start Server
-    Start And Import Remote Library    basics.py    ${TEST NAME}
+    Start And Import Remote Library    Basics.py    ${TEST NAME}
     Server Should Be Started
 
 Server Should Be Started

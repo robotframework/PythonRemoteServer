@@ -1,6 +1,6 @@
 *** Settings ***
 Resource          resource.robot
-Suite Setup       Start And Import Remote Library    arguments.py
+Suite Setup       Start And Import Remote Library    Arguments.py
 Test Template     Arguments Should Be Accepted
 Suite Teardown    Stop Remote Library
 

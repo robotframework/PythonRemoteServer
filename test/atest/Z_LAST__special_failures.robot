@@ -1,6 +1,6 @@
 *** Settings ***
 Resource          resource.robot
-Suite Setup       Start And Import Remote Library    failing.py
+Suite Setup       Start And Import Remote Library    Failing.py
 Suite Teardown    Stop Remote Library
 
 *** Test Cases ***

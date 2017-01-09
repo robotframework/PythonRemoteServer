@@ -2,7 +2,7 @@
 Documentation     These tests actually test the Remote library more than the remote server.
 Resource          resource.robot
 Variables         arguments.py
-Suite Setup       Start And Import Remote Library    arguments.py
+Suite Setup       Start And Import Remote Library    Arguments.py
 Suite Teardown    Stop Remote Library
 Test Template     Argument Should Be Correct
 
@@ -18,8 +18,8 @@ Non-ASCII string
     u'Hyv\\xe4'
     u'\\u2603'
 
-Binary
-    '\\x00\\x01'
+Binary Unicode
+    '\\x00\\x01'    b'\\x00\\x01'
 
 Integer
     42
@@ -44,7 +44,7 @@ Custom object
     MyObject()            '<MyObject>'
     MyObject('xxx')       'xxx'
     MyObject(u'\\xe4')    u'\\xe4'
-    MyObject('\\x00')     '\\x00'
+    MyObject('\\x00')     b'\\x00'
 
 List
     \[]
@@ -71,8 +71,7 @@ Dictionary With Non-String Keys
 *** Keywords ***
 Argument Should Be Correct
      [Arguments]    ${argument}    ${expected}=
-     ${expected} =    Set Variable If    """${expected}"""
-     ...    ${expected}    ${argument}
+     ${expected} =    Set Variable If    $expected    ${expected}    ${argument}
      ${ns} =    Create Dictionary    MyObject=${MyObject}
      ${argument} =    Evaluate    ${argument}    namespace=${ns}
      Remote.Argument Should Be Correct    ${argument}    ${expected}

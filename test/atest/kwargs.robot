@@ -3,7 +3,7 @@ Documentation     Cannot combine with other argument test suites because kwargs
 ...               cannot be passed to template user keywords they use. This can
 ...               be fixed if/when user keywords support kwargs in RF 2.9.
 Resource          resource.robot
-Suite Setup       Start And Import Remote Library    arguments.py
+Suite Setup       Start And Import Remote Library    Arguments.py
 Suite Teardown    Stop Remote Library
 
 *** Test Cases ***

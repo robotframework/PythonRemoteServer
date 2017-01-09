@@ -1,6 +1,6 @@
 *** Settings ***
 Resource          resource.robot
-Suite Setup       Start And Import Remote Library    logging.py
+Suite Setup       Start And Import Remote Library    Logging.py
 Suite Teardown    Stop Remote Library
 
 *** Test Cases ***
@@ -17,12 +17,13 @@ Non-ASCII message
     Logging    Hyvä \u2603
 
 Non-ASCII bytes
-    [Documentation]    LOG 1 INFO STARTS: Hyv
-    Logging    'Hyv\\xe4'    evaluate=yes
+    [Documentation]    Different message logged in (py2|py3|ipy).
+    ...    LOG 1 INFO REGEXP: (Hyv\\\\xe4|b'Hyv\\\\xe4'|Hyvä)
+    Logging    b'Hyv\\xe4'    evaluate=yes
 
-Binary
-    [Documentation]    LOG 1 INFO ..
-    Logging    '\\x00.\\x01.\\x02'    evaluate=yes
+Binary Unicode
+    [Documentation]    LOG 1 INFO ++
+    Logging    '\\x00+\\x01+\\x02'    evaluate=yes
 
 Log levels
     [Documentation]

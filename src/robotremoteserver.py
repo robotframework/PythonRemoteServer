@@ -1,4 +1,5 @@
-#  Copyright 2008-2014 Nokia Solutions and Networks
+#  Copyright 2008-2015 Nokia Solutions and Networks
+#  Copyright 2016- Robot Framework Foundation
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -12,26 +13,32 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-__version__ = 'devel'
+from __future__ import print_function
 
+from collections import Mapping
 import errno
+import inspect
 import re
+import signal
 import select
 import sys
-import inspect
 import traceback
-from StringIO import StringIO
-from SimpleXMLRPCServer import SimpleXMLRPCServer
-from xmlrpclib import Binary
-try:
-    import signal
-except ImportError:
-    signal = None
-try:
-    from collections import Mapping
-except ImportError:
-    Mapping = dict
 
+if sys.version_info < (3,):
+    from StringIO import StringIO
+    from SimpleXMLRPCServer import SimpleXMLRPCServer
+    from xmlrpclib import Binary
+    PY3 = False
+else:
+    from io import StringIO
+    from xmlrpc.client import Binary
+    from xmlrpc.server import SimpleXMLRPCServer
+    PY3 = True
+    unicode = str
+    long = int
+
+
+__version__ = 'devel'
 
 BINARY = re.compile('[\x00-\x08\x0B\x0C\x0E-\x1F]')
 NON_ASCII = re.compile('[\x80-\xff]')
@@ -86,11 +93,8 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         self._log('Robot Framework remote server at %s:%s starting.'
                   % (host, port))
         if port_file:
-            pf = open(port_file, 'w')
-            try:
+            with open(port_file, 'w') as pf:
                 pf.write(str(port))
-            finally:
-                pf.close()
 
     def serve_forever(self):
         if hasattr(self, 'timeout'):
@@ -100,7 +104,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         while not self._shutdown:
             try:
                 self.handle_request()
-            except (OSError, select.error), err:
+            except (OSError, select.error) as err:
                 if err.args[0] != errno.EINTR:
                     raise
 
@@ -114,8 +118,8 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return self._shutdown
 
     def get_keyword_names(self):
-        get_kw_names = getattr(self._library, 'get_keyword_names', None) or \
-                       getattr(self._library, 'getKeywordNames', None)
+        get_kw_names = (getattr(self._library, 'get_keyword_names', None) or
+                        getattr(self._library, 'getKeywordNames', None))
         if self._is_function_or_method(get_kw_names):
             names = get_kw_names()
         else:
@@ -124,8 +128,6 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return names + ['stop_remote_server']
 
     def _is_function_or_method(self, item):
-        # Cannot use inspect.isroutine because it returns True for
-        # object().__init__ with Jython and IronPython
         return inspect.isfunction(item) or inspect.ismethod(item)
 
     def run_keyword(self, name, args, kwargs=None):
@@ -136,6 +138,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             return_value = self._get_keyword(name)(*args, **kwargs)
         except:
             exc_type, exc_value, exc_tb = sys.exc_info()
+            if exc_type in self._fatal_exceptions:
+                self._restore_std_streams()
+                raise
             self._add_to_result(result, 'error',
                                 self._get_error_message(exc_type, exc_value))
             self._add_to_result(result, 'traceback',
@@ -161,7 +166,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def _handle_binary_args(self, args, kwargs):
         args = [self._handle_binary_arg(a) for a in args]
-        kwargs = dict([(k, self._handle_binary_arg(v)) for k, v in kwargs.items()])
+        kwargs = dict((k, self._handle_binary_arg(v)) for k, v in kwargs.items())
         return args, kwargs
 
     def _handle_binary_arg(self, arg):
@@ -208,9 +213,6 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return kw
 
     def _get_error_message(self, exc_type, exc_value):
-        if exc_type in self._fatal_exceptions:
-            self._restore_std_streams()
-            raise
         name = exc_type.__name__
         message = self._get_message_from_exception(exc_value)
         if not message:
@@ -222,10 +224,11 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
     def _get_message_from_exception(self, value):
         # UnicodeError occurs below 2.6 and if message contains non-ASCII bytes
+        # TODO: Can try/except be removed here?
         try:
             msg = unicode(value)
         except UnicodeError:
-            msg = ' '.join([self._str(a, handle_binary=False) for a in value.args])
+            msg = ' '.join(self._str(a, handle_binary=False) for a in value.args)
         return self._handle_binary_result(msg)
 
     def _get_error_traceback(self, exc_tb):
@@ -238,13 +241,13 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return bool(getattr(exc_value, 'ROBOT_%s_ON_FAILURE' % name, False))
 
     def _handle_return_value(self, ret):
-        if isinstance(ret, basestring):
+        if isinstance(ret, (str, unicode, bytes)):
             return self._handle_binary_result(ret)
         if isinstance(ret, (int, long, float)):
             return ret
         if isinstance(ret, Mapping):
-            return dict([(self._str(key), self._handle_return_value(value))
-                         for key, value in ret.items()])
+            return dict((self._str(key), self._handle_return_value(value))
+                        for key, value in ret.items())
         try:
             return [self._handle_return_value(item) for item in ret]
         except TypeError:
@@ -253,23 +256,29 @@ class RobotRemoteServer(SimpleXMLRPCServer):
     def _handle_binary_result(self, result):
         if not self._contains_binary(result):
             return result
-        try:
+        if not isinstance(result, bytes):
+            try:
+                result = result.encode('ASCII')
+            except UnicodeError:
+                raise ValueError("Cannot represent %r as binary." % result)
+        # With IronPython Binary cannot be sent if it contains "real" bytes.
+        if sys.platform == 'cli':
             result = str(result)
-        except UnicodeError:
-            raise ValueError("Cannot represent %r as binary." % result)
         return Binary(result)
 
     def _contains_binary(self, result):
-        return (BINARY.search(result) or isinstance(result, str) and
-                sys.platform != 'cli' and NON_ASCII.search(result))
+        if PY3:
+            return isinstance(result, bytes) or BINARY.search(result)
+        return (isinstance(result, bytes) and NON_ASCII.search(result) or
+                BINARY.search(result))
 
     def _str(self, item, handle_binary=True):
         if item is None:
             return ''
-        if not isinstance(item, basestring):
+        if not isinstance(item, (str, unicode, bytes)):
             item = unicode(item)
         if handle_binary:
-            return self._handle_binary_result(item)
+            item = self._handle_binary_result(item)
         return item
 
     def _intercept_std_streams(self):
@@ -286,7 +295,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             stream.close()
         if stdout and stderr:
             if not stderr.startswith(('*TRACE*', '*DEBUG*', '*INFO*', '*HTML*',
-                                      '*WARN*')):
+                                      '*WARN*', '*ERROR*')):
                 stderr = '*INFO* %s' % stderr
             if not stdout.endswith('\n'):
                 stdout += '\n'
@@ -310,7 +319,7 @@ if __name__ == '__main__':
     def stop(uri):
         server = test(uri, log_success=False)
         if server is not None:
-            print 'Stopping remote server at %s.' % uri
+            print('Stopping remote server at %s.' % uri)
             server.stop_remote_server()
 
     def test(uri, log_success=True):
@@ -318,10 +327,10 @@ if __name__ == '__main__':
         try:
             server.get_keyword_names()
         except:
-            print 'No remote server running at %s.' % uri
+            print('No remote server running at %s.' % uri)
             return None
         if log_success:
-            print 'Remote server running at %s.' % uri
+            print('Remote server running at %s.' % uri)
         return server
 
     def parse_args(args):

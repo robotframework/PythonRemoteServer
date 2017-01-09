@@ -1,9 +1,15 @@
-import exceptions
+import sys
+
+if sys.version_info < (3,):
+    import exceptions
+else:
+    import builtins as exceptions
 
 
 class Failures(object):
 
     def failure(self, exception, message, evaluate=False):
+        # TODO: Why try/except here?
         try:
             exception = globals()[exception]
         except KeyError:

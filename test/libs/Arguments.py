@@ -1,3 +1,9 @@
+try:
+    basestring
+except:
+    basestring = str
+
+
 class Arguments(object):
 
     def argument_should_be_correct(self, argument, expected):

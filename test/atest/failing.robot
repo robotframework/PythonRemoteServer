@@ -1,11 +1,11 @@
 *** Settings ***
 Resource          resource.robot
-Suite Setup       Start And Import Remote Library    failing.py
+Suite Setup       Start And Import Remote Library    Failing.py
 Suite Teardown    Stop Remote Library
 Test Template     Correct failure should occur
 
 *** Variables ***
-${SOURCE}         File "[\\w: /\\\\]+failing.py", line \\d+
+${SOURCE}         File "[\\w: /\\\\]+Failing.py", line \\d+
 
 *** Test Cases ***
 Generic exceptions
@@ -38,16 +38,16 @@ Non-ASCII message
     Exception    Hyvä \u2603!!
 
 Non-ASCII bytes
-    Exception    'Hyv\\xe4'    Hyv\\xe4    evaluate=yes
+    Exception    b'Hyv\\xe4'    *Hyv?*    evaluate=yes
 
-Binary message
-    Exception    \x00.\x01.\x02
+Binary Unicode
+    Exception    u'\\x00+\\x01+\\x02'    \x00+\x01+\x02    evaluate=yes
 
 Non-string message
     Exception    42    evaluate=yes
     Exception    None
     Exception    ('Message', 42)    evaluate=yes
-    Exception    (u'\\xe4 ', 42)    evaluate=yes
+    Exception    ('-\\x01-', 42)    evaluate=yes
 
 Failure deeper
     [Documentation]    FAIL Finally failing
@@ -79,7 +79,6 @@ Traceback with multiple entries
 *** Keywords ***
 Correct failure should occur
     [Arguments]    ${exception}    ${message}    ${expected}=    ${evaluate}=
-    ${expected} =    Set Variable If    """${expected}"""
-    ...    ${expected}    ${message}
+    ${expected} =    Set Variable If    $expected    ${expected}    ${message}
     Run Keyword And Expect Error    ${expected}
     ...    Failure    ${exception}    ${message}    ${evaluate}
