@@ -140,8 +140,6 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
 
 class RemoteLibrary(object):
-    _generic_exceptions = (AssertionError, RuntimeError, Exception)
-    _fatal_exceptions = (SystemExit, KeyboardInterrupt)
 
     def __init__(self, library, stop_remote_server=None):
         self._library = library
@@ -163,11 +161,57 @@ class RemoteLibrary(object):
         return inspect.isfunction(item) or inspect.ismethod(item)
 
     def run_keyword(self, name, args, kwargs=None):
+        kw = self._get_keyword(name)
+        return KeywordRunner(kw).run_keyword(args, kwargs)
+
+    def _get_keyword(self, name):
+        if name == 'stop_remote_server':
+            return self._stop_remote_server
+        kw = getattr(self._library, name, None)
+        if not self._is_function_or_method(kw):
+            return None
+        return kw
+
+    def get_keyword_arguments(self, name):
+        kw = self._get_keyword(name)
+        if not kw:
+            return []
+        return self._arguments_from_kw(kw)
+
+    def _arguments_from_kw(self, kw):
+        args, varargs, kwargs, defaults = inspect.getargspec(kw)
+        if inspect.ismethod(kw):
+            args = args[1:]  # drop 'self'
+        if defaults:
+            args, names = args[:-len(defaults)], args[-len(defaults):]
+            args += ['%s=%s' % (n, d) for n, d in zip(names, defaults)]
+        if varargs:
+            args.append('*%s' % varargs)
+        if kwargs:
+            args.append('**%s' % kwargs)
+        return args
+
+    def get_keyword_documentation(self, name):
+        if name == '__intro__':
+            return inspect.getdoc(self._library) or ''
+        if name == '__init__' and inspect.ismodule(self._library):
+            return ''
+        return inspect.getdoc(self._get_keyword(name)) or ''
+
+
+class KeywordRunner(object):
+    _generic_exceptions = (AssertionError, RuntimeError, Exception)
+    _fatal_exceptions = (SystemExit, KeyboardInterrupt)
+
+    def __init__(self, keyword):
+        self._keyword = keyword
+
+    def run_keyword(self, args, kwargs=None):
         args, kwargs = self._handle_binary_args(args, kwargs or {})
         result = {'status': 'FAIL'}
         self._intercept_std_streams()
         try:
-            return_value = self._get_keyword(name)(*args, **kwargs)
+            return_value = self._keyword(*args, **kwargs)
         except:
             exc_type, exc_value, exc_tb = sys.exc_info()
             if exc_type in self._fatal_exceptions:
@@ -209,14 +253,6 @@ class RemoteLibrary(object):
     def _add_to_result(self, result, key, value, default=''):
         if value != default:
             result[key] = value
-
-    def _get_keyword(self, name):
-        if name == 'stop_remote_server':
-            return self._stop_remote_server
-        kw = getattr(self._library, name, None)
-        if not self._is_function_or_method(kw):
-            return None
-        return kw
 
     def _get_error_message(self, exc_type, exc_value):
         name = exc_type.__name__
@@ -306,32 +342,6 @@ class RemoteLibrary(object):
             if not stdout.endswith('\n'):
                 stdout += '\n'
         return self._handle_binary_result(stdout + stderr)
-
-    def get_keyword_arguments(self, name):
-        kw = self._get_keyword(name)
-        if not kw:
-            return []
-        return self._arguments_from_kw(kw)
-
-    def _arguments_from_kw(self, kw):
-        args, varargs, kwargs, defaults = inspect.getargspec(kw)
-        if inspect.ismethod(kw):
-            args = args[1:]  # drop 'self'
-        if defaults:
-            args, names = args[:-len(defaults)], args[-len(defaults):]
-            args += ['%s=%s' % (n, d) for n, d in zip(names, defaults)]
-        if varargs:
-            args.append('*%s' % varargs)
-        if kwargs:
-            args.append('**%s' % kwargs)
-        return args
-
-    def get_keyword_documentation(self, name):
-        if name == '__intro__':
-            return inspect.getdoc(self._library) or ''
-        if name == '__init__' and inspect.ismodule(self._library):
-            return ''
-        return inspect.getdoc(self._get_keyword(name)) or ''
 
 
 if __name__ == '__main__':
