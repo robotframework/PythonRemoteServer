@@ -2,7 +2,7 @@
 
 import unittest
 
-from test_robotremoteserver import NonServingRemoteServer
+from robotremoteserver import RemoteLibrary
 
 
 class LibraryWithArgsAndDocs:
@@ -37,11 +37,13 @@ class TestDocs(unittest.TestCase):
         self._test_doc('__init__', 'Init doc')
 
     def test_init_doc_when_old_style_lib_has_no_init(self):
-        class OldStyleLibraryWithoutInit: pass
+        class OldStyleLibraryWithoutInit:
+            pass
         self._test_doc('__init__', '', OldStyleLibraryWithoutInit())
 
     def test_init_doc_when_new_style_lib_has_no_init(self):
-        class NewStyleLibraryWithoutInit(object): pass
+        class NewStyleLibraryWithoutInit(object):
+            pass
         self._test_doc('__init__', '', NewStyleLibraryWithoutInit())
 
     def test_keyword_doc_from_module_keyword(self):
@@ -57,8 +59,8 @@ class TestDocs(unittest.TestCase):
         self._test_doc('__intro__', 'Module doc - used in tests', test_argsdocs)
 
     def _test_doc(self, name, expected, library=LibraryWithArgsAndDocs(None)):
-        server = NonServingRemoteServer(library)
-        self.assertEquals(server.get_keyword_documentation(name), expected)
+        library = RemoteLibrary(library)
+        self.assertEquals(library.get_keyword_documentation(name), expected)
 
 
 class TestArgs(unittest.TestCase):
@@ -75,8 +77,8 @@ class TestArgs(unittest.TestCase):
                         test_argsdocs)
 
     def _test_args(self, name, expected, library=LibraryWithArgsAndDocs(None)):
-        server = NonServingRemoteServer(library)
-        self.assertEquals(server.get_keyword_arguments(name), expected)
+        library = RemoteLibrary(library)
+        self.assertEquals(library.get_keyword_arguments(name), expected)
 
 
 if __name__ == '__main__':

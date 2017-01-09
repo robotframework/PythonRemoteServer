@@ -46,8 +46,6 @@ NON_ASCII = re.compile('[\x80-\xff]')
 
 class RobotRemoteServer(SimpleXMLRPCServer):
     allow_reuse_address = True
-    _generic_exceptions = (AssertionError, RuntimeError, Exception)
-    _fatal_exceptions = (SystemExit, KeyboardInterrupt)
 
     def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
                  allow_stop=True):
@@ -65,7 +63,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                             ``Stop Remote Server`` keyword.
         """
         SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
-        self._library = library
+        self._library = RemoteLibrary(library, self.stop_remote_server)
         self._allow_stop = allow_stop
         self._shutdown = False
         self._register_functions()
@@ -117,6 +115,38 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             self._log(prefix + 'does not allow stopping.', 'WARN')
         return self._shutdown
 
+    def _log(self, msg, level=None):
+        if level:
+            msg = '*%s* %s' % (level.upper(), msg)
+        self._write_to_stream(msg, sys.stdout)
+        if sys.__stdout__ is not sys.stdout:
+            self._write_to_stream(msg, sys.__stdout__)
+
+    def _write_to_stream(self, msg, stream):
+        stream.write(msg + '\n')
+        stream.flush()
+
+    def get_keyword_names(self):
+        return self._library.get_keyword_names()
+
+    def run_keyword(self, name, args, kwargs=None):
+        return self._library.run_keyword(name, args, kwargs)
+
+    def get_keyword_arguments(self, name):
+        return self._library.get_keyword_arguments(name)
+
+    def get_keyword_documentation(self, name):
+        return self._library.get_keyword_documentation(name)
+
+
+class RemoteLibrary(object):
+    _generic_exceptions = (AssertionError, RuntimeError, Exception)
+    _fatal_exceptions = (SystemExit, KeyboardInterrupt)
+
+    def __init__(self, library, stop_remote_server=None):
+        self._library = library
+        self._stop_remote_server = stop_remote_server
+
     def get_keyword_names(self):
         get_kw_names = (getattr(self._library, 'get_keyword_names', None) or
                         getattr(self._library, 'getKeywordNames', None))
@@ -125,7 +155,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         else:
             names = [attr for attr in dir(self._library) if attr[0] != '_' and
                      self._is_function_or_method(getattr(self._library, attr))]
-        return names + ['stop_remote_server']
+        if self._stop_remote_server:
+            names.append('stop_remote_server')
+        return names
 
     def _is_function_or_method(self, item):
         return inspect.isfunction(item) or inspect.ismethod(item)
@@ -178,35 +210,9 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         if value != default:
             result[key] = value
 
-    def get_keyword_arguments(self, name):
-        kw = self._get_keyword(name)
-        if not kw:
-            return []
-        return self._arguments_from_kw(kw)
-
-    def _arguments_from_kw(self, kw):
-        args, varargs, kwargs, defaults = inspect.getargspec(kw)
-        if inspect.ismethod(kw):
-            args = args[1:]  # drop 'self'
-        if defaults:
-            args, names = args[:-len(defaults)], args[-len(defaults):]
-            args += ['%s=%s' % (n, d) for n, d in zip(names, defaults)]
-        if varargs:
-            args.append('*%s' % varargs)
-        if kwargs:
-            args.append('**%s' % kwargs)
-        return args
-
-    def get_keyword_documentation(self, name):
-        if name == '__intro__':
-            return inspect.getdoc(self._library) or ''
-        if name == '__init__' and inspect.ismodule(self._library):
-            return ''
-        return inspect.getdoc(self._get_keyword(name)) or ''
-
     def _get_keyword(self, name):
         if name == 'stop_remote_server':
-            return self.stop_remote_server
+            return self._stop_remote_server
         kw = getattr(self._library, name, None)
         if not self._is_function_or_method(kw):
             return None
@@ -301,19 +307,35 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                 stdout += '\n'
         return self._handle_binary_result(stdout + stderr)
 
-    def _log(self, msg, level=None):
-        if level:
-            msg = '*%s* %s' % (level.upper(), msg)
-        self._write_to_stream(msg, sys.stdout)
-        if sys.__stdout__ is not sys.stdout:
-            self._write_to_stream(msg, sys.__stdout__)
+    def get_keyword_arguments(self, name):
+        kw = self._get_keyword(name)
+        if not kw:
+            return []
+        return self._arguments_from_kw(kw)
 
-    def _write_to_stream(self, msg, stream):
-        stream.write(msg + '\n')
-        stream.flush()
+    def _arguments_from_kw(self, kw):
+        args, varargs, kwargs, defaults = inspect.getargspec(kw)
+        if inspect.ismethod(kw):
+            args = args[1:]  # drop 'self'
+        if defaults:
+            args, names = args[:-len(defaults)], args[-len(defaults):]
+            args += ['%s=%s' % (n, d) for n, d in zip(names, defaults)]
+        if varargs:
+            args.append('*%s' % varargs)
+        if kwargs:
+            args.append('**%s' % kwargs)
+        return args
+
+    def get_keyword_documentation(self, name):
+        if name == '__intro__':
+            return inspect.getdoc(self._library) or ''
+        if name == '__init__' and inspect.ismodule(self._library):
+            return ''
+        return inspect.getdoc(self._get_keyword(name)) or ''
 
 
 if __name__ == '__main__':
+
     def stop(uri):
         server = test(uri, log_success=False)
         if server is not None:

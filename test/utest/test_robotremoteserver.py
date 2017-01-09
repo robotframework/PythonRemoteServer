@@ -3,13 +3,13 @@
 import unittest
 import sys
 
-from robotremoteserver import RobotRemoteServer
+from robotremoteserver import RobotRemoteServer, RemoteLibrary
 
 
 class NonServingRemoteServer(RobotRemoteServer):
 
     def __init__(self, library):
-        self._library = library
+        self._library = RemoteLibrary(library, self.stop_remote_server)
 
 
 class StaticLibrary:
