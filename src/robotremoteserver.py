@@ -200,45 +200,28 @@ class RemoteLibrary(object):
 
 
 class KeywordRunner(object):
-    _generic_exceptions = (AssertionError, RuntimeError, Exception)
-    _fatal_exceptions = (SystemExit, KeyboardInterrupt)
 
     def __init__(self, keyword):
         self._keyword = keyword
 
     def run_keyword(self, args, kwargs=None):
         args, kwargs = self._handle_binary_args(args, kwargs or {})
-        result = {'status': 'FAIL'}
+        result = KeywordResult()
         self._intercept_std_streams()
         try:
             return_value = self._keyword(*args, **kwargs)
-        except:
-            exc_type, exc_value, exc_tb = sys.exc_info()
-            if exc_type in self._fatal_exceptions:
-                self._restore_std_streams()
-                raise
-            self._add_to_result(result, 'error',
-                                self._get_error_message(exc_type, exc_value))
-            self._add_to_result(result, 'traceback',
-                                self._get_error_traceback(exc_tb))
-            self._add_to_result(result, 'continuable',
-                                self._get_error_attribute(exc_value, 'CONTINUE'),
-                                default=False)
-            self._add_to_result(result, 'fatal',
-                                self._get_error_attribute(exc_value, 'EXIT'),
-                                default=False)
+        except Exception:
+            result.set_error(*sys.exc_info())
         else:
             try:
-                self._add_to_result(result, 'return',
-                                    self._handle_return_value(return_value))
-            except:
-                exc_type, exc_value, _ = sys.exc_info()
-                self._add_to_result(result, 'error',
-                                    self._get_error_message(exc_type, exc_value))
+                result.set_return(return_value)
+            except Exception:
+                result.set_error(*sys.exc_info()[:2])
             else:
-                result['status'] = 'PASS'
-        self._add_to_result(result, 'output', self._restore_std_streams())
-        return result
+                result.set_status('PASS')
+        finally:
+            result.set_output(self._restore_std_streams())
+        return result.data
 
     def _handle_binary_args(self, args, kwargs):
         args = [self._handle_binary_arg(a) for a in args]
@@ -246,13 +229,47 @@ class KeywordRunner(object):
         return args, kwargs
 
     def _handle_binary_arg(self, arg):
-        if isinstance(arg, Binary):
-            return arg.data
-        return arg
+        return arg if not isinstance(arg, Binary) else arg.data
 
-    def _add_to_result(self, result, key, value, default=''):
+    def _intercept_std_streams(self):
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def _restore_std_streams(self):
+        stdout = sys.stdout.getvalue()
+        stderr = sys.stderr.getvalue()
+        close = [sys.stdout, sys.stderr]
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+        for stream in close:
+            stream.close()
+        if stdout and stderr:
+            if not stderr.startswith(('*TRACE*', '*DEBUG*', '*INFO*', '*HTML*',
+                                      '*WARN*', '*ERROR*')):
+                stderr = '*INFO* %s' % stderr
+            if not stdout.endswith('\n'):
+                stdout += '\n'
+        return stdout + stderr
+
+
+class KeywordResult(object):
+    _generic_exceptions = (AssertionError, RuntimeError, Exception)
+
+    def __init__(self):
+        self.data = {'status': 'FAIL'}
+
+    def set_error(self, exc_type, exc_value, exc_tb=None):
+        self._add('error', self._get_error_message(exc_type, exc_value))
+        if exc_tb:
+            self._add('traceback', self._get_error_traceback(exc_tb))
+        self._add('continuable', self._get_error_attribute(exc_value, 'CONTINUE'),
+                  default=False)
+        self._add('fatal', self._get_error_attribute(exc_value, 'EXIT'),
+                  default=False)
+
+    def _add(self, key, value, default=''):
         if value != default:
-            result[key] = value
+            self.data[key] = value
 
     def _get_error_message(self, exc_type, exc_value):
         name = exc_type.__name__
@@ -281,6 +298,9 @@ class KeywordRunner(object):
 
     def _get_error_attribute(self, exc_value, name):
         return bool(getattr(exc_value, 'ROBOT_%s_ON_FAILURE' % name, False))
+
+    def set_return(self, value):
+        self._add('return', self._handle_return_value(value))
 
     def _handle_return_value(self, ret):
         if isinstance(ret, (str, unicode, bytes)):
@@ -323,25 +343,12 @@ class KeywordRunner(object):
             item = self._handle_binary_result(item)
         return item
 
-    def _intercept_std_streams(self):
-        sys.stdout = StringIO()
-        sys.stderr = StringIO()
+    def set_status(self, status):
+        self.data['status'] = status
 
-    def _restore_std_streams(self):
-        stdout = sys.stdout.getvalue()
-        stderr = sys.stderr.getvalue()
-        close = [sys.stdout, sys.stderr]
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
-        for stream in close:
-            stream.close()
-        if stdout and stderr:
-            if not stderr.startswith(('*TRACE*', '*DEBUG*', '*INFO*', '*HTML*',
-                                      '*WARN*', '*ERROR*')):
-                stderr = '*INFO* %s' % stderr
-            if not stdout.endswith('\n'):
-                stdout += '\n'
-        return self._handle_binary_result(stdout + stderr)
+    def set_output(self, output):
+        if output:
+            self.data['output'] = self._handle_binary_result(output)
 
 
 if __name__ == '__main__':
