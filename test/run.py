@@ -25,11 +25,12 @@ Examples:
 
 from __future__ import print_function
 
-import sys
-import subprocess
 from os.path import abspath, dirname, exists, join
 from os import mkdir
 from shutil import rmtree
+import shlex
+import sys
+import subprocess
 
 import robot
 import robotstatuschecker
@@ -49,8 +50,9 @@ if exists(results):
 mkdir(results)
 
 if not arguments:
-    print('Running unit tests with %s.' % interpreter)
-    rc = subprocess.call([interpreter, join(curdir, 'utest', 'run.py')])
+    print('Running unit tests with "%s".' % interpreter)
+    command = shlex.split(interpreter) + [join(curdir, 'utest', 'run.py')]
+    rc = subprocess.call(command)
     print()
     if rc != 0:
         print('%d unit test%s failed.' % (rc, 's' if rc != 1 else ''))
