@@ -234,7 +234,7 @@ class DynamicRemoteLibrary(HybridRemoteLibrary):
         return len(spec.args) > 3    # self, name, args, kwargs=None
 
     def run_keyword(self, name, args, kwargs=None):
-        args = [name, args, kwargs]
+        args = [name, args, kwargs] if kwargs else [name, args]
         return KeywordRunner(self._run_keyword).run_keyword(args)
 
     def get_keyword_arguments(self, name):

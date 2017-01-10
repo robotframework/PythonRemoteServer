@@ -66,7 +66,7 @@ class DynamicLibrary:
 
     def run_keyword(self, name, args, kwargs=None):
         kw = getattr(self.library, name)
-        return kw(*args, **kwargs)
+        return kw(*args, **(kwargs or {}))
 
     def not_included(self):
         """Not returned by get_keyword_names"""
@@ -74,6 +74,17 @@ class DynamicLibrary:
     @property
     def streams(self):
         return self.library.streams
+
+
+class DynamicLibraryWithoutKwargs(DynamicLibrary):
+
+    def run_keyword(self, name, args):
+        kwargs = dict(item for item in self._pop_kwargs(args))
+        return DynamicLibrary.run_keyword(self, name, args, kwargs)
+
+    def _pop_kwargs(self, args):
+        while args and '=' in args[-1]:
+            yield args.pop().split('=', 1)
 
 
 class TestStaticApi(unittest.TestCase):
@@ -153,6 +164,14 @@ class TestHybridApi(TestStaticApi):
 
 class TestDynamicApi(TestStaticApi):
     library = DynamicLibrary()
+
+
+class TestDynamicApiWithoutKwargs(TestStaticApi):
+    library = DynamicLibraryWithoutKwargs()
+
+    def _run(self, kw, *args, **kwargs):
+        args = list(args) + ['%s=%s' % item for item in kwargs.items()]
+        return self.server.run_keyword(kw, args)
 
 
 if __name__ == '__main__':
