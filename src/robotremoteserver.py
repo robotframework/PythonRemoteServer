@@ -63,7 +63,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                             ``Stop Remote Server`` keyword.
         """
         SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
-        self._library = RemoteLibrary(library, self.stop_remote_server)
+        self._library = RemoteLibrary(library)
         self._allow_stop = allow_stop
         self._shutdown = False
         self._register_functions()
@@ -127,10 +127,12 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         stream.flush()
 
     def get_keyword_names(self):
-        return self._library.get_keyword_names()
+        return self._library.get_keyword_names() + ['stop_remote_server']
 
     def run_keyword(self, name, args, kwargs=None):
-        return self._library.run_keyword(name, args, kwargs)
+        if name != 'stop_remote_server':
+            return self._library.run_keyword(name, args, kwargs)
+        return KeywordRunner(self.stop_remote_server).run_keyword(args, kwargs)
 
     def get_keyword_arguments(self, name):
         return self._library.get_keyword_arguments(name)
@@ -141,9 +143,8 @@ class RobotRemoteServer(SimpleXMLRPCServer):
 
 class RemoteLibrary(object):
 
-    def __init__(self, library, stop_remote_server=None):
+    def __init__(self, library):
         self._library = library
-        self._stop_remote_server = stop_remote_server
 
     def get_keyword_names(self):
         get_kw_names = (getattr(self._library, 'get_keyword_names', None) or
@@ -153,8 +154,6 @@ class RemoteLibrary(object):
         else:
             names = [attr for attr in dir(self._library) if attr[0] != '_' and
                      self._is_function_or_method(getattr(self._library, attr))]
-        if self._stop_remote_server:
-            names.append('stop_remote_server')
         return names
 
     def _is_function_or_method(self, item):
@@ -165,8 +164,6 @@ class RemoteLibrary(object):
         return KeywordRunner(kw).run_keyword(args, kwargs)
 
     def _get_keyword(self, name):
-        if name == 'stop_remote_server':
-            return self._stop_remote_server
         kw = getattr(self._library, name, None)
         if not self._is_function_or_method(kw):
             return None
