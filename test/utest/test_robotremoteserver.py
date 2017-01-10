@@ -83,7 +83,7 @@ class DynamicLibraryWithoutKwargs(DynamicLibrary):
         return DynamicLibrary.run_keyword(self, name, args, kwargs)
 
     def _pop_kwargs(self, args):
-        while args and '=' in args[-1]:
+        while args and isinstance(args[-1], str) and '=' in args[-1]:
             yield args.pop().split('=', 1)
 
 

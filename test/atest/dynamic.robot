@@ -38,5 +38,5 @@ Called with invalid arguments when arguments are known
     Passing    more    than    one    arg    not    accepted
 
 Called with invalid arguments when arguments are not known
-    [Documentation]    FAIL GLOB: TypeError: *returning* *0* *3*
+    [Documentation]    FAIL GLOB: TypeError: *returning* *3*
     Returning    too    many    arguments
