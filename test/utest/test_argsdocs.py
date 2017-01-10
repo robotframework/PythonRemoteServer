@@ -2,7 +2,7 @@
 
 import unittest
 
-from robotremoteserver import RemoteLibrary
+from robotremoteserver import RemoteLibraryFactory
 
 
 class LibraryWithArgsAndDocs:
@@ -59,7 +59,7 @@ class TestDocs(unittest.TestCase):
         self._test_doc('__intro__', 'Module doc - used in tests', test_argsdocs)
 
     def _test_doc(self, name, expected, library=LibraryWithArgsAndDocs(None)):
-        library = RemoteLibrary(library)
+        library = RemoteLibraryFactory(library)
         self.assertEquals(library.get_keyword_documentation(name), expected)
 
 
@@ -77,7 +77,7 @@ class TestArgs(unittest.TestCase):
                         test_argsdocs)
 
     def _test_args(self, name, expected, library=LibraryWithArgsAndDocs(None)):
-        library = RemoteLibrary(library)
+        library = RemoteLibraryFactory(library)
         self.assertEquals(library.get_keyword_arguments(name), expected)
 
 

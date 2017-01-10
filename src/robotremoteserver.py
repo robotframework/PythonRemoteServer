@@ -63,7 +63,7 @@ class RobotRemoteServer(SimpleXMLRPCServer):
                             ``Stop Remote Server`` keyword.
         """
         SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
-        self._library = RemoteLibrary(library)
+        self._library = RemoteLibraryFactory(library)
         self._allow_stop = allow_stop
         self._shutdown = False
         self._register_functions()
@@ -141,23 +141,40 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return self._library.get_keyword_documentation(name)
 
 
-class RemoteLibrary(object):
+def RemoteLibraryFactory(library):
+    if inspect.ismodule(library):
+        return StaticRemoteLibrary(library)
+    get_keyword_names = dynamic_method(library, 'get_keyword_names')
+    if not get_keyword_names:
+        return StaticRemoteLibrary(library)
+    run_keyword = dynamic_method(library, 'run_keyword')
+    if not run_keyword:
+        return HybridRemoteLibrary(library, get_keyword_names)
+    return DynamicRemoteLibrary(library, get_keyword_names, run_keyword)
+
+
+def dynamic_method(library, underscore_name):
+    tokens = underscore_name.split('_')
+    camelcase_name = tokens[0] + ''.join(t.title() for t in tokens[1:])
+    for name in underscore_name, camelcase_name:
+        method = getattr(library, name, None)
+        if method and is_function_or_method(method):
+            return method
+    return None
+
+
+def is_function_or_method(item):
+    return inspect.isfunction(item) or inspect.ismethod(item)
+
+
+class StaticRemoteLibrary(object):
 
     def __init__(self, library):
         self._library = library
 
     def get_keyword_names(self):
-        get_kw_names = (getattr(self._library, 'get_keyword_names', None) or
-                        getattr(self._library, 'getKeywordNames', None))
-        if self._is_function_or_method(get_kw_names):
-            names = get_kw_names()
-        else:
-            names = [attr for attr in dir(self._library) if attr[0] != '_' and
-                     self._is_function_or_method(getattr(self._library, attr))]
-        return names
-
-    def _is_function_or_method(self, item):
-        return inspect.isfunction(item) or inspect.ismethod(item)
+        return [name for name, value in inspect.getmembers(self._library)
+                if name[0] != '_' and is_function_or_method(value)]
 
     def run_keyword(self, name, args, kwargs=None):
         kw = self._get_keyword(name)
@@ -165,9 +182,7 @@ class RemoteLibrary(object):
 
     def _get_keyword(self, name):
         kw = getattr(self._library, name, None)
-        if not self._is_function_or_method(kw):
-            return None
-        return kw
+        return kw if is_function_or_method(kw) else None
 
     def get_keyword_arguments(self, name):
         kw = self._get_keyword(name)
@@ -194,6 +209,45 @@ class RemoteLibrary(object):
         if name == '__init__' and inspect.ismodule(self._library):
             return ''
         return inspect.getdoc(self._get_keyword(name)) or ''
+
+
+class HybridRemoteLibrary(StaticRemoteLibrary):
+
+    def __init__(self, library, get_keyword_names):
+        StaticRemoteLibrary.__init__(self, library)
+        self.get_keyword_names = get_keyword_names
+
+
+class DynamicRemoteLibrary(HybridRemoteLibrary):
+
+    def __init__(self, library, get_keyword_names, run_keyword):
+        HybridRemoteLibrary.__init__(self, library, get_keyword_names)
+        self._run_keyword = run_keyword
+        self._supports_kwargs = self._get_kwargs_support(run_keyword)
+        self._get_keyword_arguments \
+            = dynamic_method(library, 'get_keyword_arguments')
+        self._get_keyword_documentation \
+            = dynamic_method(library, 'get_keyword_documentation')
+
+    def _get_kwargs_support(self, run_keyword):
+        spec = inspect.getargspec(run_keyword)
+        return len(spec.args) > 3    # self, name, args, kwargs=None
+
+    def run_keyword(self, name, args, kwargs=None):
+        args = [name, args, kwargs]
+        return KeywordRunner(self._run_keyword).run_keyword(args)
+
+    def get_keyword_arguments(self, name):
+        if self._get_keyword_arguments:
+            return self._get_keyword_arguments(name)
+        if self._supports_kwargs:
+            return ['*varargs', '**kwargs']
+        return ['*varargs']
+
+    def get_keyword_documentation(self, name):
+        if self._get_keyword_documentation:
+            return self._get_keyword_documentation(name)
+        return ''
 
 
 class KeywordRunner(object):

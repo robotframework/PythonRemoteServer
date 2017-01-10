@@ -3,13 +3,13 @@
 import unittest
 import sys
 
-from robotremoteserver import RobotRemoteServer, RemoteLibrary
+from robotremoteserver import RobotRemoteServer, RemoteLibraryFactory
 
 
 class NonServingRemoteServer(RobotRemoteServer):
 
     def __init__(self, library):
-        self._library = RemoteLibrary(library)
+        self._library = RemoteLibraryFactory(library)
 
 
 class StaticLibrary:
@@ -54,6 +54,26 @@ class HybridLibrary:
 
     def not_included(self):
         """Not returned by get_keyword_names"""
+
+
+class DynamicLibrary:
+
+    def __init__(self):
+        self.library = StaticLibrary()
+
+    def get_keyword_names(self):
+        return [n for n in dir(self.library) if n.endswith('_keyword')]
+
+    def run_keyword(self, name, args, kwargs=None):
+        kw = getattr(self.library, name)
+        return kw(*args, **kwargs)
+
+    def not_included(self):
+        """Not returned by get_keyword_names"""
+
+    @property
+    def streams(self):
+        return self.library.streams
 
 
 class TestStaticApi(unittest.TestCase):
@@ -129,6 +149,10 @@ class TestStaticApi(unittest.TestCase):
 
 class TestHybridApi(TestStaticApi):
     library = HybridLibrary()
+
+
+class TestDynamicApi(TestStaticApi):
+    library = DynamicLibrary()
 
 
 if __name__ == '__main__':
