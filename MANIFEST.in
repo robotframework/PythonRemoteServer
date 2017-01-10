@@ -1,2 +1,2 @@
 include MANIFEST.in LICENSE.txt COPYRIGHT.txt README.rst
-include example/examplelibrary.py example/example_tests.robot example/README.rst
+include example/examplelibrary.py example/tests.robot example/README.rst
