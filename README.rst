@@ -1,64 +1,65 @@
 Python Remote Server for Robot Framework
 ========================================
 
-Introduction
-------------
-
 `Robot Framework`_ remote servers allow hosting test libraries on different
-processes or machines than Robot Framework itself is running on. This version
-is implemented in Python_ and supports also Jython_ (JVM) and
-IronPython_ (.NET). See `remote library interface documentation`_ for more
-information about the remote interface in general as well as for a list of
-remote server implementations in other programming languages.
+processes or machines than Robot Framework itself is running on.  See the
+general `remote library interface documentation`_ for more information about
+the remote interface as well as for a list of remote server implementations
+in other programming languages.
 
 This project is hosted in GitHub_ and downloads are available in PyPI_.
 
 .. _Robot Framework: http://robotframework.org
-.. _Python: http://python.org
-.. _Jython: http://jython.org
-.. _IronPython: http://ironpython.codeplex.com
 .. _remote library interface documentation: https://github.com/robotframework/RemoteInterface
 .. _GitHub: https://github.com/robotframework/PythonRemoteServer
 .. _PyPI: http://pypi.python.org/pypi/robotremoteserver
 
+.. contents::
+   :local:
+
 Supported Python versions
 -------------------------
 
-As already mentioned, this remote server officially supports Python_, Jython_,
-and IronPython_, but it should work also with PyPY_. The server has been tested
-on Linux, OSX, and Windows, but should work also on other operating systems.
+This remote server is implemented with Python_ and supports also Jython_ (JVM),
+IronPython_ (.NET) and PyPy_. Remote server 1.1 and newer support Python 2.6,
+2.7, 3.3, and newer. Remote server 1.0 series supports Python versions 2.2-2.7.
 
-Remote server 1.0 series ought to support all Python, Jython, and IronPython
-versions between 2.2 and 2.7, but not all combinations have been thoroughly
-tested. Support for versions prior and possibly including 2.5 will likely
-be dropped in the future when we target Python 3 compatibility.
-
+.. _Python: http://python.org
+.. _Jython: http://jython.org
+.. _IronPython: http://ironpython.net
 .. _PyPy: http://pypy.org/
+
+Supported library APIs
+----------------------
+
+Starting from Remote server 1.1, Robot Frameworks normal static, hybrid and
+dynamic library APIs are all supported. Earlier versions support only the
+static and hybrid APIs.
+
+For most parts these APIs work exactly like when using with Robot Framework
+normally. There are, however, some features that are not currently supported:
+
+- Logging using ``robot.api.logger`` or Python's ``logging`` module is not
+  supported.
+- It is not possible to give a custom name to static or hybrid keywords using
+  the ``@keyword`` decorator.
 
 Installation
 ------------
 
-The easiest installation approach is using `pip`_:
+The easiest installation approach is using `pip`_::
 
-.. sourcecode:: bash
+    pip install robotremoteserver
 
-    $ pip install robotremoteserver
+Alternatively you can download the source distribution from PyPI_, extract it
+and install the server using::
 
-Alternatively you can download the `source distribution`_, extract it, and
-install it using:
-
-.. sourcecode:: bash
-
-    $ python setup.py install
-
-Change ``python`` above to ``jython`` or ``ipy`` to install using Jython
-or IronPython, respectively, instead of Python.
+    python setup.py install
 
 .. _`pip`: http://www.pip-installer.org
-.. _`source distribution`: PyPI_
 
-Starting
---------
+Starting remote server
+----------------------
 
 The remote server can be started by simply creating an instance of the server
 and passing a test library instance or module to it:
@@ -73,8 +74,8 @@ and passing a test library instance or module to it:
 By default the server listens to address 127.0.0.1 and port 8270. See the next
 section for information about configuring the server.
 
-Configuration
--------------
+Remote server configuration
+---------------------------
 
 The remote server accepts following configuration parameters:
 
@@ -110,9 +111,7 @@ Testing is server running
 
 Starting from version 1.0.1 , ``robotremoteserver`` module supports testing is
 a remote server running. This can be accomplished by running the module as
-a script with ``test`` argument and an optional URI:
-
-.. sourcecode:: bash
+a script with ``test`` argument and an optional URI::
 
     $ python -m robotremoteserver test
     Remote server running at http://127.0.0.1:8270.
@@ -120,17 +119,16 @@ a script with ``test`` argument and an optional URI:
     No remote server running at http://10.0.0.42:57347.
 
 .. tip:: As discussed below, using ``stop`` instead of ``test`` allows stopping
-         the server. Both testing and stopping works also against other Robot
-         Framework remote server implementations.
+         the server. Both testing and stopping should work also against other
+         Robot Framework remote server implementations.
 
-Stopping
---------
+Stopping remote server
+----------------------
 
-The remote server can be gracefully stopped using three different methods:
+The remote server can be gracefully stopped using several different methods:
 
-- Hitting ``Ctrl-C`` on the console where the server is running. Starting from
-  version 1.0.1 this ought to work regardless the operating system and Python
-  interpreter. Python 2.5 and Jython 2.5 on Windows are known exceptions, though.
+- Hitting ``Ctrl-C`` on the console where the server is running. Does not work
+  reliably with version 1.0 or earlier or if using Python 2.5 or older.
 
 - Sending the process ``SIGINT``, ``SIGTERM``, or ``SIGHUP`` signal. Does not
   work on Windows. Notice that with Jython you need to send the signal to the
@@ -146,8 +144,9 @@ The remote server can be gracefully stopped using three different methods:
 Example
 -------
 
-The remote server project contains an `example`_ that can be studied and also
-executed once the library is installed. The example is also included in the
-`source distribution`_.
+The remote server project contains an example_ that can be studied and also
+executed once the library is installed. You can get the example by cloning
+the project on GitHub_, and it is also included in the source distribution
+available on PyPI_.
 
 .. _example: https://github.com/robotframework/PythonRemoteServer/tree/master/example
