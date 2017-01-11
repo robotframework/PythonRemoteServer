@@ -26,8 +26,8 @@ Examples:
 from __future__ import print_function
 
 from os.path import abspath, dirname, exists, join
-from os import mkdir
-from shutil import rmtree
+import os
+import shutil
 import shlex
 import sys
 import subprocess
@@ -46,8 +46,8 @@ interpreter = sys.argv[1]
 arguments = sys.argv[2:]
 
 if exists(results):
-    rmtree(results)
-mkdir(results)
+    shutil.rmtree(results)
+os.mkdir(results)
 
 if not arguments:
     print('Running unit tests with "%s".' % interpreter)
@@ -59,11 +59,18 @@ if not arguments:
         sys.exit(rc)
     arguments = [join(curdir, 'atest')]
 
-command = ['python', '-m', 'robot.run',
-           '--variable', 'INTERPRETER:%s' % interpreter,
-           '--doc', 'Remote server tests on "%s"' % interpreter,
-           '--metadata', 'Server_Interpreter:%s' % interpreter,
-           '--output', output, '--log', 'NONE', '--report', 'NONE'] + arguments
+excludes = []
+if os.sep == '\\':
+    excludes.extend(['--exclude', 'no-windows'])
+if 'ipy' in interpreter:
+    excludes.extend(['--exclude', 'no-ipy'])
+command = [
+    'python', '-m', 'robot.run',
+    '--variable', 'INTERPRETER:%s' % interpreter,
+    '--doc', 'Remote server tests on "%s"' % interpreter,
+    '--metadata', 'Server_Interpreter:%s' % interpreter,
+    '--output', output, '--log', 'NONE', '--report', 'NONE'
+] + excludes + arguments
 print('Running acceptance tests with command:\n%s' % ' '.join(command))
 rc = subprocess.call(command)
 print()
