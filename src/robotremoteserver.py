@@ -16,12 +16,12 @@
 from __future__ import print_function
 
 from collections import Mapping
-import errno
 import inspect
+import os
 import re
 import signal
-import select
 import sys
+import threading
 import traceback
 
 if sys.version_info < (3,):
@@ -62,13 +62,11 @@ class RobotRemoteServer(object):
         :param allow_stop:  Allow/disallow stopping the server using
                             ``Stop Remote Server`` keyword.
         """
-        self._server = StoppableXMLRPCServer(host, int(port))
+        self._server = StoppableXMLRPCServer(host, int(port), port_file)
         self._library = RemoteLibraryFactory(library)
         self._allow_stop = allow_stop
         self._register_functions(self._server)
-        self._register_signal_handlers()
-        self._announce_start(port_file)
-        self._server.start()
+        self._server.serve()
 
     @property
     def server_address(self):
@@ -81,29 +79,13 @@ class RobotRemoteServer(object):
         server.register_function(self.get_keyword_documentation)
         server.register_function(self.stop_remote_server)
 
-    def _register_signal_handlers(self):
-        def stop_with_signal(signum, frame):
-            self._allow_stop = True
-            self.stop_remote_server()
-        for name in 'SIGINT', 'SIGTERM', 'SIGHUP':
-            if hasattr(signal, name):
-                signal.signal(getattr(signal, name), stop_with_signal)
-
-    def _announce_start(self, port_file=None):
-        host, port = self.server_address
-        self._log('Robot Framework remote server at %s:%s starting.'
-                  % (host, port))
-        if port_file:
-            with open(port_file, 'w') as pf:
-                pf.write(str(port))
-
     def stop_remote_server(self):
-        prefix = 'Robot Framework remote server at %s:%s ' % self.server_address
         if self._allow_stop:
-            self._log(prefix + 'stopping.')
-            self._server.stop()
+            self._server.stop_serve()
             return True
-        self._log(prefix + 'does not allow stopping.', 'WARN')
+        # TODO: Log to __stdout__? WARN?
+        print('Robot Framework remote server at %s:%s does not allow stopping.'
+              % self.server_address)
         return False
 
     def _log(self, msg, level=None):
@@ -140,24 +122,59 @@ class RobotRemoteServer(object):
 class StoppableXMLRPCServer(SimpleXMLRPCServer):
     allow_reuse_address = True
 
-    def __init__(self, host, port):
-        SimpleXMLRPCServer.__init__(self, (host, port), logRequests=False)
-        self._shutdown = False
+    def __init__(self, host, port, port_file=None):
+        SimpleXMLRPCServer.__init__(self, (host, port), logRequests=False,
+                                    bind_and_activate=False)
+        self._port_file = port_file
+        self._thread = None
+        self._stop_server = threading.Event()
 
-    def start(self):
-        if hasattr(self, 'timeout'):
-            self.timeout = 0.5
-        elif sys.platform.startswith('java'):
-            self.socket.settimeout(0.5)
-        while not self._shutdown:
-            try:
-                self.handle_request()
-            except (OSError, select.error) as err:
-                if err.args[0] != errno.EINTR:
-                    raise
+    def start(self, log=False):
+        self.server_bind()
+        self.server_activate()
+        self._thread = threading.Thread(target=self.serve_forever)
+        self._thread.start()
+        self._announce_start(log, self._port_file)
 
-    def stop(self):
-        self._shutdown = True
+    def _announce_start(self, log_start, port_file):
+        # TODO: starting -> started
+        if log_start:
+            print('Robot Framework remote server at %s:%s starting.'
+                  % self.server_address)
+        if port_file:
+            with open(port_file, 'w') as pf:
+                pf.write(str(self.server_address[1]))
+
+    def stop(self, log=False):
+        self.shutdown()
+        self.server_close()
+        self._thread.join()
+        self._announce_end(log, self._port_file)
+
+    def _announce_end(self, log_end, port_file):
+        # TODO: stopping -> stopped
+        if log_end:
+            print('Robot Framework remote server at %s:%s stopping.'
+                  % self.server_address)
+        if port_file and os.path.exists(port_file):
+            os.remove(port_file)    # TODO: Document that port file is removed
+
+    def serve(self, log=True):
+        self._stop_server.clear()
+        self._register_signal_handlers()  # TODO: use as context manager!
+        self.start(log)
+        while not self._stop_server.is_set():
+            self._stop_server.wait(1)
+        self.stop(log)
+
+    def _register_signal_handlers(self):
+        for name in 'SIGINT', 'SIGTERM', 'SIGHUP':
+            if hasattr(signal, name):
+                signal.signal(getattr(signal, name),
+                              lambda signum, frame: self.stop_serve())
+
+    def stop_serve(self):
+        self._stop_server.set()
 
 
 def RemoteLibraryFactory(library):
