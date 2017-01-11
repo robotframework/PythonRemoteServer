@@ -44,7 +44,7 @@ BINARY = re.compile('[\x00-\x08\x0B\x0C\x0E-\x1F]')
 NON_ASCII = re.compile('[\x80-\xff]')
 
 
-class RobotRemoteServer(SimpleXMLRPCServer):
+class RobotRemoteServer(object):
     allow_reuse_address = True
 
     def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
@@ -62,21 +62,24 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         :param allow_stop:  Allow/disallow stopping the server using
                             ``Stop Remote Server`` keyword.
         """
-        SimpleXMLRPCServer.__init__(self, (host, int(port)), logRequests=False)
+        self._server = StoppableXMLRPCServer(host, int(port))
         self._library = RemoteLibraryFactory(library)
         self._allow_stop = allow_stop
-        self._shutdown = False
-        self._register_functions()
+        self._register_functions(self._server)
         self._register_signal_handlers()
         self._announce_start(port_file)
-        self.serve_forever()
+        self._server.start()
 
-    def _register_functions(self):
-        self.register_function(self.get_keyword_names)
-        self.register_function(self.run_keyword)
-        self.register_function(self.get_keyword_arguments)
-        self.register_function(self.get_keyword_documentation)
-        self.register_function(self.stop_remote_server)
+    @property
+    def server_address(self):
+        return self._server.server_address
+
+    def _register_functions(self, server):
+        server.register_function(self.get_keyword_names)
+        server.register_function(self.run_keyword)
+        server.register_function(self.get_keyword_arguments)
+        server.register_function(self.get_keyword_documentation)
+        server.register_function(self.stop_remote_server)
 
     def _register_signal_handlers(self):
         def stop_with_signal(signum, frame):
@@ -94,26 +97,14 @@ class RobotRemoteServer(SimpleXMLRPCServer):
             with open(port_file, 'w') as pf:
                 pf.write(str(port))
 
-    def serve_forever(self):
-        if hasattr(self, 'timeout'):
-            self.timeout = 0.5
-        elif sys.platform.startswith('java'):
-            self.socket.settimeout(0.5)
-        while not self._shutdown:
-            try:
-                self.handle_request()
-            except (OSError, select.error) as err:
-                if err.args[0] != errno.EINTR:
-                    raise
-
     def stop_remote_server(self):
         prefix = 'Robot Framework remote server at %s:%s ' % self.server_address
         if self._allow_stop:
             self._log(prefix + 'stopping.')
-            self._shutdown = True
-        else:
-            self._log(prefix + 'does not allow stopping.', 'WARN')
-        return self._shutdown
+            self._server.stop()
+            return True
+        self._log(prefix + 'does not allow stopping.', 'WARN')
+        return False
 
     def _log(self, msg, level=None):
         if level:
@@ -130,15 +121,43 @@ class RobotRemoteServer(SimpleXMLRPCServer):
         return self._library.get_keyword_names() + ['stop_remote_server']
 
     def run_keyword(self, name, args, kwargs=None):
-        if name != 'stop_remote_server':
-            return self._library.run_keyword(name, args, kwargs)
-        return KeywordRunner(self.stop_remote_server).run_keyword(args, kwargs)
+        if name == 'stop_remote_server':
+            return KeywordRunner(self.stop_remote_server).run_keyword(args, kwargs)
+        return self._library.run_keyword(name, args, kwargs)
 
     def get_keyword_arguments(self, name):
+        if name == 'stop_remote_server':
+            return []
         return self._library.get_keyword_arguments(name)
 
     def get_keyword_documentation(self, name):
+        if name == 'stop_remote_server':
+            return ('Stop the remote server unless stopping is disabled.\n\n'
+                    'Return ``True/False`` depending was server stopped or not.')
         return self._library.get_keyword_documentation(name)
+
+
+class StoppableXMLRPCServer(SimpleXMLRPCServer):
+    allow_reuse_address = True
+
+    def __init__(self, host, port):
+        SimpleXMLRPCServer.__init__(self, (host, port), logRequests=False)
+        self._shutdown = False
+
+    def start(self):
+        if hasattr(self, 'timeout'):
+            self.timeout = 0.5
+        elif sys.platform.startswith('java'):
+            self.socket.settimeout(0.5)
+        while not self._shutdown:
+            try:
+                self.handle_request()
+            except (OSError, select.error) as err:
+                if err.args[0] != errno.EINTR:
+                    raise
+
+    def stop(self):
+        self._shutdown = True
 
 
 def RemoteLibraryFactory(library):
