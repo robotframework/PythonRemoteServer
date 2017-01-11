@@ -190,16 +190,27 @@ class StaticRemoteLibrary(object):
 
     def __init__(self, library):
         self._library = library
+        self._robot_name_index = {}
 
     def get_keyword_names(self):
-        return [name for name, value in inspect.getmembers(self._library)
-                if name[0] != '_' and is_function_or_method(value)]
+        names = []
+        for name, value in inspect.getmembers(self._library):
+            if is_function_or_method(value):
+                if getattr(value, 'robot_name', None) not in (None, ''):
+                    names.append(value.robot_name)
+                    self._robot_name_index[value.robot_name] = name
+                else:
+                    if name[0] != '_':
+                        names.append(name)
+        return names
 
     def run_keyword(self, name, args, kwargs=None):
         kw = self._get_keyword(name)
         return KeywordRunner(kw).run_keyword(args, kwargs)
 
     def _get_keyword(self, name):
+        if name in self._robot_name_index:
+            name = self._robot_name_index[name]
         kw = getattr(self._library, name, None)
         return kw if is_function_or_method(kw) else None
 
@@ -227,7 +238,11 @@ class StaticRemoteLibrary(object):
             return inspect.getdoc(self._library) or ''
         if name == '__init__' and inspect.ismodule(self._library):
             return ''
-        return inspect.getdoc(self._get_keyword(name)) or ''
+        keyword = self._get_keyword(name)
+        doc = inspect.getdoc(keyword) or ''
+        if len(getattr(keyword, 'robot_tags')):
+            doc += "\nTags: %s\n" % ', '.join(keyword.robot_tags)
+        return doc
 
 
 class HybridRemoteLibrary(StaticRemoteLibrary):
