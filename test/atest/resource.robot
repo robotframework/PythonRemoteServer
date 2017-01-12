@@ -51,8 +51,8 @@ Server Should Be Stopped And Correct Messages Logged
     [Arguments]    ${test logging}=True
     ${result} =    Wait For Process    timeout=10s    on_timeout=terminate
     ${expected} =    Catenate    SEPARATOR=\n
-    ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} starting.
-    ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} stopping.
+    ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} started.
+    ...    Robot Framework remote server at 127.0.0.1:${ACTIVE PORT} stopped.
     Run Keyword If    ${test logging}
     ...    Should Be Equal    ${result.stdout}    ${expected}
     Should Be Equal    ${result.rc}    ${0}
