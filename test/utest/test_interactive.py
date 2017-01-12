@@ -11,7 +11,7 @@ from robotremoteserver import (RobotRemoteServer, stop_remote_server,
 
 class Library(object):
 
-    def keyword(self):
+    def kw(self):
         return 42
 
 
@@ -25,7 +25,7 @@ class TesInteractiveUsage(unittest.TestCase):
         with self._server_thread():
             uri = self._wait_until_started()
             try:
-                self.assertEqual(Remote(uri).run_keyword('keyword', (), None), 42)
+                self.assertEqual(Remote(uri).run_keyword('kw', (), None), 42)
             finally:
                 self.assertEqual(self.server.stop_serve(log=False), True)
             self._wait_until_stopped(uri)
@@ -33,9 +33,9 @@ class TesInteractiveUsage(unittest.TestCase):
             self.assertEqual(test_remote_server(uri, log=False), False)
 
     @contextmanager
-    def _server_thread(self, server=None):
+    def _server_thread(self):
         thread = threading.Thread(target=self.server.serve,
-                                  kwargs={'stop_with_signals': False, 'log': False})
+                                  kwargs={'log': False})
         thread.start()
         try:
             yield
@@ -64,7 +64,7 @@ class TesInteractiveUsage(unittest.TestCase):
         self.server.start()
         uri = 'http://%s:%s' % self.server.server_address
         try:
-            self.assertEqual(Remote(uri).run_keyword('keyword', (), None), 42)
+            self.assertEqual(Remote(uri).run_keyword('kw', (), None), 42)
         finally:
             self.server.stop()
         self.assertEqual(test_remote_server(uri, log=False), False)
@@ -79,7 +79,7 @@ class TesInteractiveUsage(unittest.TestCase):
 
     def test_stop_remote_server_can_be_disabled_with_serve(self):
         self.server = RobotRemoteServer(Library(), port=0, serve=False,
-                                       allow_stop=False)
+                                        allow_stop=False)
         with self._server_thread():
             uri = self._wait_until_started()
             self.assertEqual(test_remote_server(uri, log=False), True)

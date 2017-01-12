@@ -90,13 +90,9 @@ class RobotRemoteServer(object):
         server.register_function(self.get_keyword_documentation)
         server.register_function(self.stop_serve, 'stop_remote_server')
 
-    def serve(self, stop_with_signals=True, log=True):
+    def serve(self, log=True):
         """Start the server and wait for it to finish.
 
-        :param stop_with_signals:  Controls should INT, TERM and HUP signals be
-                     registered to stop serving. Can be disabled, for example,
-                     if running this method on a thread where registering
-                     signals is not possible.
         :param log:  Log message about startup or not.
 
         Using this requires using ``serve=False`` when creating initializing
@@ -110,7 +106,7 @@ class RobotRemoteServer(object):
         is initialized. Calling :meth:`force_stop_serve` stops the server
         unconditionally.
         """
-        self._server.serve(stop_with_signals, log)
+        self._server.serve(log=log)
 
     def stop_serve(self, log=True):
         """Stop the server started by :meth:`serve`.
@@ -216,9 +212,9 @@ class StoppableXMLRPCServer(SimpleXMLRPCServer):
         if port_file and os.path.exists(port_file):
             os.remove(port_file)    # TODO: Document that port file is removed
 
-    def serve(self, stop_with_signals=True, log=True):
+    def serve(self, log=True):
         self._stop_serve = threading.Event()
-        with self._stop_signals(stop_with_signals):
+        with self._stop_signals():
             self.start(log)
             while not self._stop_serve.is_set():
                 self._stop_serve.wait(1)
@@ -226,12 +222,15 @@ class StoppableXMLRPCServer(SimpleXMLRPCServer):
             self.stop(log)
 
     @contextmanager
-    def _stop_signals(self, stop_with_signals=True):
+    def _stop_signals(self):
         original = {}
-        handler = lambda signum, frame: self.stop_serve()
-        for name in 'SIGINT', 'SIGTERM', 'SIGHUP':
-            if stop_with_signals and hasattr(signal, name):
-                original[name] = signal.signal(getattr(signal, name), handler)
+        stop = lambda signum, frame: self.stop_serve()
+        try:
+            for name in 'SIGINT', 'SIGTERM', 'SIGHUP':
+                if hasattr(signal, name):
+                    original[name] = signal.signal(getattr(signal, name), stop)
+        except ValueError:  # Not in main thread
+            pass
         try:
             yield
         finally:
