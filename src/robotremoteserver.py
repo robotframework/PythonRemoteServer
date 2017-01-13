@@ -60,8 +60,7 @@ class RobotRemoteServer(object):
         :param port_file:   File to write port that is used. ``None`` means
                             no such file is written.
         :param allow_stop:  Allow/disallow stopping the server using ``Stop
-                            Remote Server`` keyword and :meth:`stop_serve`
-                            method.
+                            Remote Server`` keyword.
         :param serve:       When ``True`` starts the server automatically.
                             When ``False``, server can be started with
                             :meth:`serve` or :meth:`start` methods.
@@ -88,42 +87,26 @@ class RobotRemoteServer(object):
         server.register_function(self.run_keyword)
         server.register_function(self.get_keyword_arguments)
         server.register_function(self.get_keyword_documentation)
-        server.register_function(self.stop_serve, 'stop_remote_server')
+        server.register_function(self._stop_serve, 'stop_remote_server')
 
     def serve(self, log=True):
         """Start the server and wait for it to finish.
 
         :param log:  Log message about startup or not.
 
-        Using this requires using ``serve=False`` when creating initializing
-        the server. Using ``serve=True`` is equal to first using ``serve=False``
+        If this method is called in the main thread, automatically registers
+        signals INT, TERM and HUP to stop the server.
+
+        Using this method requires using ``serve=False`` when initializing the
+        server. Using ``serve=True`` is equal to first using ``serve=False``
         and then calling this method. Alternatively :meth:`start` can be used
         to start the server on background.
 
         In addition to signals, the server can be stopped with ``Stop Remote
-        Server`` keyword or by calling :meth:`stop_serve` method, but both
-        of these can be disabled with ``allow_stop=False`` when the server
-        is initialized. Calling :meth:`force_stop_serve` stops the server
-        unconditionally.
+        Server`` keyword. Using :meth:`stop` method is possible too, but
+        requires running this method in a thread.
         """
         self._server.serve(log=log)
-
-    def stop_serve(self, log=True):
-        """Stop the server started by :meth:`serve`.
-
-        :param log:  Log message about stopping or not.
-
-        May be disabled with ``allow_stop=False`` when initializing the server.
-        Use :meth:`force_stop_serve` if that is a problem.
-        """
-        return self._server.stop_serve(log=log)
-
-    def force_stop_serve(self, log=True):
-        """Stop the server started by :meth:`serve` unconditionally.
-
-        :param log:  Log message about stopping or not.
-        """
-        return self._server.stop_serve(force=True, log=log)
 
     def start(self, log=False):
         """Start the server on background.
@@ -142,6 +125,9 @@ class RobotRemoteServer(object):
         """
         self._server.stop(log=log)
 
+    def _stop_serve(self, log=True):
+        return self._server.stop_serve(remote=True, log=log)
+
     def _log(self, msg, level=None):
         if level:
             msg = '*%s* %s' % (level.upper(), msg)
@@ -158,7 +144,7 @@ class RobotRemoteServer(object):
 
     def run_keyword(self, name, args, kwargs=None):
         if name == 'stop_remote_server':
-            return KeywordRunner(self.stop_serve).run_keyword(args, kwargs)
+            return KeywordRunner(self._stop_serve).run_keyword(args, kwargs)
         return self._library.run_keyword(name, args, kwargs)
 
     def get_keyword_arguments(self, name):
@@ -176,41 +162,14 @@ class RobotRemoteServer(object):
 class StoppableXMLRPCServer(SimpleXMLRPCServer):
     allow_reuse_address = True
 
-    def __init__(self, host, port, port_file=None, allow_stop_serve=True):
+    def __init__(self, host, port, port_file=None, allow_remote_stop=True):
         SimpleXMLRPCServer.__init__(self, (host, port), logRequests=False,
                                     bind_and_activate=False)
         self._port_file = port_file
         self._thread = None
-        self._allow_stop_serve = allow_stop_serve
+        self._allow_remote_stop = allow_remote_stop
         self._stop_serve = None
-
-    def start(self, log=False):
-        self.server_bind()
-        self.server_activate()
-        self._thread = threading.Thread(target=self.serve_forever)
-        self._thread.start()
-        self._announce_start(log, self._port_file)
-
-    def _announce_start(self, log_start, port_file):
-        self._log('started', log_start)
-        if port_file:
-            with open(port_file, 'w') as pf:
-                pf.write(str(self.server_address[1]))
-
-    def stop(self, log=False):
-        if self._stop_serve:
-            self.stop_serve(log=log)
-            return
-        self.shutdown()
-        self.server_close()
-        self._thread.join()
-        self._thread = None
-        self._announce_end(log, self._port_file)
-
-    def _announce_end(self, log_end, port_file):
-        self._log('stopped', log_end)
-        if port_file and os.path.exists(port_file):
-            os.remove(port_file)    # TODO: Document that port file is removed
+        self._stop_lock = threading.Lock()
 
     def serve(self, log=True):
         self._stop_serve = threading.Event()
@@ -224,7 +183,7 @@ class StoppableXMLRPCServer(SimpleXMLRPCServer):
     @contextmanager
     def _stop_signals(self):
         original = {}
-        stop = lambda signum, frame: self.stop_serve()
+        stop = lambda signum, frame: self.stop_serve(remote=False)
         try:
             for name in 'SIGINT', 'SIGTERM', 'SIGHUP':
                 if hasattr(signal, name):
@@ -237,16 +196,44 @@ class StoppableXMLRPCServer(SimpleXMLRPCServer):
             for name in original:
                 signal.signal(getattr(signal, name), original[name])
 
-    def stop_serve(self, force=False, log=True):
-        if not self._thread:
-            self._log('is not running', log)
-            return True
-        if (self._allow_stop_serve or force) and self._stop_serve:
+    def stop_serve(self, remote=True, log=True):
+        if (self._allow_remote_stop or not remote) and self._stop_serve:
             self._stop_serve.set()
             return True
         # TODO: Log to __stdout__? WARN?
         self._log('does not allow stopping', log)
         return False
+
+    def start(self, log=False):
+        self.server_bind()
+        self.server_activate()
+        self._thread = threading.Thread(target=self.serve_forever)
+        self._thread.daemon = True
+        self._thread.start()
+        self._announce_start(log, self._port_file)
+
+    def _announce_start(self, log_start, port_file):
+        self._log('started', log_start)
+        if port_file:
+            with open(port_file, 'w') as pf:
+                pf.write(str(self.server_address[1]))
+
+    def stop(self, log=False):
+        if self._stop_serve:
+            return self.stop_serve(log=log)
+        with self._stop_lock:
+            if not self._thread:  # already stopped
+                return
+            self.shutdown()
+            self.server_close()
+            self._thread.join()
+            self._thread = None
+            self._announce_stop(log, self._port_file)
+
+    def _announce_stop(self, log_end, port_file):
+        self._log('stopped', log_end)
+        if port_file and os.path.exists(port_file):
+            os.remove(port_file)    # TODO: Document that port file is removed
 
     def _log(self, action, log=True):
         if log:
@@ -370,6 +357,7 @@ class KeywordRunner(object):
         self._keyword = keyword
 
     def run_keyword(self, args, kwargs=None):
+        # TODO: Handle binary in lists/dicts in args/kwargs
         args, kwargs = self._handle_binary_args(args, kwargs or {})
         result = KeywordResult()
         with StandardStreamInterceptor() as interceptor:
@@ -400,18 +388,20 @@ class StandardStreamInterceptor(object):
 
     def __init__(self):
         self.output = ''
-
-    def __enter__(self):
+        self.origout = sys.stdout
+        self.origerr = sys.stderr
         sys.stdout = StringIO()
         sys.stderr = StringIO()
+
+    def __enter__(self):
         return self
 
     def __exit__(self, *exc_info):
         stdout = sys.stdout.getvalue()
         stderr = sys.stderr.getvalue()
         close = [sys.stdout, sys.stderr]
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
+        sys.stdout = self.origout
+        sys.stderr = self.origerr
         for stream in close:
             stream.close()
         if stdout and stderr:
@@ -528,9 +518,8 @@ def test_remote_server(uri, log=True):
     :param log:  Log status message or not.
     :return      ``True`` if server is running, ``False`` otherwise.
     """
-    server = ServerProxy(uri)
     try:
-        server.get_keyword_names()
+        ServerProxy(uri).get_keyword_names()
     except Exception:
         if log:
             print('No remote server running at %s.' % uri)
@@ -545,18 +534,17 @@ def stop_remote_server(uri, log=True):
 
     :param uri:  Server address.
     :param log:  Log status message or not.
-    :return      ``True`` if server was stopped or it was not running,
-                 ``False`` otherwise.
+    :return      ``True`` if server was stopped or it was not running in
+                 the first place, ``False`` otherwise.
     """
     if not test_remote_server(uri, log=False):
         if log:
             print('No remote server running at %s.' % uri)
         return True
-    server = ServerProxy(uri)
     if log:
         print('Stopping remote server at %s.' % uri)
     args = [] if log else [False]
-    return server.stop_remote_server(*args)
+    return ServerProxy(uri).stop_remote_server(*args)
 
 
 if __name__ == '__main__':
