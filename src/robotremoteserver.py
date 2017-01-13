@@ -48,7 +48,7 @@ NON_ASCII = re.compile('[\x80-\xff]')
 class RobotRemoteServer(object):
 
     def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
-                 allow_stop=True, serve=True):
+                 allow_stop='DEPRECATED', serve=True, allow_remote_stop=True):
         """Configure and start-up remote server.
 
         :param library:     Test library instance or module to host.
@@ -59,14 +59,19 @@ class RobotRemoteServer(object):
                             a string.
         :param port_file:   File to write port that is used. ``None`` means
                             no such file is written.
-        :param allow_stop:  Allow/disallow stopping the server using ``Stop
-                            Remote Server`` keyword.
-        :param serve:       When ``True`` starts the server automatically.
-                            When ``False``, server can be started with
-                            :meth:`serve` or :meth:`start` methods.
+        :param allow_stop:  DEPRECATED. User ``allow_remote_stop`` instead.
+        :param serve:       If ``True``, start the server automatically and
+                            wait for it to be stopped. If ``False``, server can
+                            be started using :meth:`serve` or :meth:`start`
+                            methods.
+        :param allow_remote_stop:  Allow/disallow stopping the server using
+                            ``Stop Remote Server`` keyword and
+                            ``stop_remote_server`` XML-RPC method.
         """
+        if allow_stop != 'DEPRECATED':
+            allow_remote_stop = allow_stop
         self._server = StoppableXMLRPCServer(host, int(port), port_file,
-                                             allow_stop)
+                                             allow_remote_stop)
         self._library = RemoteLibraryFactory(library)
         self._register_functions(self._server)
         if serve:
@@ -90,7 +95,7 @@ class RobotRemoteServer(object):
         server.register_function(self._stop_serve, 'stop_remote_server')
 
     def serve(self, log=True):
-        """Start the server and wait for it to finish.
+        """Start the server and wait for it to be stopped.
 
         :param log:  Log message about startup or not.
 
@@ -103,8 +108,9 @@ class RobotRemoteServer(object):
         to start the server on background.
 
         In addition to signals, the server can be stopped with ``Stop Remote
-        Server`` keyword. Using :meth:`stop` method is possible too, but
-        requires running this method in a thread.
+        Server`` keyword, unless disabled when the server is initialized.
+        Using :meth:`stop` method is possible too, but requires running this
+        method in a thread.
         """
         self._server.serve(log=log)
 
@@ -566,7 +572,7 @@ def test_remote_server(uri, log=True):
 
 
 def stop_remote_server(uri, log=True):
-    """Stop remote server.
+    """Stop remote server unless server has disabled stopping.
 
     :param uri:  Server address.
     :param log:  Log status message or not.
