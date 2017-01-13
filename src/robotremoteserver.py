@@ -357,8 +357,8 @@ class KeywordRunner(object):
         self._keyword = keyword
 
     def run_keyword(self, args, kwargs=None):
-        # TODO: Handle binary in lists/dicts in args/kwargs
-        args, kwargs = self._handle_binary_args(args, kwargs or {})
+        args = self._handle_binary(args)
+        kwargs = self._handle_binary(kwargs or {})
         result = KeywordResult()
         with StandardStreamInterceptor() as interceptor:
             try:
@@ -375,13 +375,17 @@ class KeywordRunner(object):
         result.set_output(interceptor.output)
         return result.data
 
-    def _handle_binary_args(self, args, kwargs):
-        args = [self._handle_binary_arg(a) for a in args]
-        kwargs = dict((k, self._handle_binary_arg(v)) for k, v in kwargs.items())
-        return args, kwargs
-
-    def _handle_binary_arg(self, arg):
-        return arg if not isinstance(arg, Binary) else arg.data
+    def _handle_binary(self, arg):
+        # No need to compare against other iterables or mappings because we
+        # only get actual lists and dicts over XML-RPC. Binary cannot be
+        # a dictionary key either.
+        if isinstance(arg, list):
+            return [self._handle_binary(item) for item in arg]
+        if isinstance(arg, dict):
+            return dict((key, self._handle_binary(arg[key])) for key in arg)
+        if isinstance(arg, Binary):
+            return arg.data
+        return arg
 
 
 class StandardStreamInterceptor(object):

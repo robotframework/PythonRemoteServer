@@ -57,3 +57,8 @@ Non-string kwargs
     ${list} =    Create List    1    ${2}
     ${result} =    Kwargs    a=${1}    b=${True}    c=${list}
     Should Be Equal    ${result}    a:1 (int), b:True (bool), c:['1', 2] (list)
+
+Binary kwargs
+    ${tuple} =    Evaluate    ('\x02',)
+    ${result} =    Kwargs    a=\x00    b=\x01    c=${tuple}
+    Should Be Equal    ${result}    a:\x00, b:\x01, c:['\\x02'] (list)

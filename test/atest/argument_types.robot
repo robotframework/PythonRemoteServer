@@ -68,6 +68,11 @@ Dictionary With Non-String Keys
     [Documentation]    XML-RPC supports only strings as keys so must convert them
     {42: 42, True: False, None: None}    {'42': 42, 'True': False, '': ''}
 
+Binary in lists and dicts
+    [Documentation]    Binary values should be handled recursively
+    (b'\x01', [b'\x02', set([u'\x03'])])    [b'\x01', [b'\x02', [b'\x03']]]
+    {'k1': b'\x01', 'k2': [b'\x02', {'k3': b'\x03'}]}
+
 *** Keywords ***
 Argument Should Be Correct
      [Arguments]    ${argument}    ${expected}=
