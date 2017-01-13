@@ -32,17 +32,19 @@ IronPython_ (.NET) and PyPy_. Remote server 1.1 and newer support Python 2.6,
 Supported library APIs
 ----------------------
 
-Starting from Remote server 1.1, Robot Frameworks normal static, hybrid and
-dynamic library APIs are all supported. Earlier versions support only the
-static and hybrid APIs.
+Starting from Remote server 1.1, Robot Framework's normal `static, hybrid and
+dynamic library APIs`__ are all supported. This includes setting custom name
+and tags for keywords using the `robot.api.deco.keyword`__ decorator.
+Earlier versions support only the static and hybrid APIs and do not support
+the keyword decorator.
 
 For most parts these APIs work exactly like when using with Robot Framework
-normally. There are, however, some features that are not currently supported:
+normally. There main limitation is that logging using ``robot.api.logger`` or
+Python's ``logging`` module `is not supported`__.
 
-- Logging using ``robot.api.logger`` or Python's ``logging`` module is not
-  supported.
-- It is not possible to give a custom name to static or hybrid keywords using
-  the ``@keyword`` decorator.
+__ http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#creating-test-libraries
+__ http://robot-framework.readthedocs.io/en/latest/autodoc/robot.api.html#robot.api.deco.keyword
+__ https://github.com/robotframework/PythonRemoteServer/issues/26
 
 Installation
 ------------
