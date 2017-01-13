@@ -1,3 +1,5 @@
+from robotremoteserver import Binary
+
 try:
     basestring
 except:
@@ -10,6 +12,18 @@ class Arguments(object):
         expected = eval(expected)
         if argument != expected:
             raise AssertionError('%r != %r' % (argument, expected))
+        self.should_not_contain_binary(argument)
+
+    def should_not_contain_binary(self, argument):
+        if isinstance(argument, Binary):
+            raise AssertionError('Binary with data %r found!' % argument.data)
+        if isinstance(argument, dict):
+            for key, value in argument.items():
+                self.should_not_contain_binary(key)
+                self.should_not_contain_binary(value)
+        if isinstance(argument, list):
+            for item in argument:
+                self.should_not_contain_binary(item)
 
     def no_arguments(self):
         return self._format_args()
@@ -33,6 +47,7 @@ class Arguments(object):
         return self._format_args(req, default, *varargs)
 
     def kwargs(self, **kwargs):
+        self.should_not_contain_binary(kwargs)
         return self._format_args(**kwargs)
 
     def args_and_kwargs(self, arg1, arg2='default', **kwargs):
