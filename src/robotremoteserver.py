@@ -214,16 +214,12 @@ class StaticRemoteLibrary(object):
     def _get_keyword(self, name):
         if name in self._robot_name_index:
             name = self._robot_name_index[name]
-        kw = getattr(self._library, name, None)
-        return kw if is_function_or_method(kw) else None
+        return getattr(self._library, name)
 
     def get_keyword_arguments(self, name):
-        kw = self._get_keyword(name)
-        if not kw:
+        if __name__ == '__init__':
             return []
-        return self._arguments_from_kw(kw)
-
-    def _arguments_from_kw(self, kw):
+        kw = self._get_keyword(name)
         args, varargs, kwargs, defaults = inspect.getargspec(kw)
         if inspect.ismethod(kw):
             args = args[1:]  # drop 'self'
@@ -239,14 +235,31 @@ class StaticRemoteLibrary(object):
     def get_keyword_documentation(self, name):
         if name == '__intro__':
             return inspect.getdoc(self._library) or ''
-        if name == '__init__' and inspect.ismodule(self._library):
-            return ''
+        if name == '__init__':
+            init = self._get_init(self._library)
+            return inspect.getdoc(init) or ''
         keyword = self._get_keyword(name)
         doc = (inspect.getdoc(keyword) or '').lstrip()
         if getattr(keyword, 'robot_tags', []):
             tags = 'Tags: %s' % ', '.join(keyword.robot_tags)
             doc = '%s\n\n%s' % (doc, tags) if doc else tags
         return doc
+
+    def _get_init(self, library):
+        if inspect.ismodule(library):
+            return None
+        init = getattr(library, '__init__', None)
+        return init if self._is_valid_init(init) else None
+
+    def _is_valid_init(self, init):
+        if not init:
+            return False
+        # https://bitbucket.org/pypy/pypy/issues/2462/
+        if 'PyPy' in sys.version:
+            if PY2:
+                return init.__func__ is not object.__init__.__func__
+            return init is not object.__init__
+        return is_function_or_method(init)
 
 
 class HybridRemoteLibrary(StaticRemoteLibrary):
