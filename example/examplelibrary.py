@@ -3,6 +3,10 @@
 from __future__ import print_function
 
 import os
+import sys
+
+from robotremoteserver import RobotRemoteServer
+
 
 try:
     basestring
@@ -30,7 +34,4 @@ class ExampleRemoteLibrary(object):
 
 
 if __name__ == '__main__':
-    import sys
-    from robotremoteserver import RobotRemoteServer
-
     RobotRemoteServer(ExampleRemoteLibrary(), *sys.argv[1:])

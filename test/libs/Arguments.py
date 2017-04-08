@@ -1,9 +1,9 @@
 from robotremoteserver import Binary
 
 try:
-    basestring
+    unicode
 except:
-    basestring = str
+    unicode = str
 
 
 class Arguments(object):
@@ -66,7 +66,9 @@ class Arguments(object):
         return ', '.join(self._format_arg(a) for a in args)
 
     def _format_arg(self, arg):
-        if isinstance(arg, basestring):
+        if isinstance(arg, bytes):
+            return arg.decode('latin-1')
+        if isinstance(arg, unicode):
             return arg
         return '%s (%s)' % (arg, type(arg).__name__)
 

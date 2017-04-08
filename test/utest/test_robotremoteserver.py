@@ -13,6 +13,7 @@ class NonServingRemoteServer(RobotRemoteServer):
 
 
 class StaticLibrary:
+    streams = ()
 
     def passing_keyword(self):
         pass

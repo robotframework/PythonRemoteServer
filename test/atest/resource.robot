@@ -9,21 +9,21 @@ ${SERVER TIMEOUT}    10 seconds
 
 *** Keywords ***
 Start And Import Remote Library
-    [Arguments]    ${library}    ${name}=Remote
+    [Arguments]    ${library}    ${name}=Remote    @{args}
     Set Pythonpath
-    ${port} =    Start Remote Library    ${library}
+    ${port} =    Start Remote Library    ${library}    args=${args}
     Import Library    Remote    http://127.0.0.1:${port}    WITH NAME    ${name}
     Set Suite Variable    ${ACTIVE PORT}    ${port}
     Set Log Level    DEBUG
 
 Start Remote Library
-    [Arguments]    ${library}    ${port}=0
+    [Arguments]    ${library}    ${port}=0    ${args}=@{EMPTY}
     ${library} =    Normalize Path    ${CURDIR}/../libs/${library}
     ${port file} =    Normalize Path    ${CURDIR}/../results/server_port.txt
     ${output} =    Normalize Path    ${CURDIR}/../results/server_output.txt
     @{interpreter} =    Split Command Line    ${INTERPRETER}
     Start Process    @{interpreter}    ${library}    ${port}    ${port file}
-    ...    alias=${library}    stdout=${output}    stderr=STDOUT
+    ...    @{args}    alias=${library}    stdout=${output}    stderr=STDOUT
     ${status}    ${result} =    Run Keyword And Ignore Error
     ...    Read Port File    ${port file}
     Return From Keyword If    "${status}" == "PASS"    ${result}

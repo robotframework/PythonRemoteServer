@@ -48,4 +48,9 @@ if __name__ == '__main__':
     import sys
     from robotremoteserver import RobotRemoteServer
 
-    RobotRemoteServer(BasicCommunication(), '127.0.0.1', *sys.argv[1:])
+    if sys.argv[-1] == 'no_stop':
+        conf = {'allow_remote_stop': False}
+        sys.argv.pop()
+    else:
+        conf = {}
+    RobotRemoteServer(BasicCommunication(), '127.0.0.1', *sys.argv[1:], **conf)
