@@ -28,12 +28,10 @@ import traceback
 if sys.version_info < (3,):
     from SimpleXMLRPCServer import SimpleXMLRPCServer
     from StringIO import StringIO
-    from SocketServer import ThreadingMixIn
     from xmlrpclib import Binary, ServerProxy
     PY2, PY3 = True, False
 else:
     from io import StringIO
-    from socketserver import ThreadingMixIn
     from xmlrpc.client import Binary, ServerProxy
     from xmlrpc.server import SimpleXMLRPCServer
     PY2, PY3 = False, True
@@ -187,7 +185,7 @@ class RobotRemoteServer(object):
         return self._library.get_keyword_documentation(name)
 
 
-class StoppableXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
+class StoppableXMLRPCServer(SimpleXMLRPCServer):
     allow_reuse_address = True
 
     def __init__(self, host, port):
