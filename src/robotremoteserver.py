@@ -101,11 +101,21 @@ class RobotRemoteServer(object):
         """
         return self._server.server_address[1]
 
+    def activate(self):
+        """Bind port and activate the server but do not yet start serving.
+
+        :return  Port number that the server is going to use. This is the
+                 actual port to use, even if the initially given port is 0.
+        """
+        return self._server.activate()
+
     def serve(self, log=True):
         """Start the server and wait for it to be stopped.
 
         :param log:  When ``True``, print messages about start and stop to
                      the console.
+
+        Automatically activates the server if it is not activated already.
 
         If this method is executed in the main thread, automatically registers
         signals SIGINT, SIGTERM and SIGHUP to stop the server.
@@ -186,23 +196,14 @@ class StoppableXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
         self._activated = False
         self._stopper_thread = None
 
-    # TODO: Expose in Remote server itself
     def activate(self):
-        """Activate server but do not yet start serving.
-
-        Most importantly, port is bind and :attr:`server_address` contains
-        the actual port number to use also if the initially given port is 0.
-        """
         if not self._activated:
             self.server_bind()
             self.server_activate()
             self._activated = True
+        return self.server_address[1]
 
     def serve(self):
-        """Start serving until the server is stopped.
-
-        Activates the server automatically if it is not done before.
-        """
         self.activate()
         try:
             self.serve_forever()
@@ -213,6 +214,7 @@ class StoppableXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
         self.server_close()
         if self._stopper_thread:
             self._stopper_thread.join()
+            self._stopper_thread = None
 
     def stop(self):
         self._stopper_thread = threading.Thread(target=self.shutdown)

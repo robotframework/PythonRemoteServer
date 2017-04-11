@@ -33,6 +33,14 @@ class TestServeAndStop(unittest.TestCase):
             self._wait_until_stopped(uri)
             self.assertEqual(test_remote_server(uri, log=False), False)
 
+    def test_activate(self):
+        port = self.server.activate()
+        self.assertNotEqual(port, 0)
+        self.assertEqual(port, self.server.server_port)
+        with self._server_thread():
+            self.assertEqual(port, self.server.server_port)
+            self.server.stop()
+
     @contextmanager
     def _server_thread(self):
         thread = threading.Thread(target=self.server.serve,
