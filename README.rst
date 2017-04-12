@@ -4,11 +4,11 @@ Python Remote Server for Robot Framework
 `Robot Framework`_ remote servers allow hosting test libraries on different
 processes or machines than Robot Framework itself is running on. This project
 implements a generic remote server using the Python_ programming language.
-See the general `remote library interface documentation`_ for more information
-about the remote interface as well as for a list of remote server
+See the `remote library interface documentation`_ for more information about
+the remote interface in general as well as for a list of remote server
 implementations in other programming languages.
 
-This project is hosted in GitHub_ and downloads are available in PyPI_.
+This project is hosted on GitHub_ and downloads are available on PyPI_.
 
 .. _Robot Framework: http://robotframework.org
 .. _remote library interface documentation: https://github.com/robotframework/RemoteInterface
@@ -34,7 +34,7 @@ versions 2.2-2.7.
 Supported library APIs
 ----------------------
 
-Starting from Remote server version 1.1, Robot Framework's standard `static,
+Starting from the remote server version 1.1, Robot Framework's `static,
 hybrid and dynamic library APIs`__ are all supported. This includes setting
 custom name and tags for keywords using the `robot.api.deco.keyword`__
 decorator. Earlier versions support only the static and hybrid APIs and do
@@ -73,20 +73,14 @@ accepts the following configuration parameters when it is initialized:
     =====================  =================  ========================================
     ``library``                               Test library instance or module to host. Mandatory argument.
     ``host``                ``'127.0.0.1'``   Address to listen. Use ``'0.0.0.0'`` to listen to all available interfaces.
-    ``port``                ``8270``          Port to listen. Use ``0`` to select a free port automatically. Can be given as an integer or as a string.
+    ``port``                ``8270``          Port to listen. Use ``0`` to select a free port automatically. Can be given as an integer or as a string. The default port ``8270`` is `registered by IANA`__ for remote server usage.
     ``port_file``           ``None``          File to write the port that is used. ``None`` (default) means no such file is written.
     ``allow_stop``          ``'DEPRECATED'``  DEPRECATED. User ``allow_remote_stop`` instead.
     ``serve``               ``True``          If ``True``, start the server automatically and wait for it to be stopped. If ``False``, server can be started using the ``serve`` method. New in version 1.1.
     ``allow_remote_stop``   ``True``          Allow/disallow stopping the server remotely using ``Stop Remote Server`` keyword and ``stop_remote_server`` XML-RPC method. New in version 1.1.
     =====================  =================  ========================================
 
-Address and port that are used are printed to the console where the server is
-started. Writing port to a file by using ``port_file`` argument is especially
-useful when the server selects a free port automatically. Other tools can then
-easily read the active port from the file. If the file is removed prior to
-starting the server, tools can also wait until the file exists to know that
-the server is up and running. Starting from version 1.1, the server removes
-the port file automatically when it is stopped.
+__ https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=8270
 
 Starting remote server
 ----------------------
@@ -110,9 +104,9 @@ __ `Remote server configuration`_
 .. sourcecode:: python
 
     from robotremoteserver import RobotRemoteServer
-    from mylibrary import MyLibrary
+    from examplelibrary import ExampleLibrary
 
-    RobotRemoteServer(MyLibrary(), host='10.0.0.42', port=0,
+    RobotRemoteServer(ExampleLibrary(), host='10.0.0.42', port=0,
                       port_file='/tmp/remote-port.txt')
 
 Starting from version 1.1, the server can be initialized without starting it by
@@ -122,7 +116,10 @@ equivalent to the example above:
 
 .. sourcecode:: python
 
-    server = RobotRemoteServer(MyLibrary(), host='10.0.0.42', port=0,
+    from robotremoteserver import RobotRemoteServer
+    from examplelibrary import ExampleLibrary
+
+    server = RobotRemoteServer(ExampleLibrary(), host='10.0.0.42', port=0,
                                port_file='/tmp/remote-port.txt', serve=False)
     server.serve()
 
@@ -130,38 +127,59 @@ Starting server on background
 -----------------------------
 
 The main benefit of separately initializing and starting the server is that
-it makes it easier to start the server on a background thread. This is
-illustrated by the following example:
+it makes it easier to start the server in a background thread. Servers started
+in a thread work exactly like servers running in the main tread except that
+`stopping the server`__ gracefully using ``Ctrl-C`` or signals is not
+supported automatically. Users must thus register signal handlers separately
+if needed.
+
+Also this following example is functionally nearly equivalent to the earlier
+examples except. The main difference is that not all same signals are handled.
 
 .. sourcecode:: python
 
+    import signal
     import threading
-    import time
-
+    from examplelibrary import ExampleLibrary
     from robotremoteserver import RobotRemoteServer
-    from mylibrary import MyLibrary
 
-    try:
-        raw_input
-    except NameError:  # Python 3
-        raw_input = input
-
-    # Initialize server and start it in a thread.
-    server = RobotRemoteServer(MyLibrary(), port=0, serve=False)
+    server = RobotRemoteServer(ExampleLibrary(), port=0, serve=False)
+    signal.signal(signal.SIGINT, lambda signum, frame: server.stop())
     server_thread = threading.Thread(target=server.serve)
     server_thread.start()
-    # Wait for server to be activated and port to be bind.
-    while server.server_port == 0:
-        time.sleep(0.1)
-    # Serve requests until user presses enter.
-    raw_input('Press enter to stop the server.\n')
-    server.stop()
-    server_thread.join()
+    while server_thread.is_alive():
+        server_thread.join(0.1)
 
-Servers started this way work mostly like servers started on the main thread.
-The main difference is that stopping the server gracefully using ``Ctrl-C``
-or signals is not supported automatically. The user must register signal
-handlers separately if needed.
+__ `Stopping remote server`_
+
+Getting active server port
+--------------------------
+
+If the server uses the default port ``8270`` or some other port is given
+explicitly when `configuring the server`__, you obviously know which port
+to use when connecting the server. When using the port ``0``, the server
+selects a free port automatically, but there are various ways how to find
+out the actual port:
+
+- Address and port that are used are printed into the console where the server
+  is started.
+
+- If ``port_file`` argument is used, the server writes the port into the
+  specified file where other tools can easily read it. Starting from the
+  remote server version 1.1, the server removes the port file automatically
+  when the server is stopped.
+
+- Starting from the version 1.1, the server has ``activate`` method that can
+  be called to activate the server without starting it. This method returns
+  the port that the server binds and also sets it available via the attributes
+  discussed below.
+
+- A started or actived server instance has ``server_address`` attribute that
+  contains the address and the port as a tuple. Starting from the version 1.1
+  there is also ``server_port`` attribute that contains just the port as
+  an integer.
+
+__ `Remote server configuration`__
 
 Stopping remote server
 ----------------------
@@ -179,18 +197,18 @@ The remote server can be gracefully stopped using several different methods:
   ``allow_remote_stop=False`` when `initializing the server`__.
 
 - Using ``stop_remote_server`` function in the XML-RPC interface.
-  Can be disabled with ``allow_remote_stop=False``.
+  Can be disabled with the ``allow_remote_stop=False`` initialization parameter.
 
 - Running ``python -m robotremoteserver stop [uri]`` which uses the
   aforementioned ``stop_remote_server`` XML-RPC function internally.
-  Can be disabled with ``allow_remote_stop=False``.
+  Can be disabled with the ``allow_remote_stop=False`` initialization parameter.
 
 - Using the ``stop_remote_server`` function provided by the
   ``robotremoteserver`` module similarly as when `testing is server running`_.
   Uses the ``stop_remote_server`` XML-RPC function internally and
-  can be disabled with ``allow_remote_stop=False``.
+  can be disabled with the ``allow_remote_stop=False`` initialization parameter.
 
-- Calling ``stop`` method of the running server instance. Mainly useful when
+- Calling the ``stop`` method of the running server instance. Mainly useful when
   `running the server on background`__.
 
 __ `Starting server on background`_
@@ -200,17 +218,17 @@ __ `Starting server on background`_
 Testing is server running
 -------------------------
 
-Starting from version 1.0.1 , the ``robotremoteserver`` module supports testing
-is a remote server running. This can be accomplished by running the module as
-a script with ``test`` argument and an optional URI::
+Starting from the version 1.0.1, the ``robotremoteserver`` module supports
+testing is a remote server running. This can be accomplished by running
+the module as a script with ``test`` argument and an optional URI::
 
     $ python -m robotremoteserver test
     Remote server running at http://127.0.0.1:8270.
     $ python -m robotremoteserver test http://10.0.0.42:57347
     No remote server running at http://10.0.0.42:57347.
 
-Starting from version 1.1, ``robotremoteserver`` module contains function
-``test_remote_server`` that can be used programmatically:
+Starting from the version 1.1, the ``robotremoteserver`` module contains
+function ``test_remote_server`` that can be used programmatically:
 
 .. sourcecode:: python
 
