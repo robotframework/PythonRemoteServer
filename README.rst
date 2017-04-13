@@ -37,8 +37,9 @@ Supported library APIs
 Starting from the remote server version 1.1, Robot Framework's `static,
 hybrid and dynamic library APIs`__ are all supported. This includes setting
 custom name and tags for keywords using the `robot.api.deco.keyword`__
-decorator. Earlier versions support only the static and hybrid APIs and do
-not support the keyword decorator.
+decorator, although the support for tags requires using Robot Framework 3.0.2
+or newer. Earlier remote server versions support only the static and hybrid
+APIs and do not support the keyword decorator at all.
 
 For most parts these APIs work exactly like when using with Robot Framework
 normally. There main limitation is that logging using ``robot.api.logger`` or

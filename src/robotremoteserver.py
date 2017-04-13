@@ -184,6 +184,11 @@ class RobotRemoteServer(object):
                     'Return ``True/False`` depending was server stopped or not.')
         return self._library.get_keyword_documentation(name)
 
+    def get_keyword_tags(self, name):
+        if name == 'stop_remote_server':
+            return []
+        return self._library.get_keyword_tags(name)
+
 
 class StoppableXMLRPCServer(SimpleXMLRPCServer):
     allow_reuse_address = True
@@ -320,11 +325,7 @@ class StaticRemoteLibrary(object):
             init = self._get_init(self._library)
             return inspect.getdoc(init) or ''
         keyword = self._get_keyword(name)
-        doc = (inspect.getdoc(keyword) or '').lstrip()
-        if getattr(keyword, 'robot_tags', []):
-            tags = 'Tags: %s' % ', '.join(keyword.robot_tags)
-            doc = '%s\n\n%s' % (doc, tags) if doc else tags
-        return doc
+        return inspect.getdoc(keyword) or ''
 
     def _get_init(self, library):
         if inspect.ismodule(library):
@@ -341,6 +342,10 @@ class StaticRemoteLibrary(object):
                 return init.__func__ is not object.__init__.__func__
             return init is not object.__init__
         return is_function_or_method(init)
+
+    def get_keyword_tags(self, name):
+        keyword = self._get_keyword(name)
+        return getattr(keyword, 'robot_tags', [])
 
 
 class HybridRemoteLibrary(StaticRemoteLibrary):
@@ -360,6 +365,8 @@ class DynamicRemoteLibrary(HybridRemoteLibrary):
             = dynamic_method(library, 'get_keyword_arguments')
         self._get_keyword_documentation \
             = dynamic_method(library, 'get_keyword_documentation')
+        self._get_keyword_tags \
+            = dynamic_method(library, 'get_keyword_tags')
 
     def _get_kwargs_support(self, run_keyword):
         spec = inspect.getargspec(run_keyword)
@@ -380,6 +387,11 @@ class DynamicRemoteLibrary(HybridRemoteLibrary):
         if self._get_keyword_documentation:
             return self._get_keyword_documentation(name)
         return ''
+
+    def get_keyword_tags(self, name):
+        if self._get_keyword_tags:
+            return self._get_keyword_tags(name)
+        return []
 
 
 class KeywordRunner(object):
