@@ -22,9 +22,9 @@ Releasing remote server
 
       git tag -a $VERSION -m "Release $VERSION" && git push --tags
 
-4. Create distribution::
+4. Create and upload distribution::
 
-      python setup.py sdist register upload
+      python setup.py sdist upload
 
 5. Verify that `PyPI page <https://pypi.python.org/pypi/robotremoteserver>`__
    looks good.
