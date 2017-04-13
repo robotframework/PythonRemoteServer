@@ -40,7 +40,7 @@ else:
 
 
 __all__ = ['RobotRemoteServer', 'stop_remote_server', 'test_remote_server']
-__version__ = '1.1rc2'
+__version__ = 'devel'
 
 BINARY = re.compile('[\x00-\x08\x0B\x0C\x0E-\x1F]')
 NON_ASCII = re.compile('[\x80-\xff]')
