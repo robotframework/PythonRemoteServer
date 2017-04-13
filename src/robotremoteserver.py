@@ -62,7 +62,8 @@ class RobotRemoteServer(object):
                             no such file is written. Port file is created after
                             the server is started and removed automatically
                             after it has stopped.
-        :param allow_stop:  DEPRECATED. User ``allow_remote_stop`` instead.
+        :param allow_stop:  DEPRECATED since version 1.1. Use
+                            ``allow_remote_stop`` instead.
         :param serve:       If ``True``, start the server automatically and
                             wait for it to be stopped.
         :param allow_remote_stop:  Allow/disallow stopping the server using

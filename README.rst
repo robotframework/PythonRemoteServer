@@ -76,7 +76,7 @@ accepts the following configuration parameters when it is initialized:
     ``host``                ``'127.0.0.1'``   Address to listen. Use ``'0.0.0.0'`` to listen to all available interfaces.
     ``port``                ``8270``          Port to listen. Use ``0`` to select a free port automatically. Can be given as an integer or as a string. The default port ``8270`` is `registered by IANA`__ for remote server usage.
     ``port_file``           ``None``          File to write the port that is used. ``None`` (default) means no such file is written.
-    ``allow_stop``          ``'DEPRECATED'``  DEPRECATED. User ``allow_remote_stop`` instead.
+    ``allow_stop``          ``'DEPRECATED'``  Deprecated since version 1.1. Use ``allow_remote_stop`` instead.
     ``serve``               ``True``          If ``True``, start the server automatically and wait for it to be stopped. If ``False``, server can be started using the ``serve`` method. New in version 1.1.
     ``allow_remote_stop``   ``True``          Allow/disallow stopping the server remotely using ``Stop Remote Server`` keyword and ``stop_remote_server`` XML-RPC method. New in version 1.1.
     =====================  =================  ========================================
