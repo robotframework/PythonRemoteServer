@@ -320,12 +320,12 @@ class StaticRemoteLibrary(object):
 
     def get_keyword_documentation(self, name):
         if name == '__intro__':
-            return inspect.getdoc(self._library) or ''
-        if name == '__init__':
-            init = self._get_init(self._library)
-            return inspect.getdoc(init) or ''
-        keyword = self._get_keyword(name)
-        return inspect.getdoc(keyword) or ''
+            source = self._library
+        elif name == '__init__':
+            source = self._get_init(self._library)
+        else:
+            source = self._get_keyword(name)
+        return inspect.getdoc(source) or ''
 
     def _get_init(self, library):
         if inspect.ismodule(library):
