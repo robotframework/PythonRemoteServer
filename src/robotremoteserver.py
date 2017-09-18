@@ -74,7 +74,8 @@ class RobotRemoteServer(object):
                             ``Stop Remote Server`` keyword and
                             ``stop_remote_server`` XML-RPC method.
         """
-        self._library = RemoteLibraryFactory(library)
+        self._library = [RemoteLibraryFactory(library_) 
+                         for library_ in library]
         self._server = StoppableXMLRPCServer(host, int(port))
         self._register_functions(self._server)
         self._port_file = port_file
@@ -171,28 +172,35 @@ class RobotRemoteServer(object):
         return True
 
     def get_keyword_names(self):
-        return self._library.get_keyword_names() + ['stop_remote_server']
+        keywords = ['stop_remote_server']
+        for l in self._library:
+            keywords += l.get_keyword_names()
+        return keywords
 
     def run_keyword(self, name, args, kwargs=None):
         if name == 'stop_remote_server':
             return KeywordRunner(self.stop_remote_server).run_keyword(args, kwargs)
-        return self._library.run_keyword(name, args, kwargs)
+        library_ = next(l for l in self._library if name in l._names)
+        return library_.run_keyword(name, args, kwargs)
 
     def get_keyword_arguments(self, name):
         if name == 'stop_remote_server':
             return []
-        return self._library.get_keyword_arguments(name)
+        library_ = next(l for l in self._library if name in l._names)
+        return library_.get_keyword_arguments(name)
 
     def get_keyword_documentation(self, name):
         if name == 'stop_remote_server':
             return ('Stop the remote server unless stopping is disabled.\n\n'
                     'Return ``True/False`` depending was server stopped or not.')
-        return self._library.get_keyword_documentation(name)
+        library_ = next(l for l in self._library if name in l._names)
+        return library_.get_keyword_documentation(name)
 
     def get_keyword_tags(self, name):
         if name == 'stop_remote_server':
             return []
-        return self._library.get_keyword_tags(name)
+        library_ = next(l for l in self._library if name in l._names)
+        return library_.get_keyword_tags(name)
 
 
 class StoppableXMLRPCServer(SimpleXMLRPCServer):
