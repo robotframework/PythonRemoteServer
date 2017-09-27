@@ -213,6 +213,7 @@ Post actions
 
 3. Close the `issue tracker milestone
    <https://github.com/robotframework/PythonRemoteServer/milestones>`_.
+   Create also new milestone for the next release unless one exists already.
 
 Announcements
 -------------
