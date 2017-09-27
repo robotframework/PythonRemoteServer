@@ -1,16 +1,11 @@
 Acceptance tests for Python Remote Server
 =========================================
 
-Tests are executed with `<run.py>`__ script. Run it with ``--help`` or see
+Tests are executed with `<run.py>`_ script. Run it with ``--help`` or see
 its source to view the usage. Actual test cases and test libraries used by
-them are in `<tests>`__ and `<libs>`__ directories, respectively.
+them are in `<tests>`_ and `<libs>`_ directories, respectively.
 
-Running tests requires having both `Robot Framework`__ 2.8.4 or newer and
-robotstatuschecker__ installed. Easiest way to install them is using pip__::
+Running tests has dependencies listed in `<../requirements-dev.txt>`_ file.
+Install them using pip::
 
-   pip install 'robotframework>=2.8.4'
-   pip install robotstatuschecker
-
-__ http://robotframework.org
-__ https://pypi.python.org/pypi/robotstatuschecker
-__ http://pip-installer.org
+   pip install -r requirements-dev.txt
