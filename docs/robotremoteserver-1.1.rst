@@ -84,8 +84,8 @@ Full list of fixes and enhancements
 
 Altogether 5 issues. View on the `issue tracker <https://github.com/robotframework/PythonRemoteServer/issues?q=milestone%3Av1.1>`__.
 
-.. _#17: https://github.com/PythonRemoteServer/issues/17
-.. _#18: https://github.com/PythonRemoteServer/issues/18
-.. _#22: https://github.com/PythonRemoteServer/issues/22
-.. _#35: https://github.com/PythonRemoteServer/issues/35
-.. _#38: https://github.com/PythonRemoteServer/issues/38
+.. _#17: https://github.com/robotframework/PythonRemoteServer/issues/17
+.. _#18: https://github.com/robotframework/PythonRemoteServer/issues/18
+.. _#22: https://github.com/robotframework/PythonRemoteServer/issues/22
+.. _#35: https://github.com/robotframework/PythonRemoteServer/issues/35
+.. _#38: https://github.com/robotframework/PythonRemoteServer/issues/38
