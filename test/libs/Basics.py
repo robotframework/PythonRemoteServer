@@ -2,7 +2,10 @@ import os
 
 
 class BasicCommunication(object):
-    """Testing basic communication and keyword documentation."""
+    """Testing basic communication and keyword documentation using a class.
+
+    Module.py has same stuff but using a module, not a class, as a library.
+    """
 
     def passing(self):
         """This keyword passes.
@@ -12,9 +15,7 @@ class BasicCommunication(object):
         pass
 
     def get_pid(self):
-        """
-        Returns process id for the remote server that is serving this library.
-        """
+        """Return process id of the server that is serving this library."""
         return os.getpid()
 
     def failing(self, message):

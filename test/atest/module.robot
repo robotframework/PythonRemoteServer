@@ -1,9 +1,9 @@
 *** Settings ***
-Documentation     Testing basic communication using a class based library.
-...               `module.robot` contains same tests using a library
-...               implemented as a module.
+Documentation     Testing basic communication using a module based library.
+...               `basic_communication.robot` contains same tests using
+...               a library implemented as a class.
 Resource          resource.robot
-Suite Setup       Start And Import Remote Library    Basics.py
+Suite Setup       Start And Import Remote Library    Module.py
 Suite Teardown    Stop Remote Library
 
 *** Variables ***
@@ -41,5 +41,5 @@ Private methods should ne ignored
     Private Method
 
 Attributes should be ignored
-    [Documentation]    FAIL No keyword with name 'attribute' found.
-    attribute
+    [Documentation]    FAIL No keyword with name 'ATTRIBUTE' found.
+    ATTRIBUTE
