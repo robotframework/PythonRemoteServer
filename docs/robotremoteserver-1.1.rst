@@ -13,9 +13,17 @@ There are no changes in this version compared to the earlier released
 Python Remote Server 1.1 release candidate 2.
 
 If you have pip_ installed, just run
-``pip install --upgrade robotremoteserver``
-to install the latest release or use
-``pip install robotremoteserver==1.1``
+
+::
+
+   pip install --pre --upgrade robotremoteserver
+
+to install the latest available release or use
+
+::
+
+   pip install robotremoteserver==1.1
+
 to install exactly this version. Alternatively you can download the source
 distribution from PyPI_ and install it manually.
 
