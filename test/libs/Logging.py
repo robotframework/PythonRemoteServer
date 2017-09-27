@@ -36,6 +36,7 @@ class Logging(object):
             stream = sys.stdout if index % 2 == 0 else sys.stderr
             stream.write(msg)
 
+
 if __name__ == '__main__':
     from robotremoteserver import RobotRemoteServer
 
