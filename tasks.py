@@ -31,7 +31,7 @@ to install the latest release or use
 to install exactly this version. Alternatively you can download the source
 distribution from PyPI_ and install it manually.
 
-SeleniumLibrary {version} was released on {date}.
+Python Remote Server {version} was released on {date}.
 
 .. _Robot Framework: http://robotframework.org
 .. _pip: http://pip-installer.org
