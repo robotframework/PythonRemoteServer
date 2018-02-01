@@ -34,4 +34,4 @@ class ExampleLibrary(object):
 
 
 if __name__ == '__main__':
-    RobotRemoteServer(ExampleLibrary(), *sys.argv[1:])
+    RobotRemoteServer([ExampleLibrary()], *sys.argv[1:])
