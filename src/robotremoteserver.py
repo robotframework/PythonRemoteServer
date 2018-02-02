@@ -70,8 +70,38 @@ class RobotRemoteServer(object):
                             ``Stop Remote Server`` keyword and
                             ``stop_remote_server`` XML-RPC method.
         """
+
+        # Library could be a single object, not a list. Backward compatibility.
+        if not isinstance(library, list):
+            library = [library]
+
+        # Create a list of class types of the library.
+        library_items = [li.__class__ for li in library]
+
+        # Check if an instance of a class declared more than once.
+        for item in library:
+            if library_items.count(item.__class__) > 1:
+                print("ERROR: There are more than 1 instance of a class: {}".format(item))
+                sys.exit(1)
+
         self._library = [RemoteLibraryFactory(library_) 
                          for library_ in library]
+
+        # Checking for unique keywords names.
+        keywords = []
+
+        for l in self._library:
+            keywords += l.get_keyword_names()
+
+        keywords_unique = list(set(keywords))
+
+        if len(keywords) > len(keywords_unique):
+            offset = len(sorted(keywords_unique))
+            print("ERROR: There are keywords with identical names: {}".format(
+                ', '.join(str(k) for k in sorted(keywords[offset:]))
+            ))
+            sys.exit(1)
+
         self._server = StoppableXMLRPCServer(host, int(port))
         self._register_functions(self._server)
         self._port_file = port_file
@@ -171,6 +201,7 @@ class RobotRemoteServer(object):
         keywords = ['stop_remote_server']
         for l in self._library:
             keywords += l.get_keyword_names()
+
         return keywords
 
     def run_keyword(self, name, args, kwargs=None):
