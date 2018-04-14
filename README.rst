@@ -243,6 +243,25 @@ using ``stop`` argument on the command line or by using the
 ``stop_remote_server`` function programmatically. Testing and stopping should
 work also with other Robot Framework remote server implementations.
 
+Listing keywords and viewing documentation
+------------------------------------------
+
+Using the built-in Libdoc__ tool you can list the keywords available on the server::
+
+    $ python -m robot.libdoc Remote::http://127.0.0.1:8270 list 
+    Count Items In Directory
+    Stop Remote Server
+    Strings Should Be Equal
+
+It is also possible to show the documentation on the command line by using
+argument ``show``. HTML documentation can be created by providing name of
+an output file::
+
+    $ python -m robot.libdoc Remote::http://127.0.0.1:8270 MyLibrary.html
+    /path/to/MyLibrary.html
+    
+__ http://robotframework.org/robotframework/#built-in-tools
+    
 Example
 -------
 
