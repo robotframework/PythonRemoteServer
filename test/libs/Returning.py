@@ -1,4 +1,9 @@
-from collections import Mapping
+import sys
+
+if sys.version_info < (3,):
+    from collections import Mapping
+else:
+    from collections.abc import Mapping
 
 
 class Returning(object):

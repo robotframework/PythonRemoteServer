@@ -15,7 +15,6 @@
 
 from __future__ import print_function
 
-from collections import Mapping
 import inspect
 import os
 import re
@@ -29,11 +28,13 @@ if sys.version_info < (3,):
     from SimpleXMLRPCServer import SimpleXMLRPCServer
     from StringIO import StringIO
     from xmlrpclib import Binary, ServerProxy
+    from collections import Mapping
     PY2, PY3 = True, False
 else:
     from io import StringIO
     from xmlrpc.client import Binary, ServerProxy
     from xmlrpc.server import SimpleXMLRPCServer
+    from collections.abc import Mapping
     PY2, PY3 = False, True
     unicode = str
     long = int
