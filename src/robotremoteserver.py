@@ -55,7 +55,8 @@ class RobotRemoteServer(object):
 
         :param library:     Test library instance or module to host.
         :param host:        Address to listen. Use ``'0.0.0.0'`` to listen
-                            to all available interfaces.
+                            to all available interfaces that have an IPv4
+                            address.
         :param port:        Port to listen. Use ``0`` to select a free port
                             automatically. Can be given as an integer or as
                             a string.
