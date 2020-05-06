@@ -150,7 +150,7 @@ class RobotRemoteServer(object):
 
     def _log(self, action, log=True, warn=False):
         if log:
-            address = '%s:%s' % self.server_address
+            address = '%s:%s' % self.server_address [:2]
             if warn:
                 print('*WARN*', end=' ')
             print('Robot Framework remote server at %s %s.' % (address, action))
