@@ -24,12 +24,6 @@ import sys
 import threading
 import traceback
 
-import socketserver
-import socket
-
-socketserver.TCPServer.address_family = socket.AF_INET6
-    
-
 if sys.version_info < (3,):
     from SimpleXMLRPCServer import SimpleXMLRPCServer
     from StringIO import StringIO
@@ -55,7 +49,7 @@ NON_ASCII = re.compile('[\x80-\xff]')
 
 class RobotRemoteServer(object):
 
-    def __init__(self, library, host='::1', port=8270, port_file=None,
+    def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
                  allow_stop='DEPRECATED', serve=True, allow_remote_stop=True):
         """Configure and start-up remote server.
 

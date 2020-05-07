@@ -2,7 +2,7 @@
 Library       Remote    http://${ADDRESS}:${PORT}
 
 *** Variables ***
-${ADDRESS}    localhost
+${ADDRESS}    ::1
 ${PORT}       8270
 
 *** Test Cases ***
