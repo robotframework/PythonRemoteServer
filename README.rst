@@ -243,6 +243,29 @@ using ``stop`` argument on the command line or by using the
 ``stop_remote_server`` function programmatically. Testing and stopping should
 work also with other Robot Framework remote server implementations.
 
+Simple IPv6 Support
+-------------------
+
+RobotRemoteServer instances can bind to IPv6 addresses as well as IPv4 addresses;
+both specific addresses and the 'any available address' equivalent to IPv4's
+'0.0.0.0': '::'.
+
+To use IPv6 addresses, it is necessary to set the class variable `TCPServer.address_family`
+*before* the `import` of `RobotRemoteServer`, as shown in the example below.
+
+.. sourcecode:: python
+
+    import socketserver
+    import socket
+    
+    socketserver.TCPServer.address_family = socket.AF_INET6
+    
+    from robotremoteserver import RobotRemoteServer
+    from mylibrary import MyLibrary
+    
+    RobotRemoteServer (MyLibrary (), host = "::")
+
+
 Listing keywords and viewing documentation
 ------------------------------------------
 
