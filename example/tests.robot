@@ -2,7 +2,13 @@
 Library       Remote    http://${ADDRESS}:${PORT}
 
 *** Variables ***
-${ADDRESS}    ::1
+# localhost may be a suitable alias for the local IP stack loopback address
+${ADDRESS}    localhost
+# alternatively, use a protocol specific loopback address
+# IPv6 loopback address
+#${ADDRESS}    ::1
+# IPv4 loopback address
+#${ADDRESS}    127.0.0.1
 ${PORT}       8270
 
 *** Test Cases ***
