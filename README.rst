@@ -1,4 +1,5 @@
-Python Remote Server for Robot Framework
+Remote python server for Robot Framework
+
 ========================================
 
 `Robot Framework`_ remote servers allow hosting test libraries on different
