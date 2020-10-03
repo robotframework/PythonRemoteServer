@@ -1,3 +1,5 @@
+"Computers are able to See, Hear, and Learn. Welcome To The Future"
+
 Python Remote Server for Robot Framework
 ========================================
 
@@ -5,7 +7,7 @@ Python Remote Server for Robot Framework
 processes or machines than Robot Framework itself is running on. This project
 implements a generic remote server using the Python_ programming language.
 See the `remote library interface documentation`_ for more information about
-the remote interface in general as well as for a list of remote server
+the remote interface in general as well as for a list of the remote server
 implementations in other programming languages.
 
 This project is hosted on GitHub_ and downloads are available on PyPI_.
@@ -35,14 +37,14 @@ Supported library APIs
 ----------------------
 
 Starting from the remote server version 1.1, Robot Framework's `static,
-hybrid and dynamic library APIs`__ are all supported. This includes setting
+hybrid, and dynamic library APIs`__ are all supported. This includes setting
 custom name and tags for keywords using the `robot.api.deco.keyword`__
 decorator, although the support for tags requires using Robot Framework 3.0.2
 or newer. Earlier remote server versions support only the static and hybrid
 APIs and do not support the keyword decorator at all.
 
-For most parts these APIs work exactly like when using with Robot Framework
-normally. There main limitation is that logging using ``robot.api.logger`` or
+For most parts, these APIs work exactly like when using with Robot Framework
+normally. Their main limitation is that logging using ``robot.api.logger`` or
 Python's ``logging`` module `is currently not supported`__.
 
 __ http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#creating-test-libraries
@@ -56,8 +58,7 @@ The easiest installation approach is using `pip`_::
 
     pip install robotremoteserver
 
-Alternatively you can download the source distribution from PyPI_, extract it
-and install the remote server using::
+Alternatively, you can download the source distribution from PyPI_, extract it, and install the remote server using::
 
     python setup.py install
 
@@ -92,11 +93,11 @@ and passing a test library instance or module to it:
 .. sourcecode:: python
 
     from robotremoteserver import RobotRemoteServer
-    from mylibrary import MyLibrary
+    from my library import MyLibrary
 
     RobotRemoteServer(MyLibrary())
 
-By default the server listens to address 127.0.0.1 and port 8270. As `discussed
+By default, the server listens to address 127.0.0.1 and port 8270. As `discussed
 above`__, the remote server accepts various configuration parameters. Some of
 them are used by this example:
 
@@ -105,20 +106,20 @@ __ `Remote server configuration`_
 .. sourcecode:: python
 
     from robotremoteserver import RobotRemoteServer
-    from examplelibrary import ExampleLibrary
+    from example library import ExampleLibrary
 
     RobotRemoteServer(ExampleLibrary(), host='10.0.0.42', port=0,
                       port_file='/tmp/remote-port.txt')
 
 Starting from version 1.1, the server can be initialized without starting it by
-using the argument ``serve=False``. The server can then started afterwards by
-calling its ``serve`` method explicitly. This example is functionally
+using the argument ``serve=False``. The server can then started afterward by
+calling it's ``serve`` method explicitly. This example is functionally
 equivalent to the example above:
 
 .. sourcecode:: python
 
     from robotremoteserver import RobotRemoteServer
-    from examplelibrary import ExampleLibrary
+    from example library import ExampleLibrary
 
     server = RobotRemoteServer(ExampleLibrary(), host='10.0.0.42', port=0,
                                port_file='/tmp/remote-port.txt', serve=False)
@@ -134,14 +135,14 @@ in a thread work exactly like servers running in the main tread except that
 supported automatically. Users must thus register signal handlers separately
 if needed.
 
-Also this following example is functionally nearly equivalent to the earlier
+Also, this following example is functionally nearly equivalent to the earlier
 examples except. The main difference is that not all same signals are handled.
 
 .. sourcecode:: python
 
     import signal
     import threading
-    from examplelibrary import ExampleLibrary
+    from example library import ExampleLibrary
     from robotremoteserver import RobotRemoteServer
 
     server = RobotRemoteServer(ExampleLibrary(), port=0, serve=False)
@@ -157,28 +158,19 @@ Getting active server port
 --------------------------
 
 If the server uses the default port ``8270`` or some other port is given
-explicitly when `configuring the server`__, you obviously know which port
+explicitly when `configuring the server`__, you know which port
 to use when connecting the server. When using the port ``0``, the server
 selects a free port automatically, but there are various ways how to find
 out the actual port:
 
-- Address and port that are used are printed into the console where the server
-  is started.
+- Address and port that are used are printed into the console where the server is started.
 
-- If ``port_file`` argument is used, the server writes the port into the
-  specified file where other tools can easily read it. Starting from the
-  remote server version 1.1, the server removes the port file automatically
-  when the server is stopped.
+- If the ``port_file`` argument is used, the server writes the port into the specified file where other tools can easily read it. Starting from the remote server version 1.1, the server removes the port file automatically when the server is stopped.
 
-- Starting from the version 1.1, the server has ``activate`` method that can
-  be called to activate the server without starting it. This method returns
-  the port that the server binds and also sets it available via the attributes
-  discussed below.
+- Starting from version 1.1, the server has an ``activate`` method that can be called to activate the server without starting it. This method returns the port that the server binds and also sets it available via the attributes discussed below.
 
-- A started or actived server instance has ``server_address`` attribute that
-  contains the address and the port as a tuple. Starting from the version 1.1
-  there is also ``server_port`` attribute that contains just the port as
-  an integer.
+- A started or activated server instance has a ``server_address`` attribute that contains the address and the port as a tuple. Starting from version 1.1
+  there is also the ``server_port`` attribute that contains just the port as an integer.
 
 __ `Remote server configuration`__
 
@@ -194,7 +186,7 @@ The remote server can be gracefully stopped using several different methods:
   work on Windows and not supported if the server is started on a background
   thread.
 
-- Using ``Stop Remote Server`` keyword. Can be disabled by using
+- Using the ``Stop Remote Server`` keyword. Can be disabled by using
   ``allow_remote_stop=False`` when `initializing the server`__.
 
 - Using ``stop_remote_server`` function in the XML-RPC interface.
@@ -216,7 +208,7 @@ __ `Starting server on background`_
 __ `Remote server configuration`_
 __ `Starting server on background`_
 
-Testing is server running
+Testing is the server running
 -------------------------
 
 Starting from the version 1.0.1, the ``robotremoteserver`` module supports
@@ -239,7 +231,7 @@ function ``test_remote_server`` that can be used programmatically:
         print('Remote server running!')
 
 The ``robotremoteserver`` module can be also used to stop a remote server by
-using ``stop`` argument on the command line or by using the
+using the ``stop`` argument on the command line or by using the
 ``stop_remote_server`` function programmatically. Testing and stopping should
 work also with other Robot Framework remote server implementations.
 
@@ -248,13 +240,13 @@ Listing keywords and viewing documentation
 
 Using the built-in Libdoc__ tool you can list the keywords available on the server::
 
-    $ python -m robot.libdoc Remote::http://127.0.0.1:8270 list 
+    $ python -m robot.libido Remote::http://127.0.0.1:8270 list 
     Count Items In Directory
     Stop Remote Server
     Strings Should Be Equal
 
 It is also possible to show the documentation on the command line by using
-argument ``show``. HTML documentation can be created by providing name of
+the argument ``show``. HTML documentation can be created by providing the name of
 an output file::
 
     $ python -m robot.libdoc Remote::http://127.0.0.1:8270 MyLibrary.html
@@ -271,3 +263,5 @@ the project on GitHub_, and it is also included in the source distribution
 available on PyPI_.
 
 __ https://github.com/robotframework/PythonRemoteServer/tree/master/example
+
+Thank You For Visiting! :)
