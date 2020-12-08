@@ -96,7 +96,7 @@ Dictionary with binary keys is not supported
     {u'\\x00': 'value'}
 
 Dictionary with binary values
-    {'0': u'\\x00', '1': b'\\x01'}
+    {'0': u'\\x00', '1': b'\\xff'}
 
 Dictionary with non-string keys and values
     [Documentation]    XML-RPC supports only strings as keys so must convert them

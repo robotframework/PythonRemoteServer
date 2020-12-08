@@ -38,7 +38,7 @@ Multiple messages with different levels
     [Documentation]
     ...    LOG 1:1 INFO Info message
     ...    LOG 1:2 DEBUG Debug message
-    ...    LOG 1:3 INFO Second info\n this time with two lines
+    ...    LOG 1:3 INFO Second info\nthis time with two lines
     ...    LOG 1:4 INFO Third info
     ...    LOG 1:5 WARN Warning
     Multiple Messages With Different Levels

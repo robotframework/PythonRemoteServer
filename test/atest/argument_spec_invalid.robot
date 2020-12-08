@@ -29,15 +29,15 @@ Too few arguments when using varargs
     Required Defaults And Varargs
 
 Using arguments when only kwargs accepted
-    [Documentation]  FAIL Keyword 'Remote.Kwargs' expected 0 non-keyword arguments, got 4.
+    [Documentation]  FAIL Keyword 'Remote.Kwargs' expected 0 non-named arguments, got 4.
     Kwargs    normal    args    are    no-no
 
 Too few arguments when kwargs accepted
-    [Documentation]  FAIL Keyword 'Remote.Args And Kwargs' expected 1 to 2 non-keyword arguments, got 0.
+    [Documentation]  FAIL Keyword 'Remote.Args And Kwargs' expected 1 to 2 non-named arguments, got 0.
     Args and kwargs
 
 Too many arguments when kwargs accepted
-    [Documentation]  FAIL Keyword 'Remote.Args And Kwargs' expected 1 to 2 non-keyword arguments, got 7.
+    [Documentation]  FAIL Keyword 'Remote.Args And Kwargs' expected 1 to 2 non-named arguments, got 7.
     Args and kwargs    we    do    not    accept    this    many    args
 
 Missing argument when using kwargs
