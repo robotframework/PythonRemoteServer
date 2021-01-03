@@ -8,9 +8,10 @@ from robotremoteserver import RobotRemoteServer, RemoteLibraryFactory
 
 class NonServingRemoteServer(RobotRemoteServer):
 
-    def __init__(self, library):
-        self._library = RemoteLibraryFactory(library)
-
+    def __init__(self, libraries):
+        if not isinstance(libraries, list):
+            libraries = [libraries]
+        self._library = [RemoteLibraryFactory(library_) for library_ in libraries]
 
 class StaticLibrary:
     streams = ()
@@ -96,9 +97,8 @@ class TestStaticApi(unittest.TestCase):
 
     def test_get_keyword_names(self):
         self.assertEquals(self.server.get_keyword_names(),
-                          ['failing_keyword', 'logging_keyword',
-                           'passing_keyword', 'returning_keyword',
-                           'stop_remote_server'])
+                          ['stop_remote_server', 'failing_keyword', 'logging_keyword',
+                           'passing_keyword', 'returning_keyword'])
 
     def test_run_passing_keyword(self):
         self.assertEquals(self._run('passing_keyword'), {'status': 'PASS'})

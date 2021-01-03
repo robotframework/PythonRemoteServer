@@ -72,7 +72,7 @@ accepts the following configuration parameters when it is initialized:
     =====================  =================  ========================================
           Argument              Default                    Explanation
     =====================  =================  ========================================
-    ``library``                               Test library instance or module to host. Mandatory argument.
+    ``libraries``                             Test library instance or module or list thereof to host. Mandatory argument.
     ``host``                ``'127.0.0.1'``   Address to listen. Use ``'0.0.0.0'`` to listen to all available interfaces.
     ``port``                ``8270``          Port to listen. Use ``0`` to select a free port automatically. Can be given as an integer or as a string. The default port ``8270`` is `registered by IANA`__ for remote server usage.
     ``port_file``           ``None``          File to write the port that is used. ``None`` (default) means no such file is written.
@@ -123,6 +123,18 @@ equivalent to the example above:
     server = RobotRemoteServer(ExampleLibrary(), host='10.0.0.42', port=0,
                                port_file='/tmp/remote-port.txt', serve=False)
     server.serve()
+
+When there are multiple libraries, they can be hosted using the same remote server.
+Simply pass a list of library instances or modules to it. Keyword names have to be
+unique over the libraries:
+
+.. sourcecode:: python
+
+    from robotremoteserver import RobotRemoteServer
+    from myFirstlibrary import MyFirstLibrary
+    from mySecondlibrary import MySecondLibrary
+
+    RobotRemoteServer([MyFirstLibrary(), MySecondLibrary()])
 
 Starting server on background
 -----------------------------
