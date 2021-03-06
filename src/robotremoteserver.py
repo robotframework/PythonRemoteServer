@@ -182,34 +182,33 @@ class RobotRemoteServer(object):
     def run_keyword(self, name, args, kwargs=None):
         if name == 'stop_remote_server':
             return KeywordRunner(self.stop_remote_server).run_keyword(args, kwargs)
-        library_ = next((l for l in self._library if name in l._names),
+        library_ = next((l for l in self._library if name in l.get_keyword_names()),
                         self._library[0])
         return library_.run_keyword(name, args, kwargs)
 
     def get_keyword_arguments(self, name):
         if name == 'stop_remote_server':
             return []
-        library_ = next((l for l in self._library if name in l._names), #None)
-                        self._library[0])
+        library_ = next((l for l in self._library if name in l.get_keyword_names()), None)
         return library_.get_keyword_arguments(name) if library_ else []
 
     def get_keyword_documentation(self, name):
         if name == 'stop_remote_server':
             return ('Stop the remote server unless stopping is disabled.\n\n'
                     'Return ``True/False`` depending was server stopped or not.')
-        library_ = next((l for l in self._library if name in l._names), None)
+        library_ = next((l for l in self._library if name in l.get_keyword_names()), None)
         return library_.get_keyword_documentation(name) if library_ else ""
 
     def get_keyword_tags(self, name):
         if name == 'stop_remote_server':
             return []
-        library_ = next((l for l in self._library if name in l._names), None)
+        library_ = next((l for l in self._library if name in l.get_keyword_names()), None)
         return library_.get_keyword_tags(name) if library_ else []
 
     def get_keyword_types(self, name):
         if name == 'stop_remote_server':
             return []
-        library_ = next((l for l in self._library if name in l._names), None)
+        library_ = next((l for l in self._library if name in l.get_keyword_names()), None)
         return library_.get_keyword_types(name) if library_ and hasattr(library_, 'get_keyword_types') else []
 
     def get_library_information(self):
@@ -218,7 +217,11 @@ class RobotRemoteServer(object):
             info_dict[kw] = dict(args=self.get_keyword_arguments(kw),
                                  tags=self.get_keyword_tags(kw),
                                  doc=self.get_keyword_documentation(kw),
-                                 types=self.get_keyword_types(kw))
+                                 types=self.get_keyword_types(kw),
+                                 )
+        if len(self._library) == 1:
+            info_dict['__intro__'] = dict(doc=self._library[0].get_keyword_documentation('__intro__'))
+            info_dict['__init__'] = dict(doc=self._library[0].get_keyword_documentation('__init__'))
         return info_dict
 
 class StoppableXMLRPCServer(SimpleXMLRPCServer):
