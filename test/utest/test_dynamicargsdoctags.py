@@ -44,7 +44,7 @@ class NoArgsDocTags(object):
     def get_keyword_names(self):
         return ['keyword']
 
-    def run_keyword(self, name, args, kwargs=None):
+    def run_keyword(self, name, args, *, kwargs=None):
         pass
 
 

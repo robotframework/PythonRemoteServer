@@ -49,11 +49,12 @@ NON_ASCII = re.compile('[\x80-\xff]')
 
 class RobotRemoteServer(object):
 
-    def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
+    def __init__(self, libraries, host='127.0.0.1', port=8270, port_file=None,
                  allow_stop='DEPRECATED', serve=True, allow_remote_stop=True):
         """Configure and start-up remote server.
 
-        :param library:     Test library instance or module to host.
+        :param libraries:   A single, or list of test library instances or
+                            modules to host.
         :param host:        Address to listen. Use ``'0.0.0.0'`` to listen
                             to all available interfaces.
         :param port:        Port to listen. Use ``0`` to select a free port
@@ -71,7 +72,9 @@ class RobotRemoteServer(object):
                             ``Stop Remote Server`` keyword and
                             ``stop_remote_server`` XML-RPC method.
         """
-        self._library = RemoteLibraryFactory(library)
+        if not isinstance(libraries, list):
+            libraries = [libraries]
+        self._library = [RemoteLibraryFactory(library_) for library_ in libraries]
         self._server = StoppableXMLRPCServer(host, int(port))
         self._register_functions(self._server)
         self._port_file = port_file
@@ -85,6 +88,9 @@ class RobotRemoteServer(object):
         server.register_function(self.run_keyword)
         server.register_function(self.get_keyword_arguments)
         server.register_function(self.get_keyword_documentation)
+        server.register_function(self.get_keyword_tags)
+        server.register_function(self.get_keyword_types)
+        server.register_function(self.get_library_information)
         server.register_function(self.stop_remote_server)
 
     @property
@@ -168,29 +174,55 @@ class RobotRemoteServer(object):
         return True
 
     def get_keyword_names(self):
-        return self._library.get_keyword_names() + ['stop_remote_server']
+        keywords = ['stop_remote_server']
+        for l in self._library:
+            keywords += l.get_keyword_names()
+        return keywords
 
     def run_keyword(self, name, args, kwargs=None):
         if name == 'stop_remote_server':
             return KeywordRunner(self.stop_remote_server).run_keyword(args, kwargs)
-        return self._library.run_keyword(name, args, kwargs)
+        library_ = next((l for l in self._library if name in l.get_keyword_names()),
+                        self._library[0])
+        return library_.run_keyword(name, args, kwargs)
 
     def get_keyword_arguments(self, name):
         if name == 'stop_remote_server':
             return []
-        return self._library.get_keyword_arguments(name)
+        library_ = next((l for l in self._library if name in l.get_keyword_names()), None)
+        return library_.get_keyword_arguments(name) if library_ else []
 
     def get_keyword_documentation(self, name):
         if name == 'stop_remote_server':
             return ('Stop the remote server unless stopping is disabled.\n\n'
                     'Return ``True/False`` depending was server stopped or not.')
-        return self._library.get_keyword_documentation(name)
+        library_ = next((l for l in self._library if name in l.get_keyword_names()), None)
+        return library_.get_keyword_documentation(name) if library_ else ""
 
     def get_keyword_tags(self, name):
         if name == 'stop_remote_server':
             return []
-        return self._library.get_keyword_tags(name)
+        library_ = next((l for l in self._library if name in l.get_keyword_names()), None)
+        return library_.get_keyword_tags(name) if library_ else []
 
+    def get_keyword_types(self, name):
+        if name == 'stop_remote_server':
+            return []
+        library_ = next((l for l in self._library if name in l.get_keyword_names()), None)
+        return library_.get_keyword_types(name) if library_ and hasattr(library_, 'get_keyword_types') else []
+
+    def get_library_information(self):
+        info_dict = dict()
+        for kw in self.get_keyword_names():
+            info_dict[kw] = dict(args=self.get_keyword_arguments(kw),
+                                 tags=self.get_keyword_tags(kw),
+                                 doc=self.get_keyword_documentation(kw),
+                                 types=self.get_keyword_types(kw),
+                                 )
+        if len(self._library) == 1:
+            info_dict['__intro__'] = dict(doc=self._library[0].get_keyword_documentation('__intro__'))
+            info_dict['__init__'] = dict(doc=self._library[0].get_keyword_documentation('__init__'))
+        return info_dict
 
 class StoppableXMLRPCServer(SimpleXMLRPCServer):
     allow_reuse_address = True
@@ -308,7 +340,7 @@ class StaticRemoteLibrary(object):
         if __name__ == '__init__':
             return []
         kw = self._get_keyword(name)
-        args, varargs, kwargs, defaults = inspect.getargspec(kw)
+        args, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations = inspect.getfullargspec(kw)
         if inspect.ismethod(kw):
             args = args[1:]  # drop 'self'
         if defaults:
@@ -316,8 +348,10 @@ class StaticRemoteLibrary(object):
             args += ['%s=%s' % (n, d) for n, d in zip(names, defaults)]
         if varargs:
             args.append('*%s' % varargs)
-        if kwargs:
-            args.append('**%s' % kwargs)
+        if kwonlyargs:
+           args += ['%s=%s' % (a, kwonlydefaults[a]) if a in kwonlydefaults else a for a in kwonlyargs]
+        if varkw:
+            args.append('**%s' % varkw)
         return args
 
     def get_keyword_documentation(self, name):
@@ -371,8 +405,8 @@ class DynamicRemoteLibrary(HybridRemoteLibrary):
             = dynamic_method(library, 'get_keyword_tags')
 
     def _get_kwargs_support(self, run_keyword):
-        spec = inspect.getargspec(run_keyword)
-        return len(spec.args) > 3    # self, name, args, kwargs=None
+        spec = inspect.getfullargspec(run_keyword)
+        return spec.varkw or spec.kwonlyargs
 
     def run_keyword(self, name, args, kwargs=None):
         args = [name, args, kwargs] if kwargs else [name, args]
