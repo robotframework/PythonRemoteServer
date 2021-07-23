@@ -433,14 +433,28 @@ class KeywordRunner(object):
         return arg
 
 
+class StreamDuplicator(StringIO):
+    """
+    Duplicate stream to stream given as parameter and internal StringIO.
+    """
+
+    def __init__(self, stream):
+        self.other_stream = stream
+        super(StreamDuplicator, self).__init__()
+
+    def write(self, s):
+        self.other_stream.write(s)
+        return super(StreamDuplicator, self).write(s)
+
+
 class StandardStreamInterceptor(object):
 
     def __init__(self):
         self.output = ''
         self.origout = sys.stdout
         self.origerr = sys.stderr
-        sys.stdout = StringIO()
-        sys.stderr = StringIO()
+        sys.stdout = StreamDuplicator(self.origout)
+        sys.stderr = StreamDuplicator(self.origerr)
 
     def __enter__(self):
         return self

@@ -64,7 +64,8 @@ class TestServeAndStop(unittest.TestCase):
         sys.stdout = StringIO()
         try:
             self.assertEqual(Remote(uri).run_keyword('kw', (), None), 42)
-            self.assertEqual(sys.stdout.getvalue(), 'The message!\n')
+            # Duplication of 'The message!\n' is expected as test and RobotRemoteServer run in same process.
+            self.assertEqual(sys.stdout.getvalue(), 'The message!\nThe message!\n')
         finally:
             sys.stdout.close()
             sys.stdout = origout
