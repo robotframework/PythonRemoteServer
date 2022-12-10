@@ -1,8 +1,10 @@
 MANIFEST
 .idea
+.vscode
 *.pyc
 build
 test/results
 example/log.html
 example/report.html
 example/output.xml
+venv*
