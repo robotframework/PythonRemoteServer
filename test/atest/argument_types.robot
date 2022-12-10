@@ -57,7 +57,7 @@ List-like
     ()    []
     ('Hei', u'\\xe4iti', 63, (), None)    ['Hei', u'\\xe4iti', 63, [], '']
     set(['hello'])    ['hello']
-    xrange(5)    [0, 1, 2, 3, 4]
+    range(5)    [0, 1, 2, 3, 4]
 
 Dictionary
     {}

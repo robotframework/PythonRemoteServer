@@ -32,9 +32,10 @@ Use multiple times
     ...    LOG 1.1.2 Round 1
     ...    LOG 1.2.2 Round 2
     ...    LOG 1.${COUNT}.2 Round ${COUNT}
-    : FOR    ${i}    IN RANGE    ${COUNT}
-    \    Passing
-    \    Logging    Round ${i + 1}
+    FOR    ${i}    IN RANGE    ${COUNT}
+        Passing
+        Logging    Round ${i + 1}
+    END
 
 Private methods should ne ignored
     [Documentation]    FAIL No keyword with name 'Private Method' found.
