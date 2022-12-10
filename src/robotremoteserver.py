@@ -30,7 +30,10 @@ if sys.version_info < (3,):
     from xmlrpclib import Binary, ServerProxy
     from collections import Mapping
     PY2, PY3 = True, False
+    def getfullargspec(func):
+        return inspect.getargspec(func) + ([], None, {})
 else:
+    from inspect import getfullargspec
     from io import StringIO
     from xmlrpc.client import Binary, ServerProxy
     from xmlrpc.server import SimpleXMLRPCServer
@@ -308,7 +311,7 @@ class StaticRemoteLibrary(object):
         if __name__ == '__init__':
             return []
         kw = self._get_keyword(name)
-        args, varargs, kwargs, defaults = inspect.getargspec(kw)
+        args, varargs, kwargs, defaults, _, _, _ = getfullargspec(kw)
         if inspect.ismethod(kw):
             args = args[1:]  # drop 'self'
         if defaults:
@@ -371,8 +374,8 @@ class DynamicRemoteLibrary(HybridRemoteLibrary):
             = dynamic_method(library, 'get_keyword_tags')
 
     def _get_kwargs_support(self, run_keyword):
-        spec = inspect.getargspec(run_keyword)
-        return len(spec.args) > 3    # self, name, args, kwargs=None
+        args = getfullargspec(run_keyword)[0]
+        return len(args) > 3    # self, name, args, kwargs=None
 
     def run_keyword(self, name, args, kwargs=None):
         args = [name, args, kwargs] if kwargs else [name, args]
