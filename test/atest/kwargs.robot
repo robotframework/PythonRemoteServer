@@ -61,4 +61,9 @@ Non-string kwargs
 Binary kwargs
     ${tuple} =    Evaluate    ('\x02',)
     ${result} =    Kwargs    a=\x00    b=\x01    c=${tuple}
-    Should be equal    ${result}    a:\x00, b:\x01, c:[b'\\x02'] (list)
+    Log    ${result}    formatter=repr
+    IF    ${PY2}
+        Should be equal    ${result}    ${{b"a:\x00, b:\x01, c:['\\x02'] (list)"}}
+    ELSE
+        Should be equal    ${result}    ${{b"a:\x00, b:\x01, c:[b'\\x02'] (list)"}}
+    END

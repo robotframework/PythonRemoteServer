@@ -23,7 +23,7 @@ Non-ASCII Bytes
 
 Binary
     b'\\x00\\x01\\x02'
-    u'\\x00\\x01\\x02'
+    u'\\x00\\x01\\x02'    b'\\x00\\x01\\x02'
     b'\\x00\\xe4\\xff'
 
 Unrepresentable binary
@@ -58,18 +58,21 @@ Custom object with non-ASCII representation
     MyObject(u'hyv\\xe4')    u'hyv\\xe4'
 
 Custom object with binary representation
-    MyObject('\\x00\\x01')    '\\x00\\x01'
+    MyObject('\\x00\\x01')    b'\\x00\\x01'
 
 List
     \[]
-    \['Hei', u'\\xe4iti', 63, True, '\\x00']
+    \['Hei', 'äiti', 63, True]
     \[None, MyObject('xxx'), MyObject(u'\\xe4')]    ['', 'xxx', u'\\xe4']
     \[[0, [[]]], [1, 2], [[True], False], 'xxx']
+
+List with binary values
+    \[u'\x01', b'\x01', b'']    [b'\x01', b'\x01', b'']
 
 List-like
     [Documentation]    Tuples etc. are converted to lists
     ()    []
-    ('Hei', u'\\xe4iti', 63, (), None)    ['Hei', u'\\xe4iti', 63, [], '']
+    ('Hei', 'äiti', 63, (), None)    ['Hei', 'äiti', 63, [], '']
     set(['hello'])    ['hello']
     (i for i in range(5))    [0, 1, 2, 3, 4]
 
@@ -83,7 +86,7 @@ Dictionary with non-ASCII keys and values
     {u'\\xe4': u'\\xe4', u'\\u2603': u'\\u2603'}
 
 Dictionary with non-ASCII byte keys is not supported
-    [Documentation]  FAIL GLOB: TypeError: *unhashable*
+    [Documentation]    FAIL GLOB: TypeError: *unhashable*
     [Template]    Return Evaluated
     {b'\\xe4': 'value'}
 
@@ -91,12 +94,12 @@ Dictionary with non-ASCII byte values
     {'key': b'\\xe4'}
 
 Dictionary with binary keys is not supported
-    [Documentation]  FAIL GLOB: TypeError: *unhashable*
+    [Documentation]    FAIL GLOB: TypeError: *unhashable*
     [Template]    Return Evaluated
     {u'\\x00': 'value'}
 
 Dictionary with binary values
-    {'0': u'\\x00', '1': b'\\xff'}
+    {'0': u'\\x00', '1': b'\\xff'}    {'0': b'\\x00', '1': b'\\xff'}
 
 Dictionary with non-string keys and values
     [Documentation]    XML-RPC supports only strings as keys so must convert them

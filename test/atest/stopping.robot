@@ -8,11 +8,11 @@ Stop Remote Server
     Stop Remote Server
 
 Stop Remote Server Disabled
-    [Documentation]    FAIL Not stopped!
-    ...    LOG 2 WARN GLOB: Robot Framework remote server at 127.0.0.1:* does not allow stopping.
+    [Documentation]    LOG 1 WARN GLOB:
+    ...    Robot Framework remote server at 127.0.0.1:* does not allow stopping.
     [Setup]    Start Server    no_stop
     Stop Remote Server Disabled.Stop Remote Server
-    Fail    Not stopped!
+    Server Should Be Started
     [Teardown]    Terminate Process
 
 SIGINT
