@@ -1,29 +1,30 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Script for running the remote server tests using different interpreters.
 
-Usage: run.py interpreter [arguments]
+Usage: run.py [interpreter] [arguments]
 
-`interpreter` is the only required argument and specifies Python interpreter
-to run the remote server with. The interpreter must be found from PATH or
-given as an absolute path.
+`interpreter` is name or path of the Python interpreter to run the remote
+server with. The interpreter must be found from PATH or given as an absolute
+path. If not given, `python` will be used by default.
 
 `arguments` are normal Robot Framework options and arguments. Test case files
-are under `atest` directory.
+are under the `atest` directory.
 
-If only the interpreter are given, all acceptance tests under `atest` directory
+If no arguments are given, all acceptance tests under the `atest` directory
 as well as unit tests under `utest` are executed. Unit tests are run first
-and acceptance tests skipped if they fail. To run only unit tests, use
-`utest/run.py` instead.
+and acceptance tests skipped if they fail.
+
+If arguments are given, unit tests are not run. To run only unit tests, use
+`test/utest/run.py` instead.
+
+This script must be run using Python 3.
 
 Examples:
-
-  run.py python                      # All unit and acceptance tests with Python
+  run.py                             # All unit and acceptance tests with Python
   run.py "py -3" atest/kwargs.robot  # One suite with Python 3 on Windows
   run.py ipy --test NoMessage atest  # Specific test using IronPython
 """
-
-from __future__ import print_function
 
 from os.path import abspath, dirname, exists, join
 import os
@@ -36,13 +37,16 @@ import robot
 import robotstatuschecker
 
 
-if len(sys.argv) == 1 or '-h' in sys.argv or '--help' in sys.argv:
+if '-h' in sys.argv or '--help' in sys.argv:
     sys.exit(__doc__)
 
 curdir = dirname(abspath(__file__))
 results = join(curdir, 'results')
 output = join(results, 'output.xml')
-interpreter = sys.argv[1]
+interpreter = sys.argv[1] if len(sys.argv) > 1 else 'python'
+version = subprocess.check_output([interpreter, '-V'], encoding='UTF-8',
+                                  stderr=subprocess.STDOUT)
+py2 = version.split()[1][:3] == '2.7'
 arguments = sys.argv[2:]
 
 if exists(results):
@@ -50,12 +54,13 @@ if exists(results):
 os.mkdir(results)
 
 if not arguments:
-    print('Running unit tests with "%s".' % interpreter)
+    print(f'Running unit tests with "{interpreter}".')
     command = shlex.split(interpreter) + [join(curdir, 'utest', 'run.py')]
     rc = subprocess.call(command)
     print()
     if rc != 0:
-        print('%d unit test%s failed.' % (rc, 's' if rc != 1 else ''))
+        tests = 'tests' if rc != 1 else 'test'
+        print(f'{rc} unit {tests} failed.')
         sys.exit(rc)
     arguments = [join(curdir, 'atest')]
 
@@ -66,12 +71,13 @@ if 'ipy' in interpreter:
     excludes.extend(['--exclude', 'no-ipy'])
 command = [
     'python', '-m', 'robot.run',
-    '--variable', 'INTERPRETER:%s' % interpreter,
-    '--doc', 'Remote server tests on "%s"' % interpreter,
-    '--metadata', 'Server_Interpreter:%s' % interpreter,
+    '--variable', f'INTERPRETER:{interpreter}',
+    '--variable', f'PY2:{py2}',
+    '--doc', f"Remote server tests using '{interpreter}'.",
+    '--metadata', f'Interpreter Version:{version}',
     '--output', output, '--log', 'NONE', '--report', 'NONE'
 ] + excludes + arguments
-print('Running acceptance tests with command:\n%s' % ' '.join(command))
+print('Running acceptance tests with command:\n' + ' '.join(command))
 rc = subprocess.call(command)
 print()
 if rc > 250:
@@ -80,10 +86,11 @@ if rc > 250:
 
 print('Verifying results.')
 robotstatuschecker.process_output(output)
-rc = robot.rebot(output, outputdir=results, noncritical='skip')
+rc = robot.rebot(output, outputdir=results)
 print()
 if rc == 0:
     print('All tests passed.')
 else:
-    print('%d acceptance test%s failed.' % (rc, 's' if rc != 1 else ''))
+    tests = 'tests' if rc != 1 else 'test'
+    print(f'{rc} acceptance {tests} failed.')
 sys.exit(rc)
