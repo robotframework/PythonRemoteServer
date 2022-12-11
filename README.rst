@@ -41,7 +41,7 @@ Earlier remote server versions support only the static and hybrid
 APIs and do not support the keyword decorator at all.
 
 For most parts these APIs work exactly like when using with Robot Framework
-normally. There main limitation is that logging using ``robot.api.logger`` or
+normally. The main limitation is that logging using ``robot.api.logger`` or
 Python's ``logging`` module `is currently not supported`__.
 
 __ http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#creating-test-libraries
@@ -193,10 +193,10 @@ The remote server can be gracefully stopped using several different methods:
   work on Windows and not supported if the server is started on a background
   thread.
 
-- Using ``Stop Remote Server`` keyword. Can be disabled by using
+- Using the``Stop Remote Server`` keyword. Can be disabled by using
   ``allow_remote_stop=False`` when `initializing the server`__.
 
-- Using ``stop_remote_server`` function in the XML-RPC interface.
+- Using the ``stop_remote_server`` function in the XML-RPC interface.
   Can be disabled with the ``allow_remote_stop=False`` initialization parameter.
 
 - Running ``python -m robotremoteserver stop [uri]`` which uses the
