@@ -22,9 +22,9 @@ Supported Python versions
 -------------------------
 
 This remote server is implemented with Python_ and supports also Jython_ (JVM),
-IronPython_ (.NET) and PyPy_. Remote server version 1.1 and newer support
-Python 2.6, 2.7, 3.3, and newer. Remote server 1.0 series supports Python
-versions 2.2-2.7.
+IronPython_ (.NET) and PyPy_. Remote server version 1.1 supports Python 2.6,
+2.7 and 3.3-3.9. Remote server version 1.1.1 supports Python 3.10 and 3.11
+as well.
 
 .. _Python: http://python.org
 .. _Jython: http://jython.org
@@ -36,9 +36,8 @@ Supported library APIs
 
 Starting from the remote server version 1.1, Robot Framework's `static,
 hybrid and dynamic library APIs`__ are all supported. This includes setting
-custom name and tags for keywords using the `robot.api.deco.keyword`__
-decorator, although the support for tags requires using Robot Framework 3.0.2
-or newer. Earlier remote server versions support only the static and hybrid
+custom name and tags for keywords using the `robot.api.deco.keyword`__.
+Earlier remote server versions support only the static and hybrid
 APIs and do not support the keyword decorator at all.
 
 For most parts these APIs work exactly like when using with Robot Framework
@@ -73,7 +72,7 @@ accepts the following configuration parameters when it is initialized:
           Argument              Default                    Explanation
     =====================  =================  ========================================
     ``library``                               Test library instance or module to host. Mandatory argument.
-    ``host``                ``'127.0.0.1'``   Address to listen. Use ``'0.0.0.0'`` to listen to all available interfaces.
+    ``host``                ``'127.0.0.1'``   Address to listen. Use ``'0.0.0.0'`` to listen to all available IPv4 interfaces.
     ``port``                ``8270``          Port to listen. Use ``0`` to select a free port automatically. Can be given as an integer or as a string. The default port ``8270`` is `registered by IANA`__ for remote server usage.
     ``port_file``           ``None``          File to write the port that is used. ``None`` (default) means no such file is written.
     ``allow_stop``          ``'DEPRECATED'``  Deprecated since version 1.1. Use ``allow_remote_stop`` instead.
@@ -248,7 +247,7 @@ Listing keywords and viewing documentation
 
 Using the built-in Libdoc__ tool you can list the keywords available on the server::
 
-    $ python -m robot.libdoc Remote::http://127.0.0.1:8270 list 
+    $ python -m robot.libdoc Remote::http://127.0.0.1:8270 list
     Count Items In Directory
     Stop Remote Server
     Strings Should Be Equal
@@ -259,9 +258,9 @@ an output file::
 
     $ python -m robot.libdoc Remote::http://127.0.0.1:8270 MyLibrary.html
     /path/to/MyLibrary.html
-    
+
 __ http://robotframework.org/robotframework/#built-in-tools
-    
+
 Example
 -------
 
