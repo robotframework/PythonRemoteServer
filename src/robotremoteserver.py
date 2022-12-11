@@ -24,6 +24,12 @@ import sys
 import threading
 import traceback
 
+import socketserver
+import socket
+
+socketserver.TCPServer.address_family = socket.AF_INET6
+    
+
 if sys.version_info < (3,):
     from SimpleXMLRPCServer import SimpleXMLRPCServer
     from StringIO import StringIO
@@ -52,13 +58,14 @@ NON_ASCII = re.compile('[\x80-\xff]')
 
 class RobotRemoteServer(object):
 
-    def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
+    def __init__(self, library, host='::1', port=8270, port_file=None,
                  allow_stop='DEPRECATED', serve=True, allow_remote_stop=True):
         """Configure and start-up remote server.
 
         :param library:     Test library instance or module to host.
         :param host:        Address to listen. Use ``'0.0.0.0'`` to listen
-                            to all available interfaces.
+                            to all available interfaces that have an IPv4
+                            address.
         :param port:        Port to listen. Use ``0`` to select a free port
                             automatically. Can be given as an integer or as
                             a string.
@@ -152,7 +159,7 @@ class RobotRemoteServer(object):
 
     def _log(self, action, log=True, warn=False):
         if log:
-            address = '%s:%s' % self.server_address
+            address = '%s:%s' % self.server_address [:2]
             if warn:
                 print('*WARN*', end=' ')
             print('Robot Framework remote server at %s %s.' % (address, action))

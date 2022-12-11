@@ -73,7 +73,7 @@ accepts the following configuration parameters when it is initialized:
           Argument              Default                    Explanation
     =====================  =================  ========================================
     ``library``                               Test library instance or module to host. Mandatory argument.
-    ``host``                ``'127.0.0.1'``   Address to listen. Use ``'0.0.0.0'`` to listen to all available interfaces.
+    ``host``                ``'127.0.0.1'``   Address to listen. Use ``'0.0.0.0'`` to listen to all available IPv4 addresses.
     ``port``                ``8270``          Port to listen. Use ``0`` to select a free port automatically. Can be given as an integer or as a string. The default port ``8270`` is `registered by IANA`__ for remote server usage.
     ``port_file``           ``None``          File to write the port that is used. ``None`` (default) means no such file is written.
     ``allow_stop``          ``'DEPRECATED'``  Deprecated since version 1.1. Use ``allow_remote_stop`` instead.
@@ -242,6 +242,29 @@ The ``robotremoteserver`` module can be also used to stop a remote server by
 using ``stop`` argument on the command line or by using the
 ``stop_remote_server`` function programmatically. Testing and stopping should
 work also with other Robot Framework remote server implementations.
+
+Simple IPv6 Support
+-------------------
+
+RobotRemoteServer instances can bind to IPv6 addresses as well as IPv4 addresses;
+both specific addresses and the 'any available address' equivalent to IPv4's
+'0.0.0.0': '::'.
+
+To use IPv6 addresses, it is necessary to set the class variable `TCPServer.address_family`
+*before* the `import` of `RobotRemoteServer`, as shown in the example below.
+
+.. sourcecode:: python
+
+    import socketserver
+    import socket
+    
+    socketserver.TCPServer.address_family = socket.AF_INET6
+    
+    from robotremoteserver import RobotRemoteServer
+    from mylibrary import MyLibrary
+    
+    RobotRemoteServer (MyLibrary (), host = "::")
+
 
 Listing keywords and viewing documentation
 ------------------------------------------
