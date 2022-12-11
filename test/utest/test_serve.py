@@ -17,6 +17,7 @@ class Library(object):
         return 42
 
 
+@unittest.skipIf(sys.platform == 'cli', 'Tests hang on IronPython')
 class TestServeAndStop(unittest.TestCase):
 
     def setUp(self):

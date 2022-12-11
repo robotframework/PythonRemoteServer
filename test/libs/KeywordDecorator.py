@@ -7,7 +7,7 @@ class KeywordDecorator(object):
     def _this_name_doesnt_matter(self, arg):
         assert arg == 'arg'
 
-    @keyword('Result of ${expression} should be ${result:\d+}')
+    @keyword(r'Result of ${expression} should be ${result:\d+}')
     def calculate(self, expression, expected):
         assert eval(expression) == int(expected)
 

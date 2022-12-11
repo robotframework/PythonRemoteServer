@@ -43,9 +43,9 @@ if '-h' in sys.argv or '--help' in sys.argv:
 curdir = dirname(abspath(__file__))
 results = join(curdir, 'results')
 output = join(results, 'output.xml')
-interpreter = sys.argv[1] if len(sys.argv) > 1 else 'python'
-version = subprocess.check_output([interpreter, '-V'], encoding='UTF-8',
-                                  stderr=subprocess.STDOUT)
+interpreter = shlex.split(sys.argv[1] if len(sys.argv) > 1 else 'python')
+version = subprocess.check_output(interpreter + ['-V'], encoding='UTF-8',
+                                  stderr=subprocess.STDOUT).strip()
 py2 = version.split()[1][:3] == '2.7'
 arguments = sys.argv[2:]
 
@@ -53,9 +53,11 @@ if exists(results):
     shutil.rmtree(results)
 os.mkdir(results)
 
+print(f'Running tests on {version}.\n')
+
 if not arguments:
-    print(f'Running unit tests with "{interpreter}".')
-    command = shlex.split(interpreter) + [join(curdir, 'utest', 'run.py')]
+    command = interpreter + [join(curdir, 'utest', 'run.py')]
+    print('Running unit tests:\n' + ' '.join(command))
     rc = subprocess.call(command)
     print()
     if rc != 0:
@@ -67,17 +69,16 @@ if not arguments:
 excludes = []
 if os.sep == '\\':
     excludes.extend(['--exclude', 'no-windows'])
-if 'ipy' in interpreter:
+if 'ipy' in interpreter[0]:
     excludes.extend(['--exclude', 'no-ipy'])
 command = [
     'python', '-m', 'robot.run',
-    '--variable', f'INTERPRETER:{interpreter}',
+    '--variable', f'INTERPRETER:{subprocess.list2cmdline(interpreter)}',
     '--variable', f'PY2:{py2}',
-    '--doc', f"Remote server tests using '{interpreter}'.",
-    '--metadata', f'Interpreter Version:{version}',
+    '--metadata', f'Interpreter:{version}',
     '--output', output, '--log', 'NONE', '--report', 'NONE'
 ] + excludes + arguments
-print('Running acceptance tests with command:\n' + ' '.join(command))
+print('Running acceptance tests:\n' + ' '.join(command))
 rc = subprocess.call(command)
 print()
 if rc > 250:

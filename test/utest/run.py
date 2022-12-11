@@ -13,7 +13,7 @@ sys.path.insert(0, join(curdir, '..', 'libs'))
 test_files = [f[:-3] for f in os.listdir(curdir)
               if f.startswith('test_') and f.endswith('.py')]
 suite = unittest.defaultTestLoader.loadTestsFromNames(test_files)
-runner = unittest.TextTestRunner()
+runner = unittest.TextTestRunner(verbosity=2)
 result = runner.run(suite)
 rc = len(result.failures) + len(result.errors)
 sys.exit(rc)
