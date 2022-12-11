@@ -2,9 +2,11 @@ MANIFEST
 .idea
 .vscode
 *.pyc
+*$py.class
 build
 test/results
 example/log.html
 example/report.html
 example/output.xml
 venv*
+.jython_cache
