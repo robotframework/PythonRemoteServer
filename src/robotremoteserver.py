@@ -52,11 +52,12 @@ NON_ASCII = re.compile('[\x80-\xff]')
 
 class RobotRemoteServer(object):
 
-    def __init__(self, library, host='127.0.0.1', port=8270, port_file=None,
+    def __init__(self, libraries, host='127.0.0.1', port=8270, port_file=None,
                  allow_stop='DEPRECATED', serve=True, allow_remote_stop=True):
         """Configure and start-up remote server.
 
-        :param library:     Test library instance or module to host.
+        :param libraries:     Test library instance or module to host, can be a
+                            list of modules to host.
         :param host:        Address to listen. Use ``'0.0.0.0'`` to listen
                             to all available interfaces.
         :param port:        Port to listen. Use ``0`` to select a free port
@@ -74,8 +75,11 @@ class RobotRemoteServer(object):
                             ``Stop Remote Server`` keyword and
                             ``stop_remote_server`` XML-RPC method.
         """
-        self._library = [RemoteLibraryFactory(library_) 
-                         for library_ in library]
+        if isinstance(libraries, list):
+            self._libraries = [RemoteLibraryFactory(library_) 
+                         for library_ in libraries]
+        else:
+            self._libraries = [RemoteLibraryFactory(libraries)]
         self._server = StoppableXMLRPCServer(host, int(port))
         self._register_functions(self._server)
         self._port_file = port_file
@@ -173,33 +177,33 @@ class RobotRemoteServer(object):
 
     def get_keyword_names(self):
         keywords = ['stop_remote_server']
-        for l in self._library:
+        for l in self._libraries:
             keywords += l.get_keyword_names()
         return keywords
 
     def run_keyword(self, name, args, kwargs=None):
         if name == 'stop_remote_server':
             return KeywordRunner(self.stop_remote_server).run_keyword(args, kwargs)
-        library_ = next(l for l in self._library if name in l._names)
+        library_ = next(l for l in self._libraries if name in l._names)
         return library_.run_keyword(name, args, kwargs)
 
     def get_keyword_arguments(self, name):
         if name == 'stop_remote_server':
             return []
-        library_ = next(l for l in self._library if name in l._names)
+        library_ = next(l for l in self._libraries if name in l._names)
         return library_.get_keyword_arguments(name)
 
     def get_keyword_documentation(self, name):
         if name == 'stop_remote_server':
             return ('Stop the remote server unless stopping is disabled.\n\n'
                     'Return ``True/False`` depending was server stopped or not.')
-        library_ = next(l for l in self._library if name in l._names)
+        library_ = next(l for l in self._libraries if name in l._names)
         return library_.get_keyword_documentation(name)
 
     def get_keyword_tags(self, name):
         if name == 'stop_remote_server':
             return []
-        library_ = next(l for l in self._library if name in l._names)
+        library_ = next(l for l in self._libraries if name in l._names)
         return library_.get_keyword_tags(name)
 
 
@@ -288,7 +292,7 @@ def is_function_or_method(item):
 class StaticRemoteLibrary(object):
 
     def __init__(self, library):
-        self._library = library
+        self._libraries = library
         self._names, self._robot_name_index = self._get_keyword_names(library)
 
     def _get_keyword_names(self, library):
@@ -313,7 +317,7 @@ class StaticRemoteLibrary(object):
     def _get_keyword(self, name):
         if name in self._robot_name_index:
             name = self._robot_name_index[name]
-        return getattr(self._library, name)
+        return getattr(self._libraries, name)
 
     def get_keyword_arguments(self, name):
         if __name__ == '__init__':
@@ -333,9 +337,9 @@ class StaticRemoteLibrary(object):
 
     def get_keyword_documentation(self, name):
         if name == '__intro__':
-            source = self._library
+            source = self._libraries
         elif name == '__init__':
-            source = self._get_init(self._library)
+            source = self._get_init(self._libraries)
         else:
             source = self._get_keyword(name)
         return inspect.getdoc(source) or ''
