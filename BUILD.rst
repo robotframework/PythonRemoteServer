@@ -129,8 +129,8 @@ Release notes
 
 4. Add, commit and push::
 
-      git add doc/robotremoteserver-$VERSION.rst
-      git commit -m "Release notes for $VERSION" doc/robotremoteserver-$VERSION.rst
+      git add docs/robotremoteserver-$VERSION.rst
+      git commit -m "Release notes for $VERSION" docs/robotremoteserver-$VERSION.rst
       git push
 
 5. Update later if necessary. Writing release notes is typically the biggest
