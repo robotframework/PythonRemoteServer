@@ -261,6 +261,25 @@ an output file::
 
 __ http://robotframework.org/robotframework/#built-in-tools
 
+Serving Multiple Libraries With One Server
+-------
+
+In many cases it maybe be desirable to serve multiple libraries from a single
+remote server. The libraries argument not only accepts a single class type, but
+also can accept a list of classes from which to serve keywords. For example:
+
+.. sourcecode:: python
+  class KeywordLib1:
+    def Keyword1(self):
+      ...
+
+  class KeywordLib2:
+    def Keyword2(self):
+      ...
+
+  if __name__ == "__main__":
+    RobotRemoteServer([KeywordLib1(), KeywordLib2()])
+
 Example
 -------
 
