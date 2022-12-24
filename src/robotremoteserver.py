@@ -78,6 +78,7 @@ class RobotRemoteServer(object):
         self._server = StoppableXMLRPCServer(host, int(port))
         self._register_functions(self._server)
         self._port_file = port_file
+        self._shutdown_callbacks = []
         self._allow_remote_stop = allow_remote_stop \
                 if allow_stop == 'DEPRECATED' else allow_stop
         if serve:
@@ -157,8 +158,28 @@ class RobotRemoteServer(object):
                 print('*WARN*', end=' ')
             print('Robot Framework remote server at %s %s.' % (address, action))
 
+    def add_shutdown_callback(self, shutdown_callable):
+        """ Adds each callabel to the list of functions to be called at shutdown
+
+        :param shutdown_callable: A callabe function to call at shutdown
+
+        A callable shutdown function without arguments may be added to the
+        RobotRemoteServer object.  When the server is asked to shutdown it will
+        try to call each of the shutdown functions, passing if any error occurs.
+        """
+
+        if callable(shutdown_callable):
+            self._shutdown_callbacks.append(shutdown_callable)
+        else:
+            raise TypeError("Argument must be callable")
+
     def stop(self):
         """Stop server."""
+        for callback in self._shutdown_callbacks:
+            try:
+                callback()
+            except:
+                pass
         self._server.stop()
 
     # Exposed XML-RPC methods. Should they be moved to own class?
