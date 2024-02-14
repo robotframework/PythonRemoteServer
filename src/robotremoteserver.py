@@ -41,6 +41,10 @@ else:
     PY2, PY3 = False, True
     unicode = str
     long = int
+    try:
+        from typing import get_type_hints
+    except ImportError:
+        get_type_hints = lambda func: func.__annotations__
 
 
 __all__ = ['RobotRemoteServer', 'stop_remote_server', 'test_remote_server']
@@ -87,6 +91,7 @@ class RobotRemoteServer(object):
         server.register_function(self.get_keyword_names)
         server.register_function(self.run_keyword)
         server.register_function(self.get_keyword_arguments)
+        server.register_function(self.get_keyword_types)
         server.register_function(self.get_keyword_documentation)
         server.register_function(self.stop_remote_server)
 
@@ -182,6 +187,11 @@ class RobotRemoteServer(object):
         if name == 'stop_remote_server':
             return []
         return self._library.get_keyword_arguments(name)
+    
+    def get_keyword_types(self, name):
+        if name == 'stop_remote_server':
+            return {}
+        return self._library.get_keyword_types(name)
 
     def get_keyword_documentation(self, name):
         if name == 'stop_remote_server':
@@ -322,6 +332,24 @@ class StaticRemoteLibrary(object):
         if kwargs:
             args.append('**%s' % kwargs)
         return args
+    
+    def get_keyword_types(self, name):
+        if __name__ == "__init__":
+            return {}
+        kw = self._get_keyword(name)
+        if getattr(kw, "robot_types", None):
+            robot_types = kw.robot_types
+        elif sys.version_info < (3,):
+            robot_types = {}
+        else:
+            robot_types = get_type_hints(kw)
+
+        for arg_name, arg_type in robot_types.items():
+            if hasattr(arg_type, '__args__'):
+                del robot_types[arg_name]
+            else:
+                robot_types[arg_name] = arg_type.__name__
+        return robot_types
 
     def get_keyword_documentation(self, name):
         if name == '__intro__':
